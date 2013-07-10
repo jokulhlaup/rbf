@@ -1,8 +1,15 @@
 module jefferys
-export solveJefferys,rk4
+using ODE
+export solveJefferys,rk4,nRK4
 #Modification of ODE4 from package ODE
 
-
+function nRK4(f,ntimes,h,m,theta)
+  for i=1:ntimes
+     #(tout,theta[:,i])=ode45(f,1,theta[:,i])
+     theta[:,i]=jefferys.rk4(f,h,m,theta[:,i])
+     end
+     return theta
+  end
 
 function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
    for i=1:n
