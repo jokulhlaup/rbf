@@ -1,8 +1,11 @@
 module jefferys
 using ODE
 export solveJefferys,rk4,nRK4
-#Modification of ODE4 from package ODE
 
+ 
+
+
+#Modification of ODE4 from package ODE
 function nRK4(f,ntimes,h,m,theta)
   for i=1:ntimes
      #(tout,theta[:,i])=ode45(f,1,theta[:,i])
@@ -38,7 +41,23 @@ function solveJefferys{T}(vort::Array{Float64,2},epsdot::Array{Float64,2},theta:
 end
 
 
-<<<<<<< HEAD
+##########################
+##########Get viscosity###
+##########################
+type FabricPt
+  theta::Array{Float64,2} #[2,:] (theta,phi) angles
+  coors::Array{Float64,1} #coors in space
+  n::Int64 #number of xtals at site
+  rotM::Array{Float64,3} #[3,3,:] rotation matrices
+  end
+
+type GlobalPars
+  dt::Float64 #timestep between velocity timesteps
+  nrk::Int64 #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
+  hrk::Float64 #better be dt/nrk
+  f::Function
+  end
+  
 function rotC(C,R)
   # form the K matrix (based on Bowers 'Applied Mechanics of Solids', Chapter 3)
   K1 = [ R[1,1]^2 R[1,2]^2 R[1,3]^2 ; 
@@ -47,23 +66,37 @@ function rotC(C,R)
   K2 = [ R[1,2]*R[1,3] R[1,3]*R[1,1] R[1,1]*R[1,2] ; 
          R[2,2]*R[2,3] R[2,3]*R[2,1] R[2,1]*R[2,2] ;
          R[3,2]*R[3,3] R[3,3]*R[3,1] R[3,1]*R[3,2] ] ;
-  
   K3 = [ R[2,1]*R[3,1] R[2,2]*R[3,2] R[2,3]*R[3,3] ; 
          R[3,1]*R[1,1] R[3,2]*R[1,2] R[3,3]*R[1,3] ; 
          R[1,1]*R[2,1] R[1,2]*R[2,2] R[1,3]*R[2,3] ] ;
-  
   K4 = [ R[2,2]*R[3,3]+R[2,3]*R[3,2] R[2,3]*R[3,1]+R[2,1]*R[3,3] R[2,1]*R[3,2]+R[2,2]*R[3,1] ; 
          R[3,2]*R[1,3]+R[3,3]*R[1,2] R[3,3]*R[1,1]+R[3,1]*R[1,3] R[3,1]*R[1,2]+R[3,2]*R[1,1] ;       
-         R[1,2]*R[2,3]+R[1,3]*R[2,2] R[1,3]*R[2,1]+R[1,1]*R[2,3] R[1,1]*R[2,2]+R[1,2]*R[2,1]] ; 
   K = [ K1  2*K2 ; 
         K3   K4   ] ;
-  
   CR = K * C * transpose(K) ;
-  
   end
-=======
 
-##########################
-##########Get viscosity###
-######################### #
->>>>>>> 211d7f6b9dffde6a871a146b01d0ad1d7c623b92
+function getRotM(fab::FabricPt)
+  
+
+function fabEvolve!(fab::FabricPt,pars::GlobalPars)
+  #Move this to the outside
+  n=theta->[sin(theta[1])*cos(theta[2]),sin(theta[1])*sin(theta[2]),cos(theta[1])]
+  f=theta->((vort*n(theta))[2:3])-((epsdot*n(theta))[2:3]-(n(theta)'*epsdot*n(theta))[1]*n(theta)[2:3])
+  fab.theta=nRK4(f,fab.n,pars.hrk,pars.nrk,fab.theta)
+  fab.theta[1,:]=fab.theta[1,:]%(2*pi)
+  fab.theta[2,:]=fab.theta[2,:]%pi
+  end 
+#Main driver routine to get the viscosity.
+function getVisc!(fab::FabricPt,pars::GlobalPars)
+  #advance the viscosity
+  fabEvolve!(fab,pars)
+  getRotM(fab) 
+  
+
+  
+
+
+#Find the inverse 6x6 viscosity matrix (4th order tensor in Voigt form
+
+
