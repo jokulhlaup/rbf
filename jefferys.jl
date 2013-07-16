@@ -1,6 +1,6 @@
 module jefferys
 using ODE
-export solveJefferys,rk4,nRK4
+export solveJefferys,rk4,nRK4,rotC
 
  
 
@@ -38,7 +38,6 @@ function solveJefferys{T}(vort::Array{Float64,2},epsdot::Array{Float64,2},theta:
   return theta
   end
 
-end
 
 
 ##########################
@@ -48,16 +47,16 @@ type FabricPt
   theta::Array{Float64,2} #[2,:] (theta,phi) angles
   coors::Array{Float64,1} #coors in space
   n::Int64 #number of xtals at site
-  rotM::Array{Float64,3} #[3,3,:] rotation matrices
   end
 
 type GlobalPars
   dt::Float64 #timestep between velocity timesteps
   nrk::Int64 #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
   hrk::Float64 #better be dt/nrk
-  f::Function
+  f::Function #Jeffery's eqn to supply to rk3
   end
-  
+
+#Replace this so its rotC(R)
 function rotC(C,R)
   # form the K matrix (based on Bowers 'Applied Mechanics of Solids', Chapter 3)
   K1 = [ R[1,1]^2 R[1,2]^2 R[1,3]^2 ; 
@@ -71,16 +70,28 @@ function rotC(C,R)
          R[1,1]*R[2,1] R[1,2]*R[2,2] R[1,3]*R[2,3] ] ;
   K4 = [ R[2,2]*R[3,3]+R[2,3]*R[3,2] R[2,3]*R[3,1]+R[2,1]*R[3,3] R[2,1]*R[3,2]+R[2,2]*R[3,1] ; 
          R[3,2]*R[1,3]+R[3,3]*R[1,2] R[3,3]*R[1,1]+R[3,1]*R[1,3] R[3,1]*R[1,2]+R[3,2]*R[1,1] ;       
+         R[1,2].*R[2,3]+R[1,3].*R[2,2] R[1,3].*R[2,1]+R[1,1].*R[2,3] R[1,1].*R[2,2]+R[1,2].*R[2,1]] ; 
   K = [ K1  2*K2 ; 
         K3   K4   ] ;
-  CR = K * C * transpose(K) ;
-  end
+  C = K * C * transpose(K) 
+end
 
 function getRotM(fab::FabricPt)
-  
+  c1=cos(fab.theta[1])
+  c2=cos(fab.theta[2])
+  s1=sin(-fab.theta[1])
+  s2=sin(-fab.theta[2])
+  for i=1:fab.n 
+    rotM[:,:,i]=
+      [c2*c1 -s2 c2*s1;
+       s2*c1 c2 s2*s1;
+       -s1 0 c1]
+    end
+    return rotM
+  end
 
 function fabEvolve!(fab::FabricPt,pars::GlobalPars)
-  #Move this to the outside
+  #Move this to the outside as field of GlobalPars
   n=theta->[sin(theta[1])*cos(theta[2]),sin(theta[1])*sin(theta[2]),cos(theta[1])]
   f=theta->((vort*n(theta))[2:3])-((epsdot*n(theta))[2:3]-(n(theta)'*epsdot*n(theta))[1]*n(theta)[2:3])
   fab.theta=nRK4(f,fab.n,pars.hrk,pars.nrk,fab.theta)
@@ -90,13 +101,19 @@ function fabEvolve!(fab::FabricPt,pars::GlobalPars)
 #Main driver routine to get the viscosity.
 function getVisc!(fab::FabricPt,pars::GlobalPars)
   #advance the viscosity
+  #get new theta
   fabEvolve!(fab,pars)
-  getRotM(fab) 
-  
+  #get the rotation matrices for each theta pair
+  R=getRotM(fab)
+  #now rotate each crystal's C matrix (C_ij= delta5,5)
+  #Then invert it to get visc. yay.
+  for i=1:fab.n
+    C[:,:,i]=rotC(R[:,:,i])
+    end
+    aC=mean(C,3)
+    fab.visc=inv(aC)
+  end
 
-  
 
 
-#Find the inverse 6x6 viscosity matrix (4th order tensor in Voigt form
-
-
+end #module
