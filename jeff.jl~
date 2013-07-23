@@ -1,0 +1,5 @@
+
+#Using ODE
+function solveJefferys(vort::Array{T,2},epsdot:Array{T,2},theta,phi,dt,n)
+  
+   
