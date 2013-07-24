@@ -8,10 +8,9 @@ export FabricPt,GlobalPars,solveJefferys,rk4,nRK4,rotC
 #Modification of ODE4 from package ODE
 function nRK4(f,ntimes,h,m,theta)
   for i=1:ntimes
-     #(tout,theta[:,i])=ode45(f,1,theta[:,i])
      theta[:,i]=jefferys.rk4(f,h,m,theta[:,i])
      end
-     return theta
+  return theta
   end
 
 function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
@@ -20,7 +19,7 @@ function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
       k2=f(x+k1*h/2)
       k3=f(x+k2*h/2)
       k4=f(x+k3*h/2)
-      x+=1./6.*h*(k1+2*k2+2*k3+k4)
+      x+=(1/6)*h*(k1+2*k2+2*k3+k4)
       end
    return x
    end
@@ -94,9 +93,9 @@ function getRotM(fab::FabricPt)
 
 function fabEvolve!(fab::FabricPt,pars::GlobalPars)
   #Move this to the outside as field of GlobalPars
-  fab.theta=nRK4(fab.f,fab.n,pars.hrk,pars.nrk,fab.theta)
-  fab.theta[1,:]=fab.theta[1,:]%(2*pi)
-  fab.theta[2,:]=fab.theta[2,:]%pi
+  fab.theta=nRK4(pars.f,fab.n,pars.hrk,pars.nrk,fab.theta)
+  fab.theta[1,:]=map(x->mod(2*pi,x),fab.theta[1,:]) #map this?
+  fab.theta[2,:]=map(x->mod(pi,x),fab.theta[2,:])
   end 
 #Main driver routine to get the viscosity.
 function getVisc!(fab::FabricPt,pars::GlobalPars)
