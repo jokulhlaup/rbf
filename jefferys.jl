@@ -6,11 +6,11 @@ export FabricPt,GlobalPars,solveJefferys,rk4,nRK4,rotC
 
 
 #Modification of ODE4 from package ODE
-function nRK4(f,ntimes,h,m,theta)
+function nRK4(f,ntimes,h,m,p)
   for i=1:ntimes
-     theta[:,i]=jefferys.rk4(f,h,m,theta[:,i])
+     p[:,i]=jefferys.rk4(f,h,m,p[:,i])
      end
-  return theta
+  return p
   end
 
 function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
@@ -24,26 +24,13 @@ function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
    return x
    end
 
-function jefferysLHS(vort,epsdot,theta,dt,m)
-   n=[sin(theta[1])*cos(theta[2]),sin(theta[1])*sin(theta[2]),cos(theta[1])] 
-   return((vort*n)[2:3])-((epsdot*n)[2:3]-(n'*epsdot*n)[1]*n[2:3])
-   end
-#Using ODE
-function solveJefferys{T}(vort::Array{Float64,2},epsdot::Array{Float64,2},theta::Array{Float64,1},dt::Float64,m::Int64)
-  n=theta->[sin(theta[1])*cos(theta[2]),sin(theta[1])*sin(theta[2]),cos(theta[1])]
-  f=theta->((vort*n(theta))[2:3])-((epsdot*n(theta))[2:3]-(n(theta)'*epsdot*n(theta))[1]*n(theta)[2:3])
-#  f=theta0->jefferyLHS(vort,epsdot,theta0,dt,m)
-  jefferys.rk4(f,dt/m,m,theta)
-  return theta
-  end
-
 
 
 ##########################
 ##########Get viscosity###
 ##########################
 type FabricPt
-  theta::Array{Float64,2} #[2,:] (theta,phi) angles
+  p::Array{Float64,2} #[2,:] (theta,phi) angles
   coors::Array{Float64,1} #coors in space
   n::Int64 #number of xtals at site
   end
@@ -92,10 +79,7 @@ function getRotM(fab::FabricPt)
   end
 
 function fabEvolve!(fab::FabricPt,pars::GlobalPars)
-  #Move this to the outside as field of GlobalPars
-  fab.theta=nRK4(pars.f,fab.n,pars.hrk,pars.nrk,fab.theta)
-  fab.theta[1,:]=map(x->mod(2*pi,x),fab.theta[1,:]) #map this?
-  fab.theta[2,:]=map(x->mod(pi,x),fab.theta[2,:])
+  p=nRK4(pars.f,fab.n,pars.hrk,pars.nrk,fab.p)
   end 
 #Main driver routine to get the viscosity.
 function getVisc!(fab::FabricPt,pars::GlobalPars)
