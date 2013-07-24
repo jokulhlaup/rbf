@@ -15,7 +15,7 @@ function f(theta)
   epsdot[1,1]=100#sqrt(0.5)
   epsdot[2,2]=0.0
   n=[sin(theta[1])*cos(theta[2]),sin(theta[1])*sin(theta[2]),cos(theta[1])]
-  return (((vort*n)[2:3])-((epsdot*n)[2:3]-(n'*epsdot*n)[1]*n[2:3]))
+  return (((vort*n)[2:3])-((epsdot*n)[2:3]-((n')*epsdot*n)[1]*n[2:3]))
 end
 #using anonymous
 n=100
