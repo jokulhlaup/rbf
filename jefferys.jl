@@ -2,9 +2,6 @@ module jefferys
 using ODE
 export FabricPt,GlobalPars,solveJefferys,rk4,nRK4,rotC
 
- 
-
-
 #Modification of ODE4 from package ODE
 function nRK4(f,ntimes,h,m,p)
   for i=1:ntimes
@@ -64,23 +61,16 @@ function rotC(R)
   C = K * C * transpose(K) 
 end
 
+#gets the rotation matrices
 function getRotM(fab::FabricPt)
+  R=Array(Float64,3,3,fab.n)
   for i=1:fab.n
-    theta=acos(p[:,i]'*[0.;0.;1.])
-
-function getRotM(fab::FabricPt)
-  c1=cos(fab.theta[1])
-  c2=cos(fab.theta[2])
-  s1=sin(-fab.theta[1])
-  s2=sin(-fab.theta[2])
-  for i=1:fab.n 
-    rotM[:,:,i]=
-      [c2*c1 -s2 c2*s1;
-       s2*c1 c2 s2*s1;
-       -s1 0 c1]
+    A=[0,0,fab.p[1,i];0,0,-fab.p[2,i];-fab.p[1,i],fab.p[2,i],0]
+    A2=[-fab[2,i]^2,fab[2,i]*fab[1,i],0;fab[2,i]*fab[1,i],fab[2,i]^2,0;0,0,fab[1,i]^2+fab[2,i]^2]
+    R[:,:,i]=sin(acos(fab.p[3,i]))*A+(1-fab.p[3,i])*A2
+    R[1,1,i]+=1;R[2,2,i]+=1;R[3,3,i]+=1
     end
-    return rotM
-  end
+  return R
 
 function fabEvolve!(fab::FabricPt,pars::GlobalPars)
   p=nRK4(pars.f,fab.n,pars.hrk,pars.nrk,fab.p)
