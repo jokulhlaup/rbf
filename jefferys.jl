@@ -65,6 +65,10 @@ function rotC(R)
 end
 
 function getRotM(fab::FabricPt)
+  for i=1:fab.n
+    theta=acos(p[:,i]'*[0.;0.;1.])
+
+function getRotM(fab::FabricPt)
   c1=cos(fab.theta[1])
   c2=cos(fab.theta[2])
   s1=sin(-fab.theta[1])
