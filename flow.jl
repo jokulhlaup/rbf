@@ -32,5 +32,4 @@ function d2imq(x,x0,eps,i,j)
 
 end #module
 
-
-
+function L(xi,
