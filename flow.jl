@@ -4,6 +4,9 @@ using PyCall
 @pyimport scipy.spatial as sp
 
 
+#Need a dict of FabricPt.
+#extract 
+
 #Need to get a 6x6 viscosity matrix C
 #routine to build sparse matrix by COLUMN 
 #(julia uses CSC storage)
@@ -28,3 +31,6 @@ function d2imq(x,x0,eps,i,j)
   end
 
 end #module
+
+
+
