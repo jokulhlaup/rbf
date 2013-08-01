@@ -16,9 +16,9 @@ using PyCall
 #[u_z]  [
 #[p]    [
 #Define radial basis function and second derivatives
-function imq(x::Array{Float64,1},x0::Array{Float64,1})
-  r2=(x-x0)'*(x-x0)
-  return (1/sqrt(1+eps^2*r2))
+function imq(x::Array{Float64,1},x0::Array{Float64,1},ep::Float64)
+  r2=sum([x-x0].*[x-x0])
+  return (1/sqrt(1+ep^2*r2))
   end
 function d2imq(x,x0,eps,i,j)
   r=x-x0
@@ -32,4 +32,11 @@ function d2imq(x,x0,eps,i,j)
 
 end #module
 
-function L(xi,
+function creatDict(xs) #input of list of points
+  n=length(xs[1,:])
+  Xd=Dict{int,FabricPt}
+  for i=1:n
+    Xd[i]=FabricPt(
+end
+
+function 

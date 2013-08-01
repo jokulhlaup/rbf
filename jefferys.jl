@@ -27,11 +27,12 @@ function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
 ##########Get viscosity###
 ##########################
 type FabricPt
-  p::Array{Float64,2} #[2,:] (theta,phi) angles
   coors::Array{Float64,1} #coors in space
-  n::Int64 #number of xtals at site
-  C::Union(nothing,Array{Float64,2}) #viscosity matrix
-  stencil::Union(nothing,Array{Int32,1})
+  p::Union(Nothing,Array{Float64,2}) #[2,:] (theta,phi) angles
+  n::Union(Int64,Nothing) #number of xtals at site
+  C::Union(Nothing,Array{Float64,2}) #viscosity matrix
+  stencil::Union(Nothing,Array{Int32,1})
+  FabricPt(coors,p=nothing,n=nothing,C=nothing,stencil=nothing)=new(coors,p,n,C,stencil)
   end
 
 immutable GlobalPars
@@ -67,17 +68,17 @@ end
 function getRotM(fab::FabricPt)
   R=Array(Float64,3,3,fab.n)
   for i=1:fab.n
-    A=[0,0,fab.p[1,i]
-       0,0,-fab.p[2,i] 
-       -fab.p[1,i],fab.p[2,i],0]
-    A2=[-fab[2,i]^2,fab[2,i]*fab[1,i],0
-        fab[2,i]*fab[1,i],fab[2,i]^2,0 
-        0,0,fab[1,i]^2+fab[2,i]^2]
+    A=[0 0 fab.p[1,i]
+       0 0 -fab.p[2,i] 
+       -fab.p[1,i] fab.p[2,i] 0]
+    A2=[-fab[2,i]^2 fab[2,i]*fab[1,i] 0
+        fab[2,i]*fab[1,i] fab[2,i]^2 0 
+        0 0 fab[1,i]^2+fab[2,i]^2]
     R[:,:,i]=sin(acos(fab.p[3,i]))*A+(1-fab.p[3,i])*A2
     R[1,1,i]+=1;R[2,2,i]+=1;R[3,3,i]+=1
     end
   return R
-
+  end
 function fabEvolve!(fab::FabricPt,pars::GlobalPars)
   p=nRK4(pars.f,fab.n,pars.hrk,pars.nrk,fab.p)
   end 
