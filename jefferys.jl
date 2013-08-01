@@ -22,7 +22,17 @@ function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
    end
 
 
-
+function halton(n,dim,base=nothing,skip=1e3)
+  base=base==nothing?:base:[1,3,5,7,11,13,17][1:dim]
+  f=1/base
+  i=index
+  for ndim=1:dim
+    while idim>0
+      xs=xs+f*(i%base[idim])
+      i=floor(i/base[idim])
+      f=f/base[idim]
+    end
+  return xs
 ##########################
 ##########Get viscosity###
 ##########################
@@ -40,6 +50,7 @@ immutable GlobalPars
   nrk::Int64 #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
   hrk::Float64 #better be dt/nrk
   f::Function #Jeffery's eqn to supply to rk3
+  GlobalPars(dt,nrk,hrk,f)=new(dt,nrk,dt/nrk,f)
   end
 
 #Replace this so its rotC(R)

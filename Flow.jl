@@ -36,7 +36,7 @@ function creatDict(xs) #input of list of points
   n=length(xs[1,:])
   Xd=Dict{int,FabricPt}
   for i=1:n
-    Xd[i]=FabricPt(
+    Xd[i]=FabricPt(coors)
 end
 
-function 
+ 
