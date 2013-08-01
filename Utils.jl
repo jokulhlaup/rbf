@@ -1,0 +1,25 @@
+module Utils
+export halton,vdc
+
+function vdc(n,base)
+  x,denom=0,1
+  while n>0
+    x+=n%base/(denom*=base)
+    n=floor(n/base)
+    end
+    return x   
+  end
+  
+function halton(n::Int,dim::Int,skip::Int=1000)
+  bases=[2,3,5,7,11,13,17,19,23,29]
+  xs=zeros(dim,n+skip)
+  for i=1:dim
+    b=bases[i]
+    for j=1:n+skip
+      xs[(j-1)*dim+i]=vdc(j,b)
+      end
+    end
+  return xs[:,skip:end]
+  end
+
+end #module

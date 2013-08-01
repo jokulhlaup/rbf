@@ -5,7 +5,7 @@ export FabricPt,GlobalPars,solveJefferys,rk4,nRK4,rotC
 #Modification of ODE4 from package ODE
 function nRK4(f,ntimes,h,m,p)
   for i=1:ntimes
-     p[:,i]=jefferys.rk4(f,h,m,p[:,i])
+     p[i,:]=jefferys.rk4(f,h,m,p[i,:])
      end
   return p
   end
@@ -22,17 +22,6 @@ function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
    end
 
 
-function halton(n,dim,base=nothing,skip=1e3)
-  base=base==nothing?:base:[1,3,5,7,11,13,17][1:dim]
-  f=1/base
-  i=index
-  for ndim=1:dim
-    while idim>0
-      xs=xs+f*(i%base[idim])
-      i=floor(i/base[idim])
-      f=f/base[idim]
-    end
-  return xs
 ##########################
 ##########Get viscosity###
 ##########################
@@ -79,14 +68,14 @@ end
 function getRotM(fab::FabricPt)
   R=Array(Float64,3,3,fab.n)
   for i=1:fab.n
-    A=[0 0 fab.p[1,i]
-       0 0 -fab.p[2,i] 
-       -fab.p[1,i] fab.p[2,i] 0]
-    A2=[-fab[2,i]^2 fab[2,i]*fab[1,i] 0
-        fab[2,i]*fab[1,i] fab[2,i]^2 0 
-        0 0 fab[1,i]^2+fab[2,i]^2]
-    R[:,:,i]=sin(acos(fab.p[3,i]))*A+(1-fab.p[3,i])*A2
-    R[1,1,i]+=1;R[2,2,i]+=1;R[3,3,i]+=1
+    A=[0 0 fab.p[i,1]
+       0 0 -fab.p[i,2] 
+       -fab.p[i,1] fab.p[i,2] 0]
+    A2=[-fab[i,2]^2 fab[i,2]*fab[i,1] 0
+        fab[i,2]*fab[i,1] fab[i,2]^2 0 
+        0 0 fab[i,1]^2+fab[i,2]^2]
+    R[i,:,:]=sin(acos(fab.p[i,3]))*A+(1-fab.p[i,3])*A2
+    R[i,1,1]+=1;R[i,2,2]+=1;R[i,3,3]+=1
     end
   return R
   end
@@ -103,9 +92,9 @@ function getVisc!(fab::FabricPt,pars::GlobalPars)
   #now rotate each crystal's C matrix (C_ij= delta5,5)
   #Then invert it to get visc. yay.
   for i=1:fab.n
-    C[:,:,i]=rotC(R[:,:,i])
+    C[i,:,:,]=rotC(R[i,:,:])
     end
-  aC=mean(C,3)
+  aC=mean(C,1) #check if right
   fab.visc=inv(aC)
   end
 

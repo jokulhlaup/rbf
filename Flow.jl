@@ -30,13 +30,16 @@ function d2imq(x,x0,eps,i,j)
     end
   end
 
-end #module
-
 function creatDict(xs) #input of list of points
   n=length(xs[1,:])
   Xd=Dict{int,FabricPt}
   for i=1:n
     Xd[i]=FabricPt(coors)
-end
+    end
+  end
+function getStencil(coors)
+  n=length(coors[:,1])
+  #make kdtree
+    
 
- 
+end #module
