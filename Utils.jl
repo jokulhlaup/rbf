@@ -1,5 +1,5 @@
 module Utils
-export halton,vdc
+export halton,vdc,unifmesh
 
 function vdc(n,base)
   x,denom=0,1
@@ -20,6 +20,16 @@ function halton(n::Int,dim::Int,skip::Int=1000)
       end
     end
   return xs[:,skip:end]
+  end
+
+function unifmesh(x,y)
+  m=length(x)
+  n=length(y)
+  r=Array(Number,m*n,2)
+  for i=1:n
+    r[m*(i-1)+1:i*m,:]=[x fill(y[i],m)]
+    end
+    return r
   end
 
 end #module

@@ -1,9 +1,15 @@
 module Flow
-export imq,d2imq
+export imq,d2imq,genrRHS,genrSystem
 using PyCall
 @pyimport scipy.spatial as sp
 
-
+type FlowParams
+  coors::Array{Number,2}
+  nnn::Union(Array{Int,1},Int)
+  bnd_index::Int
+  L::Function
+  end
+    
 #Need a dict of FabricPt.
 #extract 
 
@@ -16,13 +22,13 @@ using PyCall
 #[u_z]  [
 #[p]    [
 #Define radial basis function and second derivatives
-function imq(x::Array{Float64,1},x0::Array{Float64,1},ep::Float64)
+function imq(x,x0,ep=1::Number)
   r2=sum([x-x0].*[x-x0])
   return (1/sqrt(1+ep^2*r2))
   end
-function d2imq(x,x0,eps,i,j)
+function d2imq(x,x0,i::Int,j::Int,eps::Number)
   r=x-x0
-  r2=r'r
+  r2=(r*r')[1]
   if i !=j
     return 3*eps^2*r[i]*r[j]/(eps*r2+1)^2.5
     else
@@ -37,9 +43,57 @@ function creatDict(xs) #input of list of points
     Xd[i]=FabricPt(coors)
     end
   end
-function getStencil(coors)
-  n=length(coors[:,1])
-  #make kdtree
-    
 
+
+function genrRHS(coors,fpar::FlowParams)
+  return sin(coors[:,1])*cos(coors[:,2])
+  end
+#This gets the CSC matrix for the transposed system
+#x'A'=b'
+function genrSystem(fpar::FlowParams)
+  n=length(fpar.coors[:,1]) #Make sure the first index is site #
+  kd=sp.cKDTree(fpar.coors)
+  (w,d,inds)=getWeights(kd,fpar.coors,fpar.L,fpar.bnd_index,n,fpar.nnn)
+  w=reshape(w,length(w))
+  I=inds'[:]
+  J=Array(Int,length(I))
+  (Ibc,Jbc,Vbc)=applyBC(fpar.bnd_index,n) #
+  for i=1:fpar.bnd_index-1
+    J[(i-1)*fpar.nnn+1:i*fpar.nnn]=i
+    end
+
+  J=[J,Jbc]
+  I=[I,Ibc]
+  V=[w,Vbc]
+  return sparse(I,J,V)
+  end
+
+#d is a n-length 1d array of distances,
+#where a[i]=dist(starred pt, pt i)
+function getWeights(kd,coors,L::Function,bnd_index::Int,n::Int,nnn::Int)
+  (d,inds0)=kd[:query](coors[1:bnd_index-1,:],nnn)
+  inds=inds0+1
+  w=Array(Float64,bnd_index-1,nnn)
+  S=Array(Float64,nnn,nnn)
+  for i=1:bnd_index-1
+    #generate the weights matrix
+    S=Float64[imq(coors[j,:],coors[k,:],0.1) for j in inds[i,:],k in inds[i,:]]
+    Lh=L(d[i,:])
+    #generate the augmented matrix
+    S=[S ones(nnn)
+       ones(nnn)' 0]
+    Lh=[Lh',0]
+    w[i,:]=(S\Lh)[1:nnn]
+    end
+  return (w,d,inds)
+  end
+
+
+#for dirichletBCs
+function applyBC(bnd_index,n)
+  I=[bnd_index:n]
+  J=I
+  V=ones(n-bnd_index+1)
+  return (I,J,V)
+  end
 end #module
