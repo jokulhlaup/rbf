@@ -26,15 +26,18 @@ function imq(x,x0,ep=1::Number)
   r2=sum([x-x0].*[x-x0])
   return (1/sqrt(1+ep^2*r2))
   end
-function d2imq(x,x0,i::Int,j::Int,eps::Number)
-  r=x-x0
-  r2=(r*r')[1]
-  if i !=j
-    return 3*eps^2*r[i]*r[j]/(eps*r2+1)^2.5
+
+function d2imq(x,x0,i::Int,j::Int,ep=1)
+  x=x-x0
+  r=sum(x.*x)
+  de=ep.^2.*r+1
+  if i==j
+    return (3*ep^4*x[i].^2./de.^2.5-ep.^2./de.^1.5)[1]
     else
-      return eps*(eps*(3*r2[i]-sum(r2))-1)/(eps*r2+1)^2.5
+      return (3.*ep.^4.*x[i].*x[j]./de.^2.5)[1]
     end
   end
+ 
 
 function creatDict(xs) #input of list of points
   n=length(xs[1,:])
@@ -78,11 +81,11 @@ function getWeights(kd,coors,L::Function,bnd_index::Int,n::Int,nnn::Int)
   for i=1:bnd_index-1
     #generate the weights matrix
     S=Float64[imq(coors[j,:],coors[k,:],0.1) for j in inds[i,:],k in inds[i,:]]
-    Lh=L(d[i,:])
+    Lh=Float64[L(coors[j,:],coors[i,:]) for j in inds[i,:]]
     #generate the augmented matrix
     S=[S ones(nnn)
        ones(nnn)' 0]
-    Lh=[Lh',0]
+    Lh=[Lh,0]
     w[i,:]=(S\Lh)[1:nnn]
     end
   return (w,d,inds)

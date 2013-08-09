@@ -1,3 +1,5 @@
+#POISSON
+
 module jefferys
 using ODE
 export FabricPt,GlobalPars,solveJefferys,rk4,nRK4,rotC
