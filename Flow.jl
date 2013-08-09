@@ -1,3 +1,5 @@
+#POISSON version
+
 module Flow
 export imq,d2imq,genrRHS,genrSystem
 using PyCall
