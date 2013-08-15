@@ -80,7 +80,7 @@ function genrSystem(fpar::FlowParams)
   n=length(fpar.coors[:,1]) #Make sure the first index is site #
   kd=sp.cKDTree(fpar.coors)
   (w,d,inds)=getWeights(kd,fpar.coors,fpar.L,fpar.bnd_index,n,fpar.nnn)
-  w=reshape(w,length(w))
+  w=reshape(w',length(w))
   I=inds'[:]
   J=Array(Int,length(I))
   (Ibc,Jbc,Vbc)=applyBC(fpar.bnd_index,n) #
@@ -131,18 +131,20 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   #For weights, where first set is for u, then v, then w
   for i=1:bnd_index-1
     #generate the weights smatrix
-    S1=[imq(coors[j,:]-coors[k,:]) for i in inds[j,:],inds[k,:]] 
+    S1=[imq(coors[j,:]-coors[k,:]) for i in spinds[j,:],spinds[k,:]] 
     S=[S1 S1 S1 ones(nnn)
        S1 S1 S1 ones(nnn)
        S1 S1 S1 ones(nnn)
        ones(nnnc)' 0]
     for j=1:nnn
-       Lh[j*3-2:3*j]=L(coors[inds[i,j],:])
+       Lh[j*3-2:3*j]=L(coors[spinds[i,j],:])
        end
     #generate the augmented matrix
     w[i,:]=(S\Lh)[1:nnn]
     #w[1:nnn] is weights for 
     end
+    #convert to array indexing from spatial indexing
+    inds[i,:]=[spinds,spinds+1,spinds+2]
   return (w,d,inds)
   end
 
