@@ -35,6 +35,11 @@ function lapIMQ(r,ep=1::Number)
   return ep^.2*(ep.^2*r.^2-2)./(ep.^2*r.^2+1).^2.5
   end
 
+function dimq(x,x0,i,ep)
+  r2=sum([x-x0].*[x-x0])
+  return -ep^2*(x[i]-x0[i])*(1/sqrt(1+ep^2*r2))
+  end
+
 function d2imq(x,x0,i::Int,j::Int,eps::Number)
   r=x-x0
   r2=(r*r')[1]
@@ -45,18 +50,17 @@ function d2imq(x,x0,i::Int,j::Int,eps::Number)
     end
   end
 
-function lan(x0,x,C,ep)
-  a=[:1,:2,:3,:3,:3,:2]
-  for k=1:6
-    u[k]=:(d2imq(x,x0,$(a[$k]),j,ep))
-    end
-  for k=1:6
-    d[k]=:(sum(C[:,$k].*u))
-    end
-  for i=1:3
-    L
+function Lfl(x::AbstractArray,x0::AbstractArray,C::Array{Float64,2},ep::Number)
+  l=zeros(3)
   for i=1:6
-    u[i]=d2imq(x,x0,i,
+    l[1]=sum((C[i,1]+C[i,6]+C[i,5])*d2imq(x,x0,i,1,ep))+l[1]
+    l[2]=sum((C[i,6]+C[i,2]+C[i,4])*d2imq(x,x0,i,2,ep))+l[2]
+    l[3]=sum((C[i,5]+C[i,4]+C[i,3])*d2imq(x,x0,i,3,ep))+l[3]
+    end
+  return l
+  end
+
+
 
 function creatDict(xs) #input of list of points
   n=length(xs[1,:])
@@ -118,26 +122,29 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   #i where i mod 3 == 1 is x component of spinds[i], ' '==2 is y, etc
   bin=3*bnd_index
   nnnc=3*nnn
-
   inds=Array(Float64,bin-3,nnnc)
   w=Array(Float64,bin-3,nnnc)
-  S=Array(Float64,nnnc,nnnc)
+  #S=Array(Float64,nnnc,nnnc)
+  #S is  phi(x1-x1):phi(x1-x[1:nnn]) phi(x1-x[1:nnn]) phi(x1-x[1:nnn])
+  #      ...           ...        ...
+  #      phi(xn-x1) ...
+  #For weights, where first set is for u, then v, then w
   for i=1:bnd_index-1
     #generate the weights smatrix
-    S=Float64[imq(d[i,:],0.1)]
-    Lh=L(d[i,:])
+    S1=[imq(coors[j,:]-coors[k,:]) for i in inds[j,:],inds[k,:]] 
+    S=[S1 S1 S1 ones(nnn)
+       S1 S1 S1 ones(nnn)
+       S1 S1 S1 ones(nnn)
+       ones(nnnc)' 0]
+    for j=1:nnn
+       Lh[j*3-2:3*j]=L(coors[inds[i,j],:])
+       end
     #generate the augmented matrix
-    S=[S ones(nnn)
-       ones(nnn)' 0]
-    Lh=[Lh',0]
     w[i,:]=(S\Lh)[1:nnn]
+    #w[1:nnn] is weights for 
     end
   return (w,d,inds)
   end
-
-
-
-
 
 #for dirichletBCs
 function applyBC(bnd_index,n)
