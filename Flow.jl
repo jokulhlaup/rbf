@@ -60,8 +60,6 @@ function Lfl(x::AbstractArray,x0::AbstractArray,C::Array{Float64,2},ep::Number)
   return l
   end
 
-
-
 function creatDict(xs) #input of list of points
   n=length(xs[1,:])
   Xd=Dict{int,FabricPt}
@@ -69,7 +67,6 @@ function creatDict(xs) #input of list of points
     Xd[i]=FabricPt(coors)
     end
   end
-
 
 function genrRHS(coors,fpar::FlowParams)
   return sin(coors[:,1])*cos(coors[:,2])
@@ -87,7 +84,6 @@ function genrSystem(fpar::FlowParams)
   for i=1:fpar.bnd_index-1
     J[(i-1)*fpar.nnn+1:i*fpar.nnn]=i
     end
-
   J=[J,Jbc]
   I=[I,Ibc]
   V=[w,Vbc]
@@ -122,16 +118,18 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   #i where i mod 3 == 1 is x component of spinds[i], ' '==2 is y, etc
   bin=3*bnd_index
   nnnc=3*nnn
-  inds=Array(Float64,bin-3,nnnc)
-  w=Array(Float64,bin-3,nnnc)
+  inds=Array(Float64,(bin-3)*nnnc)
+  w=Array(Float64,(bin-3)*nnnc)
   #S=Array(Float64,nnnc,nnnc)
   #S is  phi(x1-x1):phi(x1-x[1:nnn]) phi(x1-x[1:nnn]) phi(x1-x[1:nnn])
   #      ...           ...        ...
   #      phi(xn-x1) ...
   #For weights, where first set is for u, then v, then w
+  
   for i=1:bnd_index-1
-    #generate the weights smatrix
-    S1=[imq(coors[j,:]-coors[k,:]) for i in spinds[j,:],spinds[k,:]] 
+    #generate the weights matrix
+    #Needs casting to avoid Array{Any...}
+    S1=Float64[imq(coors[j,:]-coors[k,:]) for i in spinds[j,:],spinds[k,:]] 
     S=[S1 S1 S1 ones(nnn)
        S1 S1 S1 ones(nnn)
        S1 S1 S1 ones(nnn)
@@ -139,12 +137,12 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
     for j=1:nnn
        Lh[j*3-2:3*j]=L(coors[spinds[i,j],:])
        end
-    #generate the augmented matrix
-    w[i,:]=(S\Lh)[1:nnn]
-    #w[1:nnn] is weights for 
+    #get the weights
+    w[(i-1)*nnnc+1:i*nnnc]=(S\Lh)[1:nnnc]
+    #don't fuck up the indexing when calling.
     end
     #convert to array indexing from spatial indexing
-    inds[i,:]=[spinds,spinds+1,spinds+2]
+    inds[(i-1)*nnnc+1:i*nnnc]=[spinds,spinds+1,spinds+2]
   return (w,d,inds)
   end
 
