@@ -1,10 +1,10 @@
 module Flow
-export imq,d2imq,genrRHS,genrSystem
+export FlowParams,Lfl,imq,d2imq,genrRHS,genrSystem
 using PyCall
 @pyimport scipy.spatial as sp
 
 type FlowParams
-  coors::Array{Number,2}
+  coors::Array{Float64,2}
   nnn::Union(Array{Int,1},Int)
   bnd_index::Int
   L::Function
@@ -24,12 +24,12 @@ type FlowParams
 #Define radial basis function and second derivatives
 function imq(x,x0,ep=1::Number)
   r2=sum([x-x0].*[x-x0])
-  return (1/sqrt(1+ep^2*r2))
+  return (1/sqrt(1+ep^2.*r2))
   end
 
-function imq(r,ep=1::Number)
-  return 1/sqrt(1+r.^2*ep.^2)
-  end
+#function imq(r,ep=1::Number)
+#  return 1/sqrt(1+r.^2*ep.^2)
+#  end
 
 function lapIMQ(r,ep=1::Number)
   return ep^.2*(ep.^2*r.^2-2)./(ep.^2*r.^2+1).^2.5
@@ -40,13 +40,13 @@ function dimq(x,x0,i,ep)
   return -ep^2*(x[i]-x0[i])*(1/sqrt(1+ep^2*r2))
   end
 
-function d2imq(x,x0,i::Int,j::Int,eps::Number)
+function d2imq(x,x0,i::Int,j::Int,ep::Number)
   r=x-x0
   r2=(r*r')[1]
   if i !=j
-    return 3*eps^2*r[i]*r[j]/(eps*r2+1)^2.5
+    return 3*ep^2*r[i]*r[j]/(ep*r2+1)^2.5
     else
-      return eps*(eps*(3*r2[i]-sum(r2))-1)/(eps*r2+1)^2.5
+      return ep*(ep*(3*r2[i]-sum(r2))-1)/(ep*r2+1)^2.5
     end
   end
 
@@ -76,10 +76,9 @@ function genrRHS(coors,fpar::FlowParams)
 function genrSystem(fpar::FlowParams)
   n=length(fpar.coors[:,1]) #Make sure the first index is site #
   kd=sp.cKDTree(fpar.coors)
-  (w,d,inds)=getWeights(kd,fpar.coors,fpar.L,fpar.bnd_index,n,fpar.nnn)
-  w=reshape(w',length(w))
+  (w,J,inds)=getWeights(kd,fpar.coors,fpar.L,fpar.bnd_index,n,fpar.nnn)
   I=inds'[:]
-  J=Array(Int,length(I))
+  #J=Array(Int,length(I))
   (Ibc,Jbc,Vbc)=applyBC(fpar.bnd_index,n) #
   for i=1:fpar.bnd_index-1
     J[(i-1)*fpar.nnn+1:i*fpar.nnn]=i
@@ -87,7 +86,7 @@ function genrSystem(fpar::FlowParams)
   J=[J,Jbc]
   I=[I,Ibc]
   V=[w,Vbc]
-  return sparse(I,J,V)
+  return sparse(J,I,V)
   end
 
 #d is a n-length 1d array of distances,
@@ -99,13 +98,14 @@ function getWeights(kd::PyObject,coors,L::Function,bnd_index::Int,n::Int,nnn::In
   S=Array(Float64,nnn,nnn)
   for i=1:bnd_index-1
     #generate the weights matrix
-    S=Float64[imq(d[i,:],0.1)]
+    S=[imq(d[i,:],0.1)]
     Lh=L(d[i,:])
     #generate the augmented matrix
     S=[S ones(nnn)
        ones(nnn)' 0]
     Lh=[Lh',0]
     w[i,:]=(S\Lh)[1:nnn]
+    w=reshape(w',length(w))
     end
   return (w,d,inds)
   end
@@ -120,22 +120,32 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   nnnc=3*nnn
   inds=Array(Float64,(bin-3)*nnnc)
   w=Array(Float64,(bin-3)*nnnc)
+  J=w
+  Lh=Array(Float64,nnnc+1)
+  S1=Array(Float64,nnn,nnn)
+  Lh[end]=0 #For augmented system
+  un=ones(nnn)
   #S=Array(Float64,nnnc,nnnc)
   #S is  phi(x1-x1):phi(x1-x[1:nnn]) phi(x1-x[1:nnn]) phi(x1-x[1:nnn])
   #      ...           ...        ...
   #      phi(xn-x1) ...
   #For weights, where first set is for u, then v, then w
-  
+ 
   for i=1:bnd_index-1
     #generate the weights matrix
     #Needs casting to avoid Array{Any...}
-    S1=Float64[imq(coors[j,:]-coors[k,:]) for i in spinds[j,:],spinds[k,:]] 
-    S=[S1 S1 S1 ones(nnn)
-       S1 S1 S1 ones(nnn)
-       S1 S1 S1 ones(nnn)
-       ones(nnnc)' 0]
     for j=1:nnn
-       Lh[j*3-2:3*j]=L(coors[spinds[i,j],:])
+      for k=1:nnn
+        S1[j,k]=imq(coors[spinds[i,j],:],coors[spinds[i,k],:])
+        end
+      end
+    S1=Float64[imq(coors[j,:]-coors[k,:]) for j in spinds[i,:],k in spinds[i,:]] 
+    S=[S1 S1 S1 un
+       S1 S1 S1 un
+       S1 S1 S1 un
+       un' un' un' 0]
+    for j=1:nnn
+       Lh[j*3-2:3*j]=Lfl(coors[spinds[i,j],:],coors[spinds[i,)###
        end
     #get the weights
     w[(i-1)*nnnc+1:i*nnnc]=(S\Lh)[1:nnnc]
@@ -143,7 +153,9 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
     end
     #convert to array indexing from spatial indexing
     inds[(i-1)*nnnc+1:i*nnnc]=[spinds,spinds+1,spinds+2]
-  return (w,d,inds)
+    J[(i-1)*nnnc+1:i*nnnc]=i
+    #match row indices
+  return (w,J,inds)
   end
 
 #for dirichletBCs

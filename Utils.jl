@@ -25,7 +25,7 @@ function halton(n::Int,dim::Int,skip::Int=1000)
 function unifmesh(x,y)
   m=length(x)
   n=length(y)
-  r=Array(Number,m*n,2)
+  r=Array(Float64,m*n,2)
   for i=1:n
     r[m*(i-1)+1:i*m,:]=[x fill(y[i],m)]
     end
