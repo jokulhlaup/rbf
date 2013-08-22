@@ -46,16 +46,16 @@ function d2imq(x,x0,i::Int,j::Int,ep::Number)
   if i !=j
     return 3*ep^2*r[i]*r[j]/(ep*r2+1)^2.5
     else
-      return ep*(ep*(3*r2[i]-sum(r2))-1)/(ep*r2+1)^2.5
+      return ep*(ep*(3*r2-sum(r2))-1)/(ep*r2+1)^2.5
     end
   end
 
 function Lfl(x::AbstractArray,x0::AbstractArray,C::AbstractArray,ep::Number)
   l=zeros(3)
-  for i=1:6
-    l[1]=sum((C[i,1]+C[i,6]+C[i,5])*d2imq(x,x0,i,1,ep))+l[1]
-    l[2]=sum((C[i,6]+C[i,2]+C[i,4])*d2imq(x,x0,i,2,ep))+l[2]
-    l[3]=sum((C[i,5]+C[i,4]+C[i,3])*d2imq(x,x0,i,3,ep))+l[3]
+  for i=([1,1],[2,2],[3,3],[2,3],[1,3],[1,2])
+    l[1]=sum((C[i,1]+C[i,6]+C[i,5])*d2imq(x,x0,i[1],i[2],ep))+l[1]
+    l[2]=sum((C[i,6]+C[i,2]+C[i,4])*d2imq(x,x0,i[1],i[2],ep))+l[2]
+    l[3]=sum((C[i,5]+C[i,4]+C[i,3])*d2imq(x,x0,i[1],i[2],ep))+l[3]
     end
   return l
   end
@@ -74,7 +74,7 @@ function genrRHS(coors,fpar::FlowParams)
 #This gets the CSC matrix for the transposed system
 #x'A'=b'
 function genrSystem(fpar::FlowParams)
-  n=length(fpar.coors[:,1]) #Make sure the first index is site #
+  n=length(fpar.coors[1,1]) #Make sure the first index is site #
   kd=sp.cKDTree(fpar.coors)
   (w,J,inds)=getWeights(kd,fpar.coors,fpar.L,fpar.bnd_index,n,fpar.nnn)
   I=inds'[:]
@@ -110,6 +110,8 @@ function getWeights(kd::PyObject,coors,L::Function,bnd_index::Int,n::Int,nnn::In
   return (w,d,inds)
   end
 
+
+
 #getweights for 3 dep vars 
 function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::Int)
   (d,spinds0)=kd[:query](coors[1:bnd_index-1,:],nnn)
@@ -139,13 +141,13 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
         S1[j,k]=imq(coors[spinds[i,j],:],coors[spinds[i,k],:])
         end
       end
-    S1=Float64[imq(coors[j,:]-coors[k,:]) for j in spinds[i,:],k in spinds[i,:]] 
+    #S1=Float64[imq(coors[j,:]-coors[k,:]) for j in spinds[i,:],k in spinds[i,:]] 
     S=[S1 S1 S1 un
        S1 S1 S1 un
        S1 S1 S1 un
        un' un' un' 0]
     for j=1:nnn
-       Lh[j*3-2:3*j]=Lfl(coors[spinds[i,j],:],coors[spinds[i,j],:],C[i,:,:],ep)###
+       Lh[j*3-2:3*j]=Lfl(coors[spinds[i,j],:],coors[spinds[i,j],:],C[:,:,i],ep)###
        end
     #get the weights
     w[(i-1)*nnnc+1:i*nnnc]=(S\Lh)[1:nnnc]
