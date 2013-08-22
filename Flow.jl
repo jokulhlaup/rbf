@@ -50,7 +50,7 @@ function d2imq(x,x0,i::Int,j::Int,ep::Number)
     end
   end
 
-function Lfl(x::AbstractArray,x0::AbstractArray,C::Array{Float64,2},ep::Number)
+function Lfl(x::AbstractArray,x0::AbstractArray,C::AbstractArray,ep::Number)
   l=zeros(3)
   for i=1:6
     l[1]=sum((C[i,1]+C[i,6]+C[i,5])*d2imq(x,x0,i,1,ep))+l[1]
@@ -145,7 +145,7 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
        S1 S1 S1 un
        un' un' un' 0]
     for j=1:nnn
-       Lh[j*3-2:3*j]=Lfl(coors[spinds[i,j],:],coors[spinds[i,)###
+       Lh[j*3-2:3*j]=Lfl(coors[spinds[i,j],:],coors[spinds[i,j],:],C[i,:,:],ep)###
        end
     #get the weights
     w[(i-1)*nnnc+1:i*nnnc]=(S\Lh)[1:nnnc]
