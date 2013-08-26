@@ -19,7 +19,7 @@ type FlowParams
 #to solve 
 #[u_x]' [
 #[u_y]  [
-#[u_z]  [
+#[u_z]  [:
 #[p]    [
 #Define radial basis function and second derivatives
 function imq(x,x0,ep=1::Number)
@@ -143,9 +143,14 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
       end
       S=[S ones(nnn)
         ones(nnn) 0]
-    dv=[[1,1],[2,2],[3,3],[2,3],[1,3],[1,2]]
-    for i=1:6
-      
+    let d2=Array(Float64,nnn), dv=[[1,1],[2,2],[3,3],[2,3],[1,3],[1,2]]
+      for j=1:6
+        for k=1:nnn
+          d2[k]=d2imq(coors[spinds[i,k],:],coors[spinds[i,1],:],dv[j,1],dv[j,2],ep)      
+          end
+        
+        end
+      end #let
     #S1=Float64[imq(coors[j,:]-coors[k,:]) for j in spinds[i,:],k in spinds[i,:]] 
     S=[S1 S1 S1 un
        S1 S1 S1 un
