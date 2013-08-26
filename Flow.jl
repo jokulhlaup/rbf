@@ -122,9 +122,9 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   nnnc=3*nnn
   inds=Array(Float64,(bin-3)*nnnc)
   w=Array(Float64,(bin-3)*nnnc)
+  w2=Array(Float64,nnn,6) #The weights for each du^2/dx_i^2
   J=Array(Float64,(bin-3)*nnnc)
   Lh=Array(Float64,nnnc+1)
-  S1=Array(Float64,nnn,nnn)
   Lh[end]=0 #For augmented system
   un=ones(nnn)
   #S=Array(Float64,nnnc,nnnc)
@@ -143,15 +143,37 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
       end
       S=[S ones(nnn)
         ones(nnn) 0]
-    let d2=Array(Float64,nnn), dv=[[1,1],[2,2],[3,3],[2,3],[1,3],[1,2]]
+    let d2=Array(Float64,nnn+1);dv=[[1,1],[2,2],[3,3],[2,3],[1,3],[1,2];]
+        S1=Array(Float64,nnn+1,nnn+1)
+      d2[7]=0
+      for j=1:nnn
+        for k=1:nnn
+          S1[j,k]=imq(coors[spinds[i,j],:],coors[spinds[i,k],:])
+          end
+        end
+      S1=[S1 ones(nnn)
+      ones(nnn) 0]
       for j=1:6
         for k=1:nnn
           d2[k]=d2imq(coors[spinds[i,k],:],coors[spinds[i,1],:],dv[j,1],dv[j,2],ep)      
           end
-        
+          w2[:,j]=(S1\d2)[1:nnn]
         end
       end #let
     #S1=Float64[imq(coors[j,:]-coors[k,:]) for j in spinds[i,:],k in spinds[i,:]] 
+      uc[:]=(C[:,1]+C[:,6]+C[:,5])
+      ###Set the weights of u1,11 u2,21...  
+
+    vc[:]=sum((C[i,6]+C[i,2]+C[i,4])*d2imq(x,x0,i[1],i[2],ep))+l[2]
+    l[3]=sum((C[i,5]+C[i,4]+C[i,3])*d2imq(x,x0,i[1],i[2],ep))+l[3]
+    end
+  return l
+  end
+
+function ui_wts
+  
+
+
     S=[S1 S1 S1 un
        S1 S1 S1 un
        S1 S1 S1 un
