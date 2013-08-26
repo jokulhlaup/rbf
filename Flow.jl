@@ -122,7 +122,7 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   nnnc=3*nnn
   inds=Array(Float64,(bin-3)*nnnc)
   w=Array(Float64,(bin-3)*nnnc)
-  J=w
+  J=Array(Float64,(bin-3)*nnnc)
   Lh=Array(Float64,nnnc+1)
   S1=Array(Float64,nnn,nnn)
   Lh[end]=0 #For augmented system
@@ -138,9 +138,14 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
     #Needs casting to avoid Array{Any...}
     for j=1:nnn
       for k=1:nnn
-        S1[j,k]=imq(coors[spinds[i,j],:],coors[spinds[i,k],:])
+        S[j,k]=imq(coors[spinds[i,j],:],coors[spinds[i,k],:])
         end
       end
+      S=[S ones(nnn)
+        ones(nnn) 0]
+    dv=[[1,1],[2,2],[3,3],[2,3],[1,3],[1,2]]
+    for i=1:6
+      
     #S1=Float64[imq(coors[j,:]-coors[k,:]) for j in spinds[i,:],k in spinds[i,:]] 
     S=[S1 S1 S1 un
        S1 S1 S1 un
