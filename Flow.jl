@@ -126,13 +126,16 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   J=Array(Float64,(bin-3)*nnnc)
   Lh=Array(Float64,nnnc+1)
   Lh[end]=0 #For augmented system
+#convert to array indexing from spatial indexing
+inds[(i-1)*nnnc+1:i*nnnc]=[spinds,spinds+1,spinds+2]
+J[(i-1)*nnnc+1:i*nnnc]=i
+#match row indices
   un=ones(nnn)
   #S=Array(Float64,nnnc,nnnc)
   #S is  phi(x1-x1):phi(x1-x[1:nnn]) phi(x1-x[1:nnn]) phi(x1-x[1:nnn])
   #      ...           ...        ...
   #      phi(xn-x1) ...
   #For weights, where first set is for u, then v, then w
- 
   for i=1:bnd_index-1
     #generate the weights matrix
     #Needs casting to avoid Array{Any...}
@@ -161,35 +164,39 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
         end
       end #let
     #S1=Float64[imq(coors[j,:]-coors[k,:]) for j in spinds[i,:],k in spinds[i,:]] 
-      uc[:]=(C[:,1]+C[:,6]+C[:,5])
+    let uc=(C[:,1]+C[:,6]+C[:,5]); #weights for u1,1j u2,2j, ...
+      w[(i-1)*nnnc+1:3:i*nnnc]=w2[:,1]*uc[1]+w2[:,6]*uc[6]+w2[:,5]*uc[5] #All weights for uc[1]
+      w[(i-1)*nnnc+2:3:i*nnnc]=w2[:,
+      w[(i-1)*nnnc+3:3:i*nnnc]=w2[:
       ###Set the weights of u1,11 u2,21...  
+
+
+
+#function Lfl(x::AbstractArray,x0::AbstractArray,C::AbstractArray,ep::Number)
+#  l=zeros(3)
+#  for i=([1,1],[2,2],[3,3],[2,3],[1,3],[1,2])
+#    l[1]=sum((C[i,1]+C[i,6]+C[i,5])*d2imq(x,x0,i[1],i[2],ep))+l[1]
+#    l[2]=sum((C[i,6]+C[i,2]+C[i,4])*d2imq(x,x0,i[1],i[2],ep))+l[2]
+#   1 l[3]=sum((C[i,5]+C[i,4]+C[i,3])*d2imq(x,x0,i[1],i[2],ep))+l[3]
+#    end
+#  return l
+#  end
+
+
+
+
+
+
 
     vc[:]=sum((C[i,6]+C[i,2]+C[i,4])*d2imq(x,x0,i[1],i[2],ep))+l[2]
     l[3]=sum((C[i,5]+C[i,4]+C[i,3])*d2imq(x,x0,i[1],i[2],ep))+l[3]
     end
   return l
   end
-
-function ui_wts
-  
-
-
-    S=[S1 S1 S1 un
-       S1 S1 S1 un
-       S1 S1 S1 un
-       un' un' un' 0]
-    for j=1:nnn
-       Lh[j*3-2:3*j]=Lfl(coors[spinds[i,j],:],coors[spinds[i,j],:],C[:,:,i],ep)###
-       end
-    #get the weights
     w[(i-1)*nnnc+1:i*nnnc]=(S\Lh)[1:nnnc]
     #don't fuck up the indexing when calling.
     end
-    #convert to array indexing from spatial indexing
-    inds[(i-1)*nnnc+1:i*nnnc]=[spinds,spinds+1,spinds+2]
-    J[(i-1)*nnnc+1:i*nnnc]=i
-    #match row indices
-  return (w,J,inds)
+      return (w,J,inds)
   end
 
 #for dirichletBCs
