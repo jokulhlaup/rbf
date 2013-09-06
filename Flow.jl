@@ -167,7 +167,7 @@ J[(i-1)*nnnc+1:i*nnnc]=i
     #w[i,j] is the weights to approx the second derivative i=1:6 (voigt) at spatial
     #point j. Then the uc[1:6] is the 
     let uc=(C[:,1]+C[:,6]+C[:,5]); #weights for u1,1j u2,2j, ...
-      w[(i-1)*nnnc+1:3:i*nnnc]=w2[:,1]*uc[1]+w2[:,6]*uc[6]+w2[:,5]*uc[5] #All weights for uc[1]
+      w[(i-1)*nnnc+1:3:i*nnnc]=C[i,1,1]*wc[:,1]+C[i,1,5]*wc[:,5]+C[i#w2[:,1]*uc[1]+w2[:,6]*uc[6]+w2[:,5]*uc[5] #All weights for uc[1]
       w[(i-1)*nnnc+2:3:i*nnnc]=w2[:,1]
       w[(i-1)*nnnc+3:3:i*nnnc]=w2[:
       ###Set the weights of u1,11 u2,21...  
