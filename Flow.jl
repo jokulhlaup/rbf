@@ -120,6 +120,7 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   #i where i mod 3 == 1 is x component of spinds[i], ' '==2 is y, etc
   bin=3*bnd_index
   nnnc=3*nnn
+  nnnt=3*nnnc #length of weights vector for three eqns at single starred point
   inds=Array(Float64,(bin-3)*nnnc)
   w=Array(Float64,(bin-3)*nnnc)
   w2=Array(Float64,nnn,6) #The weights for each du^2/dx_i^2
@@ -165,13 +166,18 @@ J[(i-1)*nnnc+1:i*nnnc]=i
       end #let
     #S1=Float64[imq(coors[j,:]-coors[k,:]) for j in spinds[i,:],k in spinds[i,:]] 
     #w[i,j] is the weights to approx the second derivative i=1:6 (voigt) at spatial
-    #point j. Then the uc[1:6] is the 
-    let uc=(C[:,1]+C[:,6]+C[:,5]); #weights for u1,1j u2,2j, ...
-      w[(i-1)*nnnc+1:3:i*nnnc]=C[i,1,1]*wc[:,1]+C[i,1,5]*wc[:,5]+C[i#w2[:,1]*uc[1]+w2[:,6]*uc[6]+w2[:,5]*uc[5] #All weights for uc[1]
-      w[(i-1)*nnnc+2:3:i*nnnc]=w2[:,1]
-      w[(i-1)*nnnc+3:3:i*nnnc]=w2[:
-      ###Set the weights of u1,11 u2,21...  
+    #point j. Now, w[(i-1)*nnnt+j:3:i*nnnt] is weights for j=u,v,w velocity components for <<i'th spatial point>> and equation << 1 >> (of 3 coupled)
+    #Winner of obfusticated julia contest.
+      w[(i-1)*nnnc+1:3:i*nnnc]=C[i,1,1]*wc[:,1]+0.5*C[i,1,5]*wc[:,5]+0.5*C[:,i,6]*wc[:,6]  #w2[:,1]*uc[1]+w2[:,6]*uc[6]+w2[:,5]*uc[5] #All weights for uc[1]
+      w[(i-1)*nnnc+2:3:i*nnnc]=C[i,1,2]*wc[:,1]+0.5*C[i,1,4]*wc[:,1]+0.5*C[:,i,6]*wc[:,5]
+      w[(i-1)*nnnc+3:3:i*nnnc]=C[i,1,2]*wc[:,6]+0.5*C[i,1,4]*wc[:,1]+0.5*C[:,i,6]*wc[:,6]
+      
+      w[(i-1)*nnnc+1+nnnc:3:i*nnnc+nnnc]=C[i,1,1]*wc[:,1]+0.5*C[i,1,5]*wc[:,5]+0.5*C[:,i,6]*wc[:,6]  #w2[:,1]*uc[1]+w2[:,6]*uc[6]+w2[:,5]*uc[5] #All weights for uc[1]
+      w[(i-1)*nnnc+2:3:i*nnnc]=C[i,1,2]*wc[:,1]+0.5*C[i,1,4]*wc[:,1]+0.5*C[:,i,6]*wc[:,5]
+      w[(i-1)*nnnc+3:3:i*nnnc]=C[i,1,2]*wc[:,6]+0.5*C[i,1,4]*wc[:,1]+0.5*C[:,i,6]*wc[:,6]
 
+
+      #Every third
 
 
 #function Lfl(x::AbstractArray,x0::AbstractArray,C::AbstractArray,ep::Number)
