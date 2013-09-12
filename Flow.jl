@@ -175,7 +175,10 @@ J[(i-1)*nnnc+1:i*nnnc]=i
       w[(i-1)*nnnc+1+nnnc:3:i*nnnc+nnnc]=C[i,1,1]*wc[:,1]+0.5*C[i,1,5]*wc[:,5]+0.5*C[:,i,6]*wc[:,6]  #w2[:,1]*uc[1]+w2[:,6]*uc[6]+w2[:,5]*uc[5] #All weights for uc[1]
       w[(i-1)*nnnc+2:3:i*nnnc]=C[i,1,2]*wc[:,1]+0.5*C[i,1,4]*wc[:,1]+0.5*C[:,i,6]*wc[:,5]
       w[(i-1)*nnnc+3:3:i*nnnc]=C[i,1,2]*wc[:,6]+0.5*C[i,1,4]*wc[:,1]+0.5*C[:,i,6]*wc[:,6]
-
+      
+      w[(i-1)*nnnc+1:3:i*nnnc]=((C[i,6,1]+C[i,2,1]+C[i,5,1])*wc[:,1]+
+                                 
+      
 
       #Every third
 
