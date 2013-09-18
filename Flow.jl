@@ -168,20 +168,22 @@ J[(i-1)*nnnc+1:i*nnnc]=i
     #w[i,j] is the weights to approx the second derivative i=1:6 (voigt) at spatial
     #point j. Now, w[(i-1)*nnnt+j:3:i*nnnt] is weights for j=u,v,w velocity components for <<i'th spatial point>> and equation << 1 >> (of 3 coupled)
     #Winner of obfusticated julia contest.
-      w[(i-1)*nnnc+1:3:i*nnnc]=C[i,1,1]*wc[:,1]+0.5*C[i,1,5]*wc[:,5]+0.5*C[:,i,6]*wc[:,6]  #w2[:,1]*uc[1]+w2[:,6]*uc[6]+w2[:,5]*uc[5] #All weights for uc[1]
-      w[(i-1)*nnnc+2:3:i*nnnc]=C[i,1,2]*wc[:,1]+0.5*C[i,1,4]*wc[:,1]+0.5*C[:,i,6]*wc[:,5]
-      w[(i-1)*nnnc+3:3:i*nnnc]=C[i,1,2]*wc[:,6]+0.5*C[i,1,4]*wc[:,1]+0.5*C[:,i,6]*wc[:,6]
-      
-      w[(i-1)*nnnc+1+nnnc:3:i*nnnc+nnnc]=C[i,1,1]*wc[:,1]+0.5*C[i,1,5]*wc[:,5]+0.5*C[:,i,6]*wc[:,6]  #w2[:,1]*uc[1]+w2[:,6]*uc[6]+w2[:,5]*uc[5] #All weights for uc[1]
-      w[(i-1)*nnnc+2:3:i*nnnc]=C[i,1,2]*wc[:,1]+0.5*C[i,1,4]*wc[:,1]+0.5*C[:,i,6]*wc[:,5]
-      w[(i-1)*nnnc+3:3:i*nnnc]=C[i,1,2]*wc[:,6]+0.5*C[i,1,4]*wc[:,1]+0.5*C[:,i,6]*wc[:,6]
-      
-      w[(i-1)*nnnc+1:3:i*nnnc]=((C[i,6,1]+C[i,2,1]+C[i,5,1])*wc[:,1]+
-                                 
-      
-
-      #Every third
-
+    let uc=C[6,:]+C[5,:]+C[1,:]
+      #first equation S[x,x],x+S[x,y],x+S[x,z],x=whatever
+      w[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=uc[1]*wc[1]+0.5*uc[5]*wc[:,5]+0.5*uc[6]*wc[:,6]
+      w[(i-1)*nnnt+2:3:i*nnnc]=uc[2]*wc[:,6]+0.5*uc[4]*wc[:,6]+0.5*uc[6]*wc[:,1]
+      w[(i-1)*nnnt+1:3:i*nnnc]=uc[3]*wc[:,5]+0.5*uc[:,4]*wc[:,6]+0.5*uc[5]*wc[:,1]
+      #second eqn
+      uc=C[6,:]+C[2,:]+C[5,:]
+      w[(i-1)*nnnt+nnnc+1:3:(i-1)*nnnt+2*nnnc]=uc[1]*wc[:,6]+0.5*uc[5]*wc[:,6]+0.5*uc[6]*wc[:,1]
+      w[(i-1)*nnnt+nnnc+2:3:(i-1)*nnnt+2*nnnc]=uc[2]*wc[:,2]+0.5*uc[4]*wc[:,5]+0.5*uc[6]*wc[:,6]
+      w[(i-1)*nnnt+nnnc+3:3:(i-1)*nnnt+2*nnnc]=uc[3]*wc[:,4]+0.5*uc[4]*wc[:,3]+0.5*uc[5]*wc[:,6]
+      #third one
+      uc=C[5,:]+C[4,:]+C[3,:]
+      w[(i-1)*nnnt+2*nnnc+1:3:i*nnnt]=uc[1]*wc[:,5]+0.5*uc[5]*wc[:,3]+0.5*uc[6]*wc[:,4]
+      w[(i-1)*nnnt+2*nnnc+2:3:i*nnnt]=uc[2]*wc[:,4]+0.5*uc[4]*wc[:,3]+0.5*uc[6]*wc[:,5]
+      w[(i-1)*nnnt+2*nnnc+3:3:i*nnnt]=uc[3]*wc[:,3]+0.5*uc[4]*wc[:,4]+0.5*uc[5]*wc[:,5]
+      end
 
 #function Lfl(x::AbstractArray,x0::AbstractArray,C::AbstractArray,ep::Number)
 #  l=zeros(3)
@@ -202,13 +204,10 @@ J[(i-1)*nnnc+1:i*nnnc]=i
     vc[:]=sum((C[i,6]+C[i,2]+C[i,4])*d2imq(x,x0,i[1],i[2],ep))+l[2]
     l[3]=sum((C[i,5]+C[i,4]+C[i,3])*d2imq(x,x0,i[1],i[2],ep))+l[3]
     end
-  return l
-  end
     w[(i-1)*nnnc+1:i*nnnc]=(S\Lh)[1:nnnc]
     #don't fuck up the indexing when calling.
-    end
       return (w,J,inds)
-  end
+  end #function
 
 #for dirichletBCs
 function applyBC(bnd_index,n)
