@@ -121,14 +121,16 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   bin=3*bnd_index
   nnnc=3*nnn
   nnnt=3*nnnc #length of weights vector for three eqns at single starred point
-  inds=Array(Float64,(bin-3)*nnnc)
-  w=Array(Float64,(bin-3)*nnnc)
+  inds=Array(Float64,(bin-3)*nnnt)
+  w=Array(Float64,(bin-3)*nnnt)
   w2=Array(Float64,nnn,6) #The weights for each du^2/dx_i^2
   J=Array(Float64,(bin-3)*nnnc)
   Lh=Array(Float64,nnnc+1)
   Lh[end]=0 #For augmented system
 #convert to array indexing from spatial indexing
-inds[(i-1)*nnnc+1:i*nnnc]=[spinds,spinds+1,spinds+2]
+#inds[(i-1)*nnnc+1:i*nnnc]=[spinds,spinds+1,spinds+2]
+  for i=1:(bin-1)
+    inds[(i-1)*nnnt
 J[(i-1)*nnnc+1:i*nnnc]=i
 #match row indices
   un=ones(nnn)
@@ -138,6 +140,7 @@ J[(i-1)*nnnc+1:i*nnnc]=i
   #      phi(xn-x1) ...
   #For weights, where first set is for u, then v, then w
   for i=1:bnd_index-1
+    inds[(i-1)*nnnt:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]
     #generate the weights matrix
     #Needs casting to avoid Array{Any...}
     for j=1:nnn
@@ -194,19 +197,11 @@ J[(i-1)*nnnc+1:i*nnnc]=i
 #    end
 #  return l
 #  end
-
-
-
-
-
-
-
-    vc[:]=sum((C[i,6]+C[i,2]+C[i,4])*d2imq(x,x0,i[1],i[2],ep))+l[2]
-    l[3]=sum((C[i,5]+C[i,4]+C[i,3])*d2imq(x,x0,i[1],i[2],ep))+l[3]
+    #vc[:]=sum((C[i,6]+C[i,2]+C[i,4])*d2imq(x,x0,i[1],i[2],ep))+l[2]
+    #l[3]=sum((C[i,5]+C[i,4]+C[i,3])*d2imq(x,x0,i[1],i[2],ep))+l[3]
     end
-    w[(i-1)*nnnc+1:i*nnnc]=(S\Lh)[1:nnnc]
     #don't fuck up the indexing when calling.
-      return (w,J,inds)
+    return (w,J,inds)
   end #function
 
 #for dirichletBCs
