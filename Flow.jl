@@ -124,23 +124,38 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   inds=Array(Float64,(bin-3)*nnnt)
   w=Array(Float64,(bin-3)*nnnt)
   w2=Array(Float64,nnn,6) #The weights for each du^2/dx_i^2
-  J=Array(Float64,(bin-3)*nnnc)
+  J=Array(Float64,(bin-1)*nnnt)
   Lh=Array(Float64,nnnc+1)
   Lh[end]=0 #For augmented system
 #convert to array indexing from spatial indexing
 #inds[(i-1)*nnnc+1:i*nnnc]=[spinds,spinds+1,spinds+2]
   for i=1:(bin-1)
-    inds[(i-1)*nnnt
-J[(i-1)*nnnc+1:i*nnnc]=i
+    #inds[(i-1)*nnnt
+    J[(i-1)*nnnt+1:(i-1)*nnnt+nnnc]=(i-1)*3+1
+    J[(i-1)*nnnt+nnnc+1:(i-1)*nnnt+2*nnnc]=(i-1)*3+2
+    J[(i-1)*nnnt+2*nnnc+1:(i-1)*nnnt+3*nnnc]=(i-1)*3+3
+    end
 #match row indices
-  un=ones(nnn)
-  #S=Array(Float64,nnnc,nnnc)
-  #S is  phi(x1-x1):phi(x1-x[1:nnn]) phi(x1-x[1:nnn]) phi(x1-x[1:nnn])
-  #      ...           ...        ...
-  #      phi(xn-x1) ...
-  #For weights, where first set is for u, then v, then w
+#S=Array(Float64,nnnc,nnnc)
+#S is  phi(x1-x1):phi(x1-x[1:nnn]) phi(x1-x[1:nnn]) phi(x1-x[1:nnn])
+#      ...           ...        ...
+#      phi(xn-x1) ...
+#For weights, where first set is for u, then v, then w
   for i=1:bnd_index-1
-    inds[(i-1)*nnnt:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]
+    #get the nonzero column indices for rows 3*i-1,3*i,3*i+1
+    #first eqn
+    inds[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]
+    inds[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]+1
+    inds[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]*2
+    #second
+    inds[(i-1)*nnnt+nnnc+1:3:(i-1)*nnnt+2*nnnc]=3*spinds[i,:]
+    inds[(i-1)*nnnt+nnnc+1:3:(i-1)*nnnt+2*nnnc]=3*spinds[i,:]+1
+    inds[(i-1)*nnnt+nnnc+1:3:(i-1)*nnnt+2*nnnc]=3*spinds[i,:]*2
+    #third
+    inds[(i-1)*nnnt+2*nnnc+1:3:(i-1)*nnnt+3*nnnc]=3*spinds[i,:]
+    inds[(i-1)*nnnt+2*nnnc+1:3:(i-1)*nnnt+3*nnnc]=3*spinds[i,:]+1
+    inds[(i-1)*nnnt+2*nnnc+1:3:(i-1)*nnnt+3*nnnc]=3*spinds[i,:]*2
+
     #generate the weights matrix
     #Needs casting to avoid Array{Any...}
     for j=1:nnn
@@ -150,7 +165,7 @@ J[(i-1)*nnnc+1:i*nnnc]=i
       end
       S=[S ones(nnn)
         ones(nnn) 0]
-    let d2=Array(Float64,nnn+1);dv=[[1,1],[2,2],[3,3],[2,3],[1,3],[1,2];]
+    let d2=Arrt(Float64,nnn+1);dv=[[1,1],[2,2],[3,3],[2,3],[1,3],[1,2];]
         S1=Array(Float64,nnn+1,nnn+1)
       d2[7]=0
       for j=1:nnn
@@ -170,7 +185,6 @@ J[(i-1)*nnnc+1:i*nnnc]=i
     #S1=Float64[imq(coors[j,:]-coors[k,:]) for j in spinds[i,:],k in spinds[i,:]] 
     #w[i,j] is the weights to approx the second derivative i=1:6 (voigt) at spatial
     #point j. Now, w[(i-1)*nnnt+j:3:i*nnnt] is weights for j=u,v,w velocity components for <<i'th spatial point>> and equation << 1 >> (of 3 coupled)
-    #Winner of obfusticated julia contest.
     let uc=C[6,:]+C[5,:]+C[1,:]
       #first equation S[x,x],x+S[x,y],x+S[x,z],x=whatever
       w[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=uc[1]*wc[1]+0.5*uc[5]*wc[:,5]+0.5*uc[6]*wc[:,6]
