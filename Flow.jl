@@ -123,7 +123,7 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
   nnnt=3*nnnc #length of weights vector for three eqns at single starred point
   inds=Array(Float64,(bin-3)*nnnt)
   w=Array(Float64,(bin-3)*nnnt)
-  w2=Array(Float64,nnn,6) #The weights for each du^2/dx_i^2
+  wc=Array(Float64,nnn,6) #The weights for each du^2/dx_i^2
   J=Array(Float64,(bin-1)*nnnt)
   Lh=Array(Float64,nnnc+1)
   Lh[end]=0 #For augmented system
@@ -141,7 +141,7 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
 #      ...           ...        ...
 #      phi(xn-x1) ...
 #For weights, where first set is for u, then v, then w
-  for i=1:bnd_index-1
+  for i=1:bin-3#bnd_index-1
     #get the nonzero column indices for rows 3*i-1,3*i,3*i+1
     #first eqn
     inds[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]
@@ -158,28 +158,28 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
 
     #generate the weights matrix
     #Needs casting to avoid Array{Any...}
+    S=Array(Float64,nnn+1,nnn+1)
     for j=1:nnn
       for k=1:nnn
         S[j,k]=imq(coors[spinds[i,j],:],coors[spinds[i,k],:])
         end
       end
-      S=[S ones(nnn)
-        ones(nnn) 0]
-    let d2=Arrt(Float64,nnn+1);dv=[[1,1],[2,2],[3,3],[2,3],[1,3],[1,2];]
-        S1=Array(Float64,nnn+1,nnn+1)
-      d2[7]=0
+    #S=[S ones(nnn)
+    #   ones(nnn) 0]
+    let d2=Array(Float64,nnn+1);dv=[1 1;2 2;3 3;2 3;1 3;1 2];S1=Array(Float64,nnn+1,nnn+1)
+      d2[6]=0
       for j=1:nnn
         for k=1:nnn
           S1[j,k]=imq(coors[spinds[i,j],:],coors[spinds[i,k],:])
           end
         end
-      S1=[S1 ones(nnn)
-      ones(nnn) 0]
+      S1=[S1[1:nnn,1:nnn] ones(nnn)
+      ones(nnn)' 0]
       for j=1:6
         for k=1:nnn
           d2[k]=d2imq(coors[spinds[i,k],:],coors[spinds[i,1],:],dv[j,1],dv[j,2],ep)      
           end
-          w2[:,j]=(S1\d2)[1:nnn]
+          wc[:,j]=(S1\d2)[1:nnn]
         end
       end #let
     #S1=Float64[imq(coors[j,:]-coors[k,:]) for j in spinds[i,:],k in spinds[i,:]] 
@@ -188,8 +188,8 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
     let uc=C[6,:]+C[5,:]+C[1,:]
       #first equation S[x,x],x+S[x,y],x+S[x,z],x=whatever
       w[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=uc[1]*wc[1]+0.5*uc[5]*wc[:,5]+0.5*uc[6]*wc[:,6]
-      w[(i-1)*nnnt+2:3:i*nnnc]=uc[2]*wc[:,6]+0.5*uc[4]*wc[:,6]+0.5*uc[6]*wc[:,1]
-      w[(i-1)*nnnt+1:3:i*nnnc]=uc[3]*wc[:,5]+0.5*uc[:,4]*wc[:,6]+0.5*uc[5]*wc[:,1]
+      w[(i-1)*nnnt+2:3:(i-1)*nnnt+nnnc]=uc[2]*wc[:,6]+0.5*uc[4]*wc[:,6]+0.5*uc[6]*wc[:,1]
+      w[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=uc[3]*wc[:,5]+0.5*uc[4]*wc[:,6]+0.5*uc[5]*wc[:,1]
       #second eqn
       uc=C[6,:]+C[2,:]+C[5,:]
       w[(i-1)*nnnt+nnnc+1:3:(i-1)*nnnt+2*nnnc]=uc[1]*wc[:,6]+0.5*uc[5]*wc[:,6]+0.5*uc[6]*wc[:,1]
