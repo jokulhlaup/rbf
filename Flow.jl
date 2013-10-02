@@ -141,20 +141,20 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
 #      ...           ...        ...
 #      phi(xn-x1) ...
 #For weights, where first set is for u, then v, then w
-  for i=1:bin-3#bnd_index-1
+  for i=1:bnd_index-1
     #get the nonzero column indices for rows 3*i-1,3*i,3*i+1
     #first eqn
     inds[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]
-    inds[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]+1
-    inds[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]*2
+    inds[(i-1)*nnnt+2:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]+1
+    inds[(i-1)*nnnt+3:3:(i-1)*nnnt+nnnc]=3*spinds[i,:]*2
     #second
     inds[(i-1)*nnnt+nnnc+1:3:(i-1)*nnnt+2*nnnc]=3*spinds[i,:]
-    inds[(i-1)*nnnt+nnnc+1:3:(i-1)*nnnt+2*nnnc]=3*spinds[i,:]+1
-    inds[(i-1)*nnnt+nnnc+1:3:(i-1)*nnnt+2*nnnc]=3*spinds[i,:]*2
+    inds[(i-1)*nnnt+nnnc+2:3:(i-1)*nnnt+2*nnnc]=3*spinds[i,:]+1
+    inds[(i-1)*nnnt+nnnc+3:3:(i-1)*nnnt+2*nnnc]=3*spinds[i,:]*2
     #third
     inds[(i-1)*nnnt+2*nnnc+1:3:(i-1)*nnnt+3*nnnc]=3*spinds[i,:]
-    inds[(i-1)*nnnt+2*nnnc+1:3:(i-1)*nnnt+3*nnnc]=3*spinds[i,:]+1
-    inds[(i-1)*nnnt+2*nnnc+1:3:(i-1)*nnnt+3*nnnc]=3*spinds[i,:]*2
+    inds[(i-1)*nnnt+2*nnnc+2:3:(i-1)*nnnt+3*nnnc]=3*spinds[i,:]+1
+    inds[(i-1)*nnnt+2*nnnc+3:3:(i-1)*nnnt+3*nnnc]=3*spinds[i,:]*2
 
     #generate the weights matrix
     #Needs casting to avoid Array{Any...}
@@ -189,7 +189,7 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
       #first equation S[x,x],x+S[x,y],x+S[x,z],x=whatever
       w[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=uc[1]*wc[1]+0.5*uc[5]*wc[:,5]+0.5*uc[6]*wc[:,6]
       w[(i-1)*nnnt+2:3:(i-1)*nnnt+nnnc]=uc[2]*wc[:,6]+0.5*uc[4]*wc[:,6]+0.5*uc[6]*wc[:,1]
-      w[(i-1)*nnnt+1:3:(i-1)*nnnt+nnnc]=uc[3]*wc[:,5]+0.5*uc[4]*wc[:,6]+0.5*uc[5]*wc[:,1]
+      w[(i-1)*nnnt+3:3:(i-1)*nnnt+nnnc]=uc[3]*wc[:,5]+0.5*uc[4]*wc[:,6]+0.5*uc[5]*wc[:,1]
       #second eqn
       uc=C[6,:]+C[2,:]+C[5,:]
       w[(i-1)*nnnt+nnnc+1:3:(i-1)*nnnt+2*nnnc]=uc[1]*wc[:,6]+0.5*uc[5]*wc[:,6]+0.5*uc[6]*wc[:,1]
@@ -200,7 +200,7 @@ function getWeights(kd::PyObject,coors,C,L::Function,bnd_index::Int,n::Int,nnn::
       w[(i-1)*nnnt+2*nnnc+1:3:i*nnnt]=uc[1]*wc[:,5]+0.5*uc[5]*wc[:,3]+0.5*uc[6]*wc[:,4]
       w[(i-1)*nnnt+2*nnnc+2:3:i*nnnt]=uc[2]*wc[:,4]+0.5*uc[4]*wc[:,3]+0.5*uc[6]*wc[:,5]
       w[(i-1)*nnnt+2*nnnc+3:3:i*nnnt]=uc[3]*wc[:,3]+0.5*uc[4]*wc[:,4]+0.5*uc[5]*wc[:,5]
-      end
+      end #let
 
 #function Lfl(x::AbstractArray,x0::AbstractArray,C::AbstractArray,ep::Number)
 #  l=zeros(3)
