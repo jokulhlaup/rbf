@@ -9,7 +9,8 @@ function nRK4(f,ntimes,h,m,p)
      end
   return p
   end
-
+function delthis()
+ return nothing
 function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
    for i=1:n
       k1=f(x)
