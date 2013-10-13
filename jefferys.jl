@@ -83,6 +83,10 @@ function fabEvolve!(fab::FabricPt,pars::GlobalPars)
   p=nRK4(pars.f,fab.n,pars.hrk,pars.nrk,fab.p)
   end 
 #Main driver routine to get the viscosity.
+#refactor this by 
+#at step zero, generate a closure equiv to fabEvolve! +params
+#then at each timestep, mutate the closure. (can you do that
+#without pushing a new copy onto the stack?)
 function getVisc!(fab::FabricPt,pars::GlobalPars)
   #advance the viscosity
   #get new theta
