@@ -9,8 +9,6 @@ function nRK4(f,ntimes,h,m,p)
      end
   return p
   end
-function delthis()
- return nothing
 function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
    for i=1:n
       k1=f(x)
@@ -80,9 +78,21 @@ function getRotM(fab::FabricPt)
     end
   return R
   end
-function fabEvolve!(fab::FabricPt,pars::GlobalPars)
-  p=nRK4(pars.f,fab.n,pars.hrk,pars.nrk,fab.p)
-  end 
+#get   
+type FabricPt
+  coors::Array{Float64,1} #coors in space
+  p::Union(Nothing,Array{Float64,2}) #[2,:] (theta,phi) angles
+  n::Union(Int64,Nothing) #number of xtals at site
+  C::Union(Nothing,Array{Float64,2}) #viscosity matrix
+  stencil::Union(Nothing,Array{Int32,1})
+  FabricPt(coors,p=nothing,n=nothing,C=nothing,stencil=nothing)=new(coors,p,n,C,stencil)
+  end
+
+function fabricHelper(pars::GlobalPars,coors::Array{Float64,2},p::Array{Float64,2},nxtal::Int64,C::Array{Float64,3})
+  #this is the function that actually does the rotation.  
+  function fabEvolve!()
+    p=nRK4(f,n,hrk,nrk,p)
+    end 
 #Main driver routine to get the viscosity.
 #refactor this by 
 #at step zero, generate a closure equiv to fabEvolve! +params
