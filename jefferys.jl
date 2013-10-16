@@ -9,7 +9,7 @@ function nRK4(f,ntimes,h,m,p)
      end
   return p
   end
-function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
+function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1},vort,epsdot,theta,dt,m)
    for i=1:n
       k1=f(x)
       k2=f(x+k1*h/2)
@@ -20,23 +20,25 @@ function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1})
    return x
    end
 
-
+function jefferysRHS(c,vort,epsdot,theta,dt,m)
+  return (vort*c-epsdot*c+(c'*epsdot*c)*c)
 ##########################
 ##########Get viscosity###
 ##########################
-type FabricPt
-  coors::Array{Float64,1} #coors in space
-  p::Union(Nothing,Array{Float64,2}) #[2,:] (theta,phi) angles
-  n::Union(Int64,Nothing) #number of xtals at site
-  C::Union(Nothing,Array{Float64,2}) #viscosity matrix
-  stencil::Union(Nothing,Array{Int32,1})
-  FabricPt(coors,p=nothing,n=nothing,C=nothing,stencil=nothing)=new(coors,p,n,C,stencil)
+type FabricPt{T<:Num,I<:Int}
+  coors::Array{T,1} #coors in space
+  p::Union(Nothing,Array{T,2}) #[2,:] (theta,phi) angles
+  ngr::I #number of grains at site
+  ns::I #number of sites
+  C::Union(Nothing,Array{T,2}) #viscosity matrix
+  #stencil::Array{T,1}
+  #FabricPt(coors,p,n=nothing,C=nothing,stencil=nothing)=new(coors,p,n,C,stencil)
   end
 
-immutable GlobalPars
-  dt::Float64 #timestep between velocity timesteps
-  nrk::Int64 #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
-  hrk::Float64 #better be dt/nrk
+immutable GlobalPars{T:<Num,I<:Int}
+  dt::T #timestep between velocity timesteps
+  nrk::I #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
+  hrk::T #better be dt/nrk
   f::Function #Jeffery's eqn to supply to rk3
   GlobalPars(dt,nrk,hrk,f)=new(dt,nrk,dt/nrk,f)
   end
@@ -65,8 +67,8 @@ end
 
 #gets the rotation matrices
 function getRotM(fab::FabricPt)
-  R=Array(Float64,3,3,fab.n)
-  for i=1:fab.n
+  R=Array(Float64,3,3,fab.ngr)
+  for i=1:fab.ngr
     A=[0 0 fab.p[i,1]
        0 0 -fab.p[i,2] 
        -fab.p[i,1] fab.p[i,2] 0]
@@ -78,35 +80,30 @@ function getRotM(fab::FabricPt)
     end
   return R
   end
-#get   
-type FabricPt
-  coors::Array{Float64,1} #coors in space
-  p::Union(Nothing,Array{Float64,2}) #[2,:] (theta,phi) angles
-  n::Union(Int64,Nothing) #number of xtals at site
-  C::Union(Nothing,Array{Float64,2}) #viscosity matrix
-  stencil::Union(Nothing,Array{Int32,1})
-  FabricPt(coors,p=nothing,n=nothing,C=nothing,stencil=nothing)=new(coors,p,n,C,stencil)
-  end
-
-function fabricHelper(pars::GlobalPars,coors::Array{Float64,2},p::Array{Float64,2},nxtal::Int64,C::Array{Float64,3})
+#this is the closure that returns fabEvolve!, which evolves the fabric based on the timestep.
+function fabricHelper(pars::GlobalPars,coors::Array{Float64,2},p::Array{Float64,2},ngrain::Int64,C::Array{Float64,3})
   #this is the function that actually does the rotation.  
   function fabEvolve!()
     p=nRK4(f,n,hrk,nrk,p)
-    end 
+    end
+  return fabEvolve!
+
+
+
 #Main driver routine to get the viscosity.
 #refactor this by 
 #at step zero, generate a closure equiv to fabEvolve! +params
 #then at each timestep, mutate the closure. (can you do that
 #without pushing a new copy onto the stack?)
-function getVisc!(fab::FabricPt,pars::GlobalPars)
+function getVisc!(fab::FabricPt,pars::GlobalPars,fabEvolve::Function)
   #advance the viscosity
   #get new theta
-  fabEvolve!(fab,pars)
+  fabEvolve(fab,pars)
   #get the rotation matrices for each theta pair
   R=getRotM(fab)
-  #now rotate each crystal's C matrix (C_ij= delta5,5)
+  #now rotate each grain's C matrix (C_ij= delta5,5)
   #Then invert it to get visc. yay.
-  for i=1:fab.n
+  for i=1:fab.ngr
     C[i,:,:,]=rotC(R[i,:,:])
     end
   aC=mean(C,1) #check if right
