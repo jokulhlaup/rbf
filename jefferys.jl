@@ -1,7 +1,29 @@
 module jefferys
 using ODE
 export FabricPt,GlobalPars,solveJefferys,rk4,nRK4,rotC
-#
+##########################
+##########Get viscosity###
+##########################
+typealias 
+type FabricPt{T<:Num,I<:Int}
+  coors::Array{T,1} #coors in space
+  p::Array{T,2} #[2,:] (theta,phi) angles
+  ngr::I #number of grains at site
+  ns::I #number of sites
+  C::Array{T,3} #viscosity matrix
+  #stencil::Array{T,1}
+  #FabricPt(coors,p,n=nothing,C=nothing,stencil=nothing)=new(coors,p,n,C,stencil)
+  end
+
+immutable GlobalPars{T:<Num,I<:Int}
+  dt::T #timestep between velocity timesteps
+  nrk::I #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
+  hrk::T #better be dt/nrk
+  f::Function #Jeffery's eqn to supply to rk3
+  GlobalPars(dt,nrk,hrk,f)=new(dt,nrk,dt/nrk,f)
+  end
+
+
 #Modification of ODE4 from package ODE
 function nRK4(f,ntimes,h,m,p)
   for i=1:ntimes
@@ -22,27 +44,7 @@ function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1},vort,epsdot,the
 
 function jefferysRHS(c,vort,epsdot,theta,dt,m)
   return (vort*c-epsdot*c+(c'*epsdot*c)*c)
-##########################
-##########Get viscosity###
-##########################
-type FabricPt{T<:Num,I<:Int}
-  coors::Array{T,1} #coors in space
-  p::Union(Nothing,Array{T,2}) #[2,:] (theta,phi) angles
-  ngr::I #number of grains at site
-  ns::I #number of sites
-  C::Union(Nothing,Array{T,2}) #viscosity matrix
-  #stencil::Array{T,1}
-  #FabricPt(coors,p,n=nothing,C=nothing,stencil=nothing)=new(coors,p,n,C,stencil)
   end
-
-immutable GlobalPars{T:<Num,I<:Int}
-  dt::T #timestep between velocity timesteps
-  nrk::I #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
-  hrk::T #better be dt/nrk
-  f::Function #Jeffery's eqn to supply to rk3
-  GlobalPars(dt,nrk,hrk,f)=new(dt,nrk,dt/nrk,f)
-  end
-
 #Replace this so its rotC(R)
 function rotC(R)
   # form the K matrix (based on Bowers 'Applied Mechanics of Solids', Chapter 3)
