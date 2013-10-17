@@ -4,8 +4,9 @@ export FabricPt,GlobalPars,solveJefferys,rk4,nRK4,rotC
 ##########################
 ##########Get viscosity###
 ##########################
-typealias 
-type FabricPt{T<:Num,I<:Int}
+abstract AbstractFabric<:Any
+
+type FabricPt{T<:Num,I<:Int}<:AbstractFabricPt
   coors::Array{T,1} #coors in space
   p::Array{T,2} #[2,:] (theta,phi) angles
   ngr::I #number of grains at site
@@ -68,7 +69,7 @@ function rotC(R)
 end
 
 #gets the rotation matrices
-function getRotM(fab::FabricPt)
+function getRotM(fab::T<:AbstractFabric)
   R=Array(Float64,3,3,fab.ngr)
   for i=1:fab.ngr
     A=[0 0 fab.p[i,1]
@@ -89,7 +90,7 @@ function fabricHelper(pars::GlobalPars,coors::Array{Float64,2},p::Array{Float64,
     p=nRK4(f,n,hrk,nrk,p)
     end
   return fabEvolve!
-
+  end
 
 
 #Main driver routine to get the viscosity.
@@ -97,7 +98,7 @@ function fabricHelper(pars::GlobalPars,coors::Array{Float64,2},p::Array{Float64,
 #at step zero, generate a closure equiv to fabEvolve! +params
 #then at each timestep, mutate the closure. (can you do that
 #without pushing a new copy onto the stack?)
-function getVisc!(fab::FabricPt,pars::GlobalPars,fabEvolve::Function)
+function getVisc!(fab::T<:AbstractFabricPt,pars::GlobalPars,fabEvolve::Function)
   #advance the viscosity
   #get new theta
   fabEvolve(fab,pars)
