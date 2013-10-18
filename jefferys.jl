@@ -1,19 +1,25 @@
 module jefferys
 using ODE
-export FabricPt,GlobalPars,solveJefferys,rk4,nRK4,rotC
+export Fabric,GlobalPars,solveJefferys,rk4,nRK4,rotC
 ##########################
 ##########Get viscosity###
 ##########################
 abstract AbstractFabric<:Any
 
-type FabricPt{T<:Num,I<:Int}<:AbstractFabricPt
+type Fabric{T<:Num,I<:Int}<:AbstractFabric
   coors::Array{T,1} #coors in space
-  p::Array{T,2} #[2,:] (theta,phi) angles
+  p::Array{T,3} #[2,:] (theta,phi) angles
   ngr::I #number of grains at site
   ns::I #number of sites
   C::Array{T,3} #viscosity matrix
   #stencil::Array{T,1}
-  #FabricPt(coors,p,n=nothing,C=nothing,stencil=nothing)=new(coors,p,n,C,stencil)
+  #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
+  function Fabric(coors,p,ngr,ns,C)
+     size(coors)==(ns,3)?pass:error("Dimension mismatch in coors")
+     size(p)==(ns,ngr,3)?pass:error("Dimension mismatch in p")
+     size(C)==(ns,3,3)?pass:error("Dimension mismatch in C")
+     return new(coors,p,ngr,ns,C)
+     end
   end
 
 immutable GlobalPars{T:<Num,I<:Int}
@@ -24,7 +30,6 @@ immutable GlobalPars{T:<Num,I<:Int}
   GlobalPars(dt,nrk,hrk,f)=new(dt,nrk,dt/nrk,f)
   end
 
-
 #Modification of ODE4 from package ODE
 function nRK4(f,ntimes,h,m,p)
   for i=1:ntimes
@@ -32,6 +37,7 @@ function nRK4(f,ntimes,h,m,p)
      end
   return p
   end
+
 function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1},vort,epsdot,theta,dt,m)
    for i=1:n
       k1=f(x)
@@ -98,7 +104,7 @@ function fabricHelper(pars::GlobalPars,coors::Array{Float64,2},p::Array{Float64,
 #at step zero, generate a closure equiv to fabEvolve! +params
 #then at each timestep, mutate the closure. (can you do that
 #without pushing a new copy onto the stack?)
-function getVisc!(fab::T<:AbstractFabricPt,pars::GlobalPars,fabEvolve::Function)
+function getVisc!(fab::T<:AbstractFabric,pars::GlobalPars,fabEvolve::Function)
   #advance the viscosity
   #get new theta
   fabEvolve(fab,pars)
