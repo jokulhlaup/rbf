@@ -6,23 +6,24 @@ export Fabric,GlobalPars,solveJefferys,rk4,nRK4,rotC
 ##########################
 abstract AbstractFabric<:Any
 
-type Fabric{T<:Num,I<:Int}<:AbstractFabric
-  coors::Array{T,1} #coors in space
+type Fabric{T<:Number,I<:Int}<:AbstractFabric
+  coors::Array{T,2} #coors in space
   p::Array{T,3} #[2,:] (theta,phi) angles
   ngr::I #number of grains at site
+  h::T
   ns::I #number of sites
   C::Array{T,3} #viscosity matrix
+  #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
   #stencil::Array{T,1}
-  #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
-  function Fabric(coors,p,ngr,ns,C)
-     size(coors)==(ns,3)?pass:error("Dimension mismatch in coors")
-     size(p)==(ns,ngr,3)?pass:error("Dimension mismatch in p")
-     size(C)==(ns,3,3)?pass:error("Dimension mismatch in C")
-     return new(coors,p,ngr,ns,C)
-     end
+ #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
+  function Fabric(coors,p,ngr,ns,h,C=zeros(ns,6,6))
+    size(coors)==(ns,3)?nothing:error("Dimension mismatch in coors")
+    size(p)==(ns,ngr,3)?nothing:error("Dimension mismatch in p")
+    size(C)==(ns,6,6) ?nothing:error("Dimension mismatch in C")
+    return new(coors,p,ngr,h,ns,C)
+    end
   end
-
-immutable GlobalPars{T:<Num,I<:Int}
+immutable GlobalPars{T<:Number,I<:Int}
   dt::T #timestep between velocity timesteps
   nrk::I #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
   hrk::T #better be dt/nrk
@@ -76,27 +77,28 @@ end
 
 #gets the rotation matrices
 function getRotM(fab::T<:AbstractFabric)
-  R=Array(Float64,3,3,fab.ngr)
+  R=Array(Float64,fab.ngr,3,3)
   for i=1:fab.ngr
     A=[0 0 fab.p[i,1]
        0 0 -fab.p[i,2] 
        -fab.p[i,1] fab.p[i,2] 0]
-    A2=[-fab[i,2]^2 fab[i,2]*fab[i,1] 0
-        fab[i,2]*fab[i,1] fab[i,2]^2 0 
-        0 0 fab[i,1]^2+fab[i,2]^2]
+    A2=[-fab.p[i,2]^2 fab.p[i,2]*fab[i,1] 0
+        fab.p[i,2]*fab[i,1] fab.p[i,2]^2 0 
+        0 0 fab.p[i,1]^2+fab.p[i,2]^2]
     R[i,:,:]=sin(acos(fab.p[i,3]))*A+(1-fab.p[i,3])*A2
     R[i,1,1]+=1;R[i,2,2]+=1;R[i,3,3]+=1
     end
   return R
   end
 #this is the closure that returns fabEvolve!, which evolves the fabric based on the timestep.
-function fabricHelper(pars::GlobalPars,coors::Array{Float64,2},p::Array{Float64,2},ngrain::Int64,C::Array{Float64,3})
+function fabricHelper(pars::GlobalPars,f::Function,coors::Array{Float64,2},p::Array{Float64,2},ngrain::Int64,C::Array{Float64,3})
   #this is the function that actually does the rotation.  
-  function fabEvolve!()
-    p=nRK4(f,n,hrk,nrk,p)
+  function fabEvolve!(fab::T<:AbstractFabric)
+    fab.p=nRK4(fab.p,fab.ngr*fab.ns,fab.h,fab.m,fab.p)
     end
   return fabEvolve!
   end
+(f,ntimes,h,m,p)
 
 
 #Main driver routine to get the viscosity.
