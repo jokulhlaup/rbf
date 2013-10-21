@@ -8,5 +8,11 @@ h=1
 C=Array(Float64,ns,6,6)
 fab=Fabric{Float64,Int64}(coors,p,ngr,ns,h,C)
 
+dt=1.
+nrk=10
+f=jefferysRHS
+pars=GlobalPars{Float64,Int64}(dt,nrk,f)
+
+fabE=fabricHelper(pars,fab,f)
 
 

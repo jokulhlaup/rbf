@@ -1,10 +1,10 @@
 module jefferys
 using ODE
-export Fabric,GlobalPars,solveJefferys,rk4,nRK4,rotC
+export Fabric,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper
 ##########################
 ##########Get viscosity###
 ##########################
-abstract AbstractFabric<:Any
+abstract AbstractFabric{T,I}<:Any
 
 type Fabric{T<:Number,I<:Int}<:AbstractFabric
   coors::Array{T,2} #coors in space
@@ -13,6 +13,8 @@ type Fabric{T<:Number,I<:Int}<:AbstractFabric
   h::T
   ns::I #number of sites
   C::Array{T,3} #viscosity matrix
+  vort::Array{T,3}
+  epsdot::Array{t,3}
   #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
   #stencil::Array{T,1}
  #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
@@ -20,6 +22,7 @@ type Fabric{T<:Number,I<:Int}<:AbstractFabric
     size(coors)==(ns,3)?nothing:error("Dimension mismatch in coors")
     size(p)==(ns,ngr,3)?nothing:error("Dimension mismatch in p")
     size(C)==(ns,6,6) ?nothing:error("Dimension mismatch in C")
+    #size(vort)==((ns 
     return new(coors,p,ngr,h,ns,C)
     end
   end
@@ -28,7 +31,9 @@ immutable GlobalPars{T<:Number,I<:Int}
   nrk::I #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
   hrk::T #better be dt/nrk
   f::Function #Jeffery's eqn to supply to rk3
-  GlobalPars(dt,nrk,hrk,f)=new(dt,nrk,dt/nrk,f)
+  function GlobalPars(dt,nrk,f)
+    return new(dt,nrk,dt/nrk,f)
+    end
   end
 
 #Modification of ODE4 from package ODE
@@ -50,7 +55,7 @@ function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1},vort,epsdot,the
    return x
    end
 
-function jefferysRHS(c,vort,epsdot,theta,dt,m)
+function jefferysRHS(c,vort,epsdot,theta,dt)
   return (vort*c-epsdot*c+(c'*epsdot*c)*c)
   end
 #Replace this so its rotC(R)
@@ -76,7 +81,7 @@ function rotC(R)
 end
 
 #gets the rotation matrices
-function getRotM(fab::T<:AbstractFabric)
+function getRotM(fab::AbstractFabric)
   R=Array(Float64,fab.ngr,3,3)
   for i=1:fab.ngr
     A=[0 0 fab.p[i,1]
@@ -91,14 +96,13 @@ function getRotM(fab::T<:AbstractFabric)
   return R
   end
 #this is the closure that returns fabEvolve!, which evolves the fabric based on the timestep.
-function fabricHelper(pars::GlobalPars,f::Function,coors::Array{Float64,2},p::Array{Float64,2},ngrain::Int64,C::Array{Float64,3})
+function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
   #this is the function that actually does the rotation.  
-  function fabEvolve!(fab::T<:AbstractFabric)
+  function fabEvolve!(pars::GlobalPars,fab::AbstractFabric)
     fab.p=nRK4(fab.p,fab.ngr*fab.ns,fab.h,fab.m,fab.p)
     end
   return fabEvolve!
   end
-(f,ntimes,h,m,p)
 
 
 #Main driver routine to get the viscosity.
@@ -106,7 +110,7 @@ function fabricHelper(pars::GlobalPars,f::Function,coors::Array{Float64,2},p::Ar
 #at step zero, generate a closure equiv to fabEvolve! +params
 #then at each timestep, mutate the closure. (can you do that
 #without pushing a new copy onto the stack?)
-function getVisc!(fab::T<:AbstractFabric,pars::GlobalPars,fabEvolve::Function)
+function getVisc!(fab::AbstractFabric,pars::GlobalPars,fabEvolve::Function)
   #advance the viscosity
   #get new theta
   fabEvolve(fab,pars)
