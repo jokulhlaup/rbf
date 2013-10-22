@@ -5,7 +5,7 @@ export Fabric,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,
 ##########Get viscosity###
 ##########################
 abstract AbstractFabric{T,I}<:Any
-
+#most basic
 type Fabric{T<:Number,I<:Int}<:AbstractFabric
   coors::Array{T,2} #coors in space
   p::Array{T,3} #[2,:] (theta,phi) angles
@@ -13,17 +13,19 @@ type Fabric{T<:Number,I<:Int}<:AbstractFabric
   h::T
   ns::I #number of sites
   C::Array{T,3} #viscosity matrix
-  vort::Array{T,3}
-  epsdot::Array{t,3}
+  vort::Array{T,3} #vorticity
+  epsdot::Array{T,3} #strain rate
+  
   #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
   #stencil::Array{T,1}
  #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
-  function Fabric(coors,p,ngr,ns,h,C=zeros(ns,6,6))
-    size(coors)==(ns,3)?nothing:error("Dimension mismatch in coors")
-    size(p)==(ns,ngr,3)?nothing:error("Dimension mismatch in p")
-    size(C)==(ns,6,6) ?nothing:error("Dimension mismatch in C")
-    #size(vort)==((ns 
-    return new(coors,p,ngr,h,ns,C)
+  function Fabric(coors,p,ngr,ns,h,C,vort,epsdot)
+    size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
+    size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
+    size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
+    size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
+    size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
+    return new(coors,p,ngr,h,ns,C,vort,epsdot)
     end
   end
 immutable GlobalPars{T<:Number,I<:Int}
@@ -37,26 +39,26 @@ immutable GlobalPars{T<:Number,I<:Int}
   end
 
 #Modification of ODE4 from package ODE
-function nRK4(f,ntimes,h,m,p)
+function nRK4(f,ntimes::Int,h::Number,m::Number,dt,p,vort,epsdot)
   for i=1:ntimes
-     p[i,:]=jefferys.rk4(f,h,m,p[i,:])
+     p[i,:]=jefferys.rk4(f,h,m,p[:,i],vort,epsdot,dt,m)
      end
   return p
   end
 
-function rk4(f::Function,h::Float64,n::Int64,x::Array{Float64,1},vort,epsdot,theta,dt,m)
+function rk4(f::Function,h::Float64,n::Int64,x,vort,epsdot,dt,m)
    for i=1:n
-      k1=f(x)
-      k2=f(x+k1*h/2)
-      k3=f(x+k2*h/2)
-      k4=f(x+k3*h/2)
+      k1=f(x,vort,epsdot,dt)
+      k2=f(x+k1*h/2,vort[:,:,i],epsdot[:,:,i],dt)
+      k3=f(x+k2*h/2,vort[:,:,i],epsdot[:,:,i],dt)
+      k4=f(x+k3*h/2,vort[:,:,i],epsdot[:,:,i],dt)
       x+=(1/6)*h*(k1+2*k2+2*k3+k4)
       end
    return x
    end
 
-function jefferysRHS(c,vort,epsdot,theta,dt)
-  return (vort*c-epsdot*c+(c'*epsdot*c)*c)
+function jefferysRHS(c,vort,epsdot,dt)
+  return (vort*c-epsdot*c+(c'*epsdot*c)*c)*dt
   end
 #Replace this so its rotC(R)
 function rotC(R)
@@ -84,9 +86,9 @@ end
 function getRotM(fab::AbstractFabric)
   R=Array(Float64,fab.ngr,3,3)
   for i=1:fab.ngr
-    A=[0 0 fab.p[i,1]
-       0 0 -fab.p[i,2] 
-       -fab.p[i,1] fab.p[i,2] 0]
+    A=[0 0 fab.p[1,i]
+       0 0 -fab.p[2,i] 
+       -fab.p[1,i] fab.p[2,i] 0]
     A2=[-fab.p[i,2]^2 fab.p[i,2]*fab[i,1] 0
         fab.p[i,2]*fab[i,1] fab.p[i,2]^2 0 
         0 0 fab.p[i,1]^2+fab.p[i,2]^2]
@@ -98,8 +100,8 @@ function getRotM(fab::AbstractFabric)
 #this is the closure that returns fabEvolve!, which evolves the fabric based on the timestep.
 function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
   #this is the function that actually does the rotation.  
-  function fabEvolve!(pars::GlobalPars,fab::AbstractFabric)
-    fab.p=nRK4(fab.p,fab.ngr*fab.ns,fab.h,fab.m,fab.p)
+  function fabEvolve!(pars::GlobalPars,fab::Fabric,f) #jefferys equation
+    fab.p=nRK4(f,fab.ngr*fab.ns,fab.h,pars.nrk,pars.dt,fab.p,fab.vort,fab.epsdot)
     end
   return fabEvolve!
   end
@@ -113,7 +115,7 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
 function getVisc!(fab::AbstractFabric,pars::GlobalPars,fabEvolve::Function)
   #advance the viscosity
   #get new theta
-  fabEvolve(fab,pars)
+  fabEvolve!(fab,pars)
   #get the rotation matrices for each theta pair
   R=getRotM(fab)
   #now rotate each grain's C matrix (C_ij= delta5,5)
