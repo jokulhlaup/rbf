@@ -89,7 +89,7 @@ function getRotM(fab::AbstractFabric)
     A=[0 0 fab.p[1,i]
        0 0 -fab.p[2,i] 
        -fab.p[1,i] fab.p[2,i] 0]
-    A2=[-fab.p[i,2]^2 fab.p[i,2]*fab[i,1] 0
+    A2=[-fab.p[i,2]^2 fab.p[2,i]*fab[i,1] 0
         fab.p[i,2]*fab[i,1] fab.p[i,2]^2 0 
         0 0 fab.p[i,1]^2+fab.p[i,2]^2]
     R[i,:,:]=sin(acos(fab.p[i,3]))*A+(1-fab.p[i,3])*A2
