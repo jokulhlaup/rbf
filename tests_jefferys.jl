@@ -1,24 +1,25 @@
-using jefferys
+using jefferys,Plotting,PyCall
+@pyimport matplotlib.pyplot as plt
 ngr=100
 ns=10
-coors=rand(ns,3)
-p=rand(10,100,3)
-p=p./(sqrt(p[:,:,1].^2+p[:,:,2].^2+p[:,:,3].^2))
+coors=rand(3,ns)
+p=rand(3,ns,ngr)-0.5
+#normalize!
+for i=1:ns
+  for j=1:ngr
+     p[:,i,j]=p[:,i,j]/norm(p[:,i,j])
+   end
+ end
 h=1
-C=Array(Float64,ns,6,6)
-vort=zeros(ns,3,3)
-epsdot=zeros(ns,3,3)
-epsdot[:,1,1]=1
-epsdot[:,2,2]=1
-epsdot[:,3,3]=-2
-
-dt=1.
-nrk=10
-f=jefferysRHS
-pars=GlobalPars{Float64,Int64}(dt,nrk,f)
+C=Array(Float64,6,6,ns)
+vort=zeros(3,3,ns)
+epsdot=zeros(3,3,ns)
+epsdot[1,1,:]=1
+epsdot[2,2,:]=1
+epsdot[3,3,:]=-2
 
 
-dt=1.
+dt=5e-3
 nrk=10
 f=jefferysRHS
 pars=GlobalPars{Float64,Int64}(dt,nrk,f)
@@ -26,3 +27,11 @@ pars=GlobalPars{Float64,Int64}(dt,nrk,f)
 fab=Fabric{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot)
 fabE=fabricHelper(pars,fab,jefferysRHS)
 fabE(pars,fab,jefferysRHS)
+for i=1:10
+ fab.p=fabE(pars,fab,jefferysRHS)
+ end
+
+pl=schmidtPlot(fab.p)
+plt.show()
+
+
