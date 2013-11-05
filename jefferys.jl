@@ -141,6 +141,43 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
         end
       end
     end
+  
+  #finds the effective stress on grains at one site.
+  function localSigmaEff(p,sigma,ngr)
+    G=zeros(6)
+    #first find local geometric tensors
+    for i=1:ngr
+      g[6*i-5:6*i]=localGeomTensor(p[3*i-2:3*i],sigma)
+      G+=g[6*i-5:6*i]
+      end
+    G=G/ngr
+    for i=1:ngr
+      g[6*i-5:6*i]=g[6*i-5:6*i]./G.*sigma #g= local sigma now
+      sigmaE[i]=sqrt(1/3*secondInv(g[6*i-5:6*i])) #be sure to convert
+      #back to effective stress from the second invariant.
+      end
+    return sigmaE 
+    end
+      
+      
+    
+
+
+  #Find the local geometric tensor G (Azuma 1996)
+  #p::3 x ngr array
+  #g::6 x ngr array (symmetric)
+  function localGeomTensor(p,sigma)
+    m=dot(sigma,c) #read: T
+    m=cross(c,T) #read: n
+    m=m/norm(m) #read: n
+    m=cross(m,c)
+    return m/norm(m)
+    end
+    
+  function bulkGeomTensor  
+    
+
+
     return fabEvolve!
   end
 
