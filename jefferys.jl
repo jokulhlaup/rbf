@@ -158,7 +158,15 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
       end
     return sigmaE 
     end
-      
+  #probability that a crystal recrystallizes
+  function probDRx(fab::AbstractFabric)
+    for i=1:ns
+      sigmaE=localSigmaEff(fab.p[(i-1)*fab.ngr+1:i*fab.ngr],
+          sigma[:,(i-1)*6+1:i*6],fab.ngr)
+      A=expFactor()
+    
+    
+    
       
     
 
@@ -174,12 +182,7 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
     return m/norm(m)
     end
     
-  function bulkGeomTensor  
-    
-
-
-    return fabEvolve!
-  end
+  
 
 #gets the rotation matrices
 function getRotMHelper(Array{T,1},A::Array{Float64,2},
