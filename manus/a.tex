@@ -1,0 +1,33 @@
+\documentclass{article}
+\usepackage{amssymb,amsmath}
+
+\begin{document}
+
+\section{Grain rotation}
+Grain rotation is described using a Jefferys-Type equation \citep{azuma94}:
+\begin{equation}
+
+\dot{c} = D \cdot c + c^T \cdot D \cdot c
+\end{equation}
+
+This causes c-axes to rotate away from extensional axes.
+\section{Grain radius evolution}
+Each grain in the simulation has an associated radius $r_i$. The grain growth rate is taken as a function of the driving force of grain growth. The driving force of each grain is calculated as if the grain is embedded in a homogenous medium with the average properties (i.e., elastic strain energy) of the fabric sample.
+
+\section{Grain Growth}
+Normal grain growth is induced by a driving force related to the local curvature at the grain surface
+
+From \citet{durand2005}, the growth rate of a grain in the presence of Zener pinning is can be given by
+
+\begin{equation}
+\frac{dr}{dt} = K(\frac{1}{R}-\frac{P}{\alpha \gamma}
+\end{equation}
+
+where $K$ is an Arrhenius factor dependent on temperature, and $P$ the counteracting force due to pinning
+
+\section{Recrystallization}
+Migration (dynamic) recrystallization is primarily driven by lower strain energy (easy glide) grains consuming higher strain energy grains \citep{duval1995}. At least at larger scales (after the initial nucleation), this reduction in strain energy can be incorporated into the driving force. High dislocation densities from work-hardening in more highly plastically strained grains can also contribute to the driving force, as these dislocations are annihilated by the advancing boundary. The model currently calculates the effective stress on each grain following \citet{azuma96}, which depends on the bulk stress and the orientation of each grain and its neighbors. This stress is then converted into strain energy under the assumption of elasticity.
+
+\bibliographystyle{natbib}
+\bibliography{anis}
+\end{document}
