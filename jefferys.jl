@@ -7,19 +7,27 @@ export solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper
 ##########################
 abstract AbstractFabric{T,I}<:Any
 #most basic
-type Fabric{T<:Number,I<:Int}<:AbstractFabric
-  coors::Array{T,2} #coors in space
-  p::Array{T,3} #[2,:] (theta,phi) angles
-  ngr::I #number of grains at site
-  h::T
-  ns::I #number of sites
-  C::Array{T,3} #viscosity matrix
-  vort::Array{T,3} #vorticity
-  epsdot::Array{T,3} #strain rate
-  
-  #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
-  #stencil::Array{T,1}
- #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
+
+macro genrFT(name,body)
+  quote
+    type $name{T<:Number,I<:Int}<:AbstractFabric
+      coors::Array{T,2} #coors in space
+      p::Array{T,3} #[2,:] (theta,phi) angles
+      ngr::I #number of grains at site
+      h::T
+      ns::I #number of sites
+      C::Array{T,3} #viscosity matrix
+      vort::Array{T,3} #vorticity
+      epsdot::Array{T,3} #strain rate
+      
+      $body
+      end
+    end
+  end
+    #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
+    #stencil::Array{T,1}
+   #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
+@genrFT(Fabric,begin
   function Fabric(coors,p,ngr,ns,h,C,vort,epsdot)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
     size(p)==(3,ns,ngr)?nothing:error("Dimension mismatch in 'p'")
@@ -28,7 +36,7 @@ type Fabric{T<:Number,I<:Int}<:AbstractFabric
     size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
     return new(coors,p,ngr,h,ns,C,vort,epsdot)
     end
-  end
+  end)
 
 type Fabric2{T<:Number,I<:Int}<:AbstractFabric
   coors::Array{T,2} #coors in space
@@ -164,12 +172,6 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
       sigmaE=localSigmaEff(fab.p[(i-1)*fab.ngr+1:i*fab.ngr],
           sigma[:,(i-1)*6+1:i*6],fab.ngr)
       A=expFactor()
-    
-    
-    
-      
-    
-
 
   #Find the local geometric tensor G (Azuma 1996)
   #p::3 x ngr array
