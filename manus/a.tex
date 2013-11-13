@@ -16,14 +16,9 @@ The assumptions are the following: Three-dimensional grains have a surface area 
 
 Let $g^{\star}$ be an arbitrary interior grain. This grain has neighbors $g_1,...,g_m$, with radii $r_i$. $g$ has a surface area $T$. The surface $g^{\star}$ shares with neighbor $n_i$ is $S_i$, with surface area $s_i$. Now, assume that $s_i$ is proportional the the surface area of grain $g_i$, or equivalently, $s_i=\alpha r_i^2$.
 
-Now, examine the interface between $g^{\star}$ and $n_i$. Due to grain growth, recrystallization, or other processes, this moves with velocity $v_i$ outwardly normal to the surface. Thus, taken over all neighboring grains, $\frac{dV^{\star}}{dt}=\sum_{i}s_i v_i$.
+Now, examine the interface between $g^{\star}$ and $n_i$. Due to grain growth, recrystallization, or other processes, this moves with velocity $v_i$ outwardly normal to the surface. Thus, taken over all neighboring grains, $\frac{dV^{\star}}{dt}=\sum_{i}s_i v_i$. Therefore, if a velocity between two grains can be determined, then this provides a means of determining grain size evolution based on the properties of a grain and its neighbors.
 
-Now, suppose we have a polycrystal with a large number of grains, and the neighbors of $g^{\star}$ are random. Then,
-$E[\frac{dV^{\star}{dt}=n E[s_i v_i]=n*
-
-Furthermore, suppose that $q$ is a function of the intensive properties $p_1, p_2,...$ of the grains $g_1$ and $g_2$ on either side of the boundary, 
-
-$g$ be an arbitrary grain, which has neighbors $n_i$ each accounting for a surface area $s_i$ shared with $g$, such that $S=\sum n_i$.
+To implement this for a polycrystal, the less computationally intensive way is to declare that each grain has several neighbors with which to determine the growth rate. To deal with grains disappearing or nucleating, originally the polycrystal is declared to have a number of grains with zero radius. Nucleated grains simply assign a nonzero radius to a formerly zero radius grain, and consumed grains are assigned a zero radius. 
 
 \section{Grain Growth}
 Normal grain growth is induced by a driving force related to the local curvature at the grain surface
@@ -33,7 +28,12 @@ From \citet{durand2005}, the growth rate of a grain in the presence of Zener pin
 \[\frac{dr}{dt} = K \left( \frac{1}{R}-\frac{P}{\alpha \gamma} \right)
 \]
 
-where $K$ is an Arrhenius factor dependent on temperature, and $P$ the counteracting force due to pinning
+where $K$ is an Arrhenius factor dependent on temperature, and $P$ the counteracting force due to pinning. The difficulty in implementing this using the procedure outlined in the previous section is to determine the radius of curvature at the boundary between the two grains. Clearly, the curvature of each grain must be the negative of the other. In addition, taken over the entire boundary, the integral of the curvature over the boundary of the grain must always be $4 \pi$. This means that, for example, the grain having negative curvature must "make up" that curvature elsewhere on its boundary. 
+
+A reasonable way to handle this (which I am taking)  is to take the curvature of the boundary to be the harmonic mean of the curvatures of the two surfaces (or the regular mean of the radii). This means that the smaller grain will have positive curvature on the boundary, which is a reasonable assumption. The other, far less practical, alternative is to solve a constrained optimization problem to determine the curvatures such that the curvature of all boundaries of each grain adds to $4 \pi$. This is slightly nonphysical because in the polycrystal there must exist exterior grains, such that the boundary around the polycrystal has a total curvature of $4 \pi$.
+
+
+
 
 \section{Recrystallization}
 Migration (dynamic) recrystallization is primarily driven by lower strain energy (easy glide) grains consuming higher strain energy grains \citep{duval1995}. At least at larger scales (after the initial nucleation), this reduction in strain energy can be incorporated into the driving force. High dislocation densities from work-hardening in more highly plastically strained grains can also contribute to the driving force, as these dislocations are annihilated by the advancing boundary. The model currently calculates the effective stress on each grain following \citet{azuma96}, which depends on the bulk stress and the orientation of each grain and its neighbors. This stress is then converted into strain energy under the assumption of elasticity.
