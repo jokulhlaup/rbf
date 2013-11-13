@@ -35,4 +35,7 @@ function unifmesh(x,y)
 function secondInv(x::Array{Number,1})
   return x[1]*x[2]+x[1]*x[3]+x[2]*x[3]-x[4]^2-x[5]^2-x[6]^2
 
+
+
+
 end #module

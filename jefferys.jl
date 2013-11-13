@@ -40,6 +40,12 @@ genrFT(:(Fabric),:(begin
     end
   end))
 
+genrFT(:(Fabric),:(
+  r::Array{T,1} #radii
+  nbrs::Array{I,3} #Array of nearest nbr indices.
+  #size: [ns,ngr,nnn] where nnn is maximum # of nearest
+  #neighbors. Unassigned nbrs are -1. neighborness should follow the symmetric relation. 
+
 type Fabric2{T<:Number,I<:Int}<:AbstractFabric
   coors::Array{T,2} #coors in space
   p::Array{T,3} #[2,:] (theta,phi) angles
@@ -169,11 +175,17 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
     return sigmaE 
     end
   #probability that a crystal recrystallizes
-  function probDRx(fab::AbstractFabric)
-    for i=1:ns
-      sigmaE=localSigmaEff(fab.p[(i-1)*fab.ngr+1:i*fab.ngr],
-          sigma[:,(i-1)*6+1:i*6],fab.ngr)
+  function probDRx(p)
+    ngr=length(p)/3
+    for i=1:ngr
+      sigmaE=localSigmaEff(p,
+          sigma,ngr)
       A=expFactor()
+
+#####################
+######Normal (curvature driven) grain growth)
+#####################
+  function 
 
   #Find the local geometric tensor G (Azuma 1996)
   #p::3 x ngr array
