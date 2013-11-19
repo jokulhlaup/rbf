@@ -32,7 +32,7 @@ function  genrFT(name,body)
 genrFT(:(Fabric),:(begin
   function Fabric(coors,p,ngr,ns,h,C,vort,epsdot)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
-    size(p)==(3,ns,ngr)?nothing:error("Dimension mismatch in 'p'")
+    size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
     size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
@@ -55,13 +55,48 @@ type Fabric2{T<:Number,I<:Int}<:AbstractFabric
  #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
   function Fabric2(coors,p,ngr,ns,h,prob,C,vort,epsdot)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
-    size(p)==(3,ns,ngr)?nothing:error("Dimension mismatch in 'p'")
+    size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
     size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
     return new(coors,p,ngr,h,ns,prob,C,vort,epsdot)
     end
   end
+
+genrFT(:(FabricNGG),:(begin
+  nbrs::Array{I,2} #Associates nbrs. Hopefully transitive.
+  #nbrs[i,:] is the nbrs of the i'th grain, where i in [1:ngr*ns]
+  #Probably don't want to mix grains from different sites
+  function Fabric(coors,p,ngr,ns,h,C,vort,epsdot,nn)
+    size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
+    size(p)==(3,ns,ngr)?nothing:error("Dimension mismatch in 'p'")
+    size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
+    size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
+    size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
+    length(nbrs)==ngr*ns?nothing:error("Dimension mismatch in 'nbrs'")
+    nbrs=makeRandomNbrs(ns,ngr,nn)
+    return new(coors,p,ngr,h,ns,C,vort,epsdot,nbrs)
+    end
+  function makeRandomNbrs(ns::Int,ngr::Int,nn)
+   nbrs=Array(Int,ns*ngr,nn)
+   for i=1:ns*ngr
+     for j=1:nn
+       nbrs[i,:]=diffrandi(i+j,i,i+nn)
+       end
+     end
+   return nbrs
+   end
+  end))
+
+function makeRandomNbrs(ns::Int,ngr::Int,nn)
+  nbrs=Array(Int,ns*ngr,nn)
+  for i=1:ns*ngr
+    for j=1:nn
+      nbrs[i,:]=diffrandi(i+j,i,i+nn)
+    end
+  return nbrs
+  end
+
 
 
 immutable GlobalPars{T<:Number,I<:Int}
@@ -137,10 +172,10 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
     
   function fabEvolve!(pars::GlobalPars,fab::Fabric2,f) #jefferys equation
     for i=1:fab.ns
-      fab.p[:,i,:]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,i,:],
+      fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
           fab.vort[:,:,i],fab.epsdot[:,:,i])
       end
-      dynRextal!(fab::Fabric2)
+      fab.p=dynRextal!(fab::Fabric2)
       return fab.p
   end
   function dynRextal!(fab::Fabric2)
@@ -191,18 +226,16 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
   #stuff for normal grain growth
   #this gets the area proportions
   function propAreas(rs::Array{Real,1})
-    return rs^2/sum(rs)
+    rs2=rs^2
+    return rs2/sum(rs2)
+    end
   #get the velocity for ngg between two grains
   #Important: OUTWARD from r1, don't fuck that up.
   function nggVelocity(r1,r2,grmob)
     mc=(1/r1-1/r2)/2
     return mc*grmob
-
-    
-
-    
-    
-  
+    end
+  #ngg  
 
 #gets the rotation matrices
 function getRotMHelper(Array{T,1},A::Array{Float64,2},
