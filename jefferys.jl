@@ -65,16 +65,18 @@ type Fabric2{T<:Number,I<:Int}<:AbstractFabric
 
 genrFT(:(FabricNGG),:(begin
   nbrs::Array{I,2} #Associates nbrs. Hopefully transitive.
-  #nbrs[i,:] is the nbrs of the i'th grain, where i in [1:ngr*ns]
+  #nbrs[:,i] is the nbrs of the i'th grain, where i in [1:ngr*ns]
+  r::Array{T,1} #radius of grains.
   #Probably don't want to mix grains from different sites
-  function Fabric(coors,p,ngr,ns,h,C,vort,epsdot,nn)
+  function Fabric(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
     size(p)==(3,ns,ngr)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
     size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-    length(nbrs)==ngr*ns?nothing:error("Dimension mismatch in 'nbrs'")
+    length(nbrs)==ngr*ns*nn?nothing:error("Dimension mismatch in 'nbrs'")
     nbrs=makeRandomNbrs(ns,ngr,nn)
+    r=2*rand(ngr*ns)*av_radius
     return new(coors,p,ngr,h,ns,C,vort,epsdot,nbrs)
     end
   function makeRandomNbrs(ns::Int,ngr::Int,nn)
@@ -96,8 +98,6 @@ function makeRandomNbrs(ns::Int,ngr::Int,nn)
     end
   return nbrs
   end
-
-
 
 immutable GlobalPars{T<:Number,I<:Int}
   dt::T #timestep between velocity timesteps
@@ -169,7 +169,15 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
     end
   
   #function fabEvolve!(pars::GlobalPars,fab::Fabric3,f)
-    
+  function fabEvolve!(pars::GlobalPars,fab::FabricNGG,f)
+    for i=1:fab.ns
+      fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
+        fab.vort[:,:,i],fab.epsdot[:,:,i])
+      end
+    for i=1:fab.ns*fab.ngr
+      r[i]=nggRate(r[i],r[nbrs[:,i]],grmob)
+      end
+    end
   function fabEvolve!(pars::GlobalPars,fab::Fabric2,f) #jefferys equation
     for i=1:fab.ns
       fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
@@ -232,10 +240,14 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
   #get the velocity for ngg between two grains
   #Important: OUTWARD from r1, don't fuck that up.
   function nggVelocity(r1,r2,grmob)
-    mc=(1/r1-1/r2)/2
+    mc=(1./r1-1./r2)./2
     return mc*grmob
     end
-  #ngg  
+  #velocity of change in radius
+  function nggRate(this,rs::Array{Number,1},grmob)
+    pa=propAreas(rs)
+    v=nggVelocity(this,rs,grmob)
+    return dot(pa,v)
 
 #gets the rotation matrices
 function getRotMHelper(Array{T,1},A::Array{Float64,2},
