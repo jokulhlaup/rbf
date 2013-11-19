@@ -161,8 +161,8 @@ end
 function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
   #this is the function that actually does the rotation.  
   function fabEvolve!(pars::GlobalPars,fab::Fabric,f) #jefferys equation
-    for i=1:fab.ns
-      fab.p[:,i,:]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,i,:],
+    for i=1:fab.ns*fab.ngr
+      fab.p[:,i]=rk4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,i,:],
           fab.vort[:,:,i],fab.epsdot[:,:,i])
       end
       return fab.p
@@ -170,12 +170,10 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
   
   #function fabEvolve!(pars::GlobalPars,fab::Fabric3,f)
   function fabEvolve!(pars::GlobalPars,fab::FabricNGG,f)
-    for i=1:fab.ns
-      fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
-        fab.vort[:,:,i],fab.epsdot[:,:,i])
-      end
     for i=1:fab.ns*fab.ngr
-      r[i]=nggRate(r[i],r[nbrs[:,i]],grmob)
+      fab.p[:,i]=rk44(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,i],
+        fab.vort[:,i],fab.epsdot[:,i])
+      r[i]=advanceRadius(r[i],r[nbrs[:,i]],fab.grmob,fab.dt)
       end
     end
   function fabEvolve!(pars::GlobalPars,fab::Fabric2,f) #jefferys equation
@@ -233,21 +231,41 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
   ##############################  
   #stuff for normal grain growth
   #this gets the area proportions
-  function propAreas(rs::Array{Real,1})
-    rs2=rs^2
-    return rs2/sum(rs2)
+  function propAreas(rs)
+    rs2=rs.*rs
+    s=sum(rs2)
+    if s==0
+     return 1/length(rs)
+     else 
+       return rs2/sum(rs2)
+     end
     end
   #get the velocity for ngg between two grains
   #Important: OUTWARD from r1, don't fuck that up.
   function nggVelocity(r1,r2,grmob)
-    mc=(1./r1-1./r2)./2
+    mc=(1./r2-1./r1)./2
     return mc*grmob
     end
-  #velocity of change in radius
-  function nggRate(this,rs::Array{Number,1},grmob)
+  #returns radius dt
+  function nggRate(this,rs,grmob,dt)
     pa=propAreas(rs)
     v=nggVelocity(this,rs,grmob)
-    return dot(pa,v)
+    dV=2/3*pi*(this*this*this-dot(pa,(this-v*dt).^3))
+    if dV<0
+      return -((abs(dV))^3)
+      else
+      dV^(1/3)
+      end
+    end
+
+  function advanceRadius(this,rs,grmob,dt)
+    dr=nggRate(this,rs,grmob,dt)
+    new=this+dr
+    if new<0
+      return 0
+      else (return dr)
+      end
+    end
 
 #gets the rotation matrices
 function getRotMHelper(Array{T,1},A::Array{Float64,2},
