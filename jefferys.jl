@@ -62,43 +62,126 @@ type Fabric2{T<:Number,I<:Int}<:AbstractFabric
     end
   end
 
-genrFT(:(FabricNGG),:(begin
+type FabricNGG2{T<:Number,I<:Int}<:AbstractFabric
+  coors::Array{T,2} #coors in space
+  p::Array{T,3} #[2,:] (theta,phi) angles
+  ngr::I #number of grains at site
+  ns::I #number of sites
+  h::T
+  prob::T
+  C::Array{T,3} #viscosity matrix
+  vort::Array{T,3} #vorticity
+  epsdot::Array{T,3} #strain rate
+  #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
+  #stencil::Array{T,1}
   nbrs::Array{I,2} #Associates nbrs. Hopefully transitive.
   #nbrs[:,i] is the nbrs of the i'th grain, where i in [1:ngr*ns]
   r::Array{T,1} #radius of grains.
   #Probably don't want to mix grains from different sites
-  function FabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
-    nbrs=makeRandomNbrs(ns,ngr,nn)
-    r=2*rand(ngr*ns)*av_radius
 
+ #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
+  function FabricNGG2(coors,p,ngr,ns,h,prob,C,vort,epsdot,nbrs,r)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
     size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
     size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-    length(nbrs)==ngr*ns*nn?nothing:error("Dimension mismatch in 'nbrs'")
-    return new(coors,p,ngr,h,ns,C,vort,epsdot,nbrs)
+    return new(coors,p,ngr,h,ns,C,vort,epsdot,nbrs,r)
     end
-  function makeRandomNbrs(ns::Int,ngr::Int,nn)
-   nbrs=Array(Int,ns*ngr,nn)
-   for i=1:ns*ngr
-     for j=1:nn
-       nbrs[i,:]=diffrandi(i+j,i,i+nn)
-       end
-     end
-   return nbrs
-   end
+  end
+
+
+
+genrFT(:(FabricNGG),:(begin
+  nbrs::Array{I,2} #Associates nbrs. Hopefully transitive.
+  #nbrs[:,i] is the nbrs of the i'th grain, where i in [1:ngr*ns]
+  r::Array{T,1} #radius of grains.
+  #Probably don't want to mix grains from different sites
   end))
 
-function makeRandomNbrs(ns::Int,ngr::Int,nn::Int)
-  nbrs=Array(Int,ns*ngr,nn)
-  for i=1:ns*ngr
-    for j=1:nn
-      nbrs[i,:]=diffrandi(i+j,i,i+nn)
+function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
+  nbrs=makeRandomNbrs(ns,ngr,nn)
+  r=2*rand(ngr*ns)*av_radius
+
+  size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
+  size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
+  size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
+  size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
+  size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
+  length(nbrs)==ngr*ns*nn?nothing:error("Dimension mismatch in 'nbrs'")
+  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nbrs,r)
+  end
+
+######################
+############
+#####################
+module Ngg
+type Nbrs
+  nbrs::Array{Int64,2}
+  end
+
+function advanceRadius(this,rs,grmob,dt)
+  dr=nggRate(this,rs,grmob,dt)
+  new=this+dr
+  if new<0
+    return 0
+    else (return dr)
+    end
+
+  #get the velocity for ngg between two grains
+  #Important: OUTWARD from r1, don't fuck that up.
+  function nggVelocity(r1,r2,grmob)
+    mc=(1./r2-1./r1)./2
+    return mc*grmob
+    end
+  #returns radius dt
+  function nggRate(this,rs,grmob,dt)
+    pa=propAreas(rs)
+    v=nggVelocity(this,rs,grmob)
+    dV=2/3*pi*(this*this*this-dot(pa,(this-v*dt).^3))
+    if dV<0
+      return -((abs(dV))^3)
+      else
+      dV^(1/3)
       end
     end
-  return nbrs
+  end 
+
+function makeRandomNbrs(ns::Int,ngr::Int,nn::Int)
+  nbrs=Nbrs(Array(Int,nn,ns*ngr))
+  for i=
+
+function deleteNbr(this::Int)
+  
+
+function setConjugateNbrs(this::Int,nbr::Array{Float64,1},nbrs::Nbrs,nn,repl::Bool=false)
+  for i=1:nn
+    if nbr[i]==0
+      nbr[i]=this
+      return nbr
+      end
+    end
+  i=Utils.randir(1,nn)
+  nbrs[i]=this
   end
+
+
+
+
+function makeRandomNbrs(ns::Int,ngr::Int,nn::Int)
+nbrs=Array(Int,nn,ns*ngr)
+for i=1:ns
+  for j=1:ngr
+    for k=1:nn
+      nbrs[k,(i-1)*ngr+j]=Utils.diffrandi((i-1)*ngr+j,(i-1)*ngr,i*ngr)
+      end
+    end
+  end
+  return nbrs
+end
+
+
+
 
 immutable GlobalPars{T<:Number,I<:Int}
   dt::T #timestep between velocity timesteps
@@ -188,90 +271,63 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
    return fabEvolve!
    end
 
-  function dynRextal!(fab::Fabric2)
-    change=rand(fab.ns*fab.ngr)
-    for i=1:fab.ns*fab.ngr
-      p=rand()
-      if p<fab.prob
-        x=rand(3)-0.5
-        fab.p[3*i-2:3*i]=x/norm(x)
-        end
+function dynRextal!(fab::Fabric2)
+  change=rand(fab.ns*fab.ngr)
+  for i=1:fab.ns*fab.ngr
+    p=rand()
+    if p<fab.prob
+      x=rand(3)-0.5
+      fab.p[3*i-2:3*i]=x/norm(x)
       end
     end
-  
-  #finds the effective stress on grains at one site.
-  function localSigmaEff(p,sigma,ngr)
-    G=zeros(6)
-    #first find local geometric tensors
-    for i=1:ngr
-      g[6*i-5:6*i]=localGeomTensor(p[3*i-2:3*i],sigma)
-      G+=g[6*i-5:6*i]
-      end
-    G=G/ngr
-    for i=1:ngr
-      g[6*i-5:6*i]=g[6*i-5:6*i]./G.*sigma #g= local sigma now
-      sigmaE[i]=sqrt(1/3*secondInv(g[6*i-5:6*i])) #be sure to convert
-      #back to effective stress from the second invariant.
-      end
-    return sigmaE 
-    end
-  #probability that a crystal recrystallizes
-  function probDRx(fab::AbstractFabric)
-    for i=1:ns
-      sigmaE=localSigmaEff(fab.p[(i-1)*fab.ngr+1:i*fab.ngr],
-          sigma[:,(i-1)*6+1:i*6],fab.ngr)
-      A=expFactor()
-      end
-    end
-  #Find the local geometric tensor G (Azuma 1996)
-  #p::3 x ngr array
-  #g::6 x ngr array (symmetric)
-  function localGeomTensor(p,sigma)
-    m=dot(sigma,c) #read: T
-    m=cross(c,T) #read: n
-    m=m/norm(m) #read: n
-    m=cross(m,c)
-    return m/norm(m)
-    end
-  ##############################  
-  #stuff for normal grain growth
-  #this gets the area proportions
-  function propAreas(rs)
-    rs2=rs.*rs
-    s=sum(rs2)
-    if s==0
-     return 1/length(rs)
-     else 
-       return rs2/sum(rs2)
-     end
-    end
-  #get the velocity for ngg between two grains
-  #Important: OUTWARD from r1, don't fuck that up.
-  function nggVelocity(r1,r2,grmob)
-    mc=(1./r2-1./r1)./2
-    return mc*grmob
-    end
-  #returns radius dt
-  function nggRate(this,rs,grmob,dt)
-    pa=propAreas(rs)
-    v=nggVelocity(this,rs,grmob)
-    dV=2/3*pi*(this*this*this-dot(pa,(this-v*dt).^3))
-    if dV<0
-      return -((abs(dV))^3)
-      else
-      dV^(1/3)
-      end
-    end
+  end
 
-  function advanceRadius(this,rs,grmob,dt)
-    dr=nggRate(this,rs,grmob,dt)
-    new=this+dr
-    if new<0
-      return 0
-      else (return dr)
-      end
+#finds the effective stress on grains at one site.
+function localSigmaEff(p,sigma,ngr)
+  G=zeros(6)
+  #first find local geometric tensors
+  for i=1:ngr
+    g[6*i-5:6*i]=localGeomTensor(p[3*i-2:3*i],sigma)
+    G+=g[6*i-5:6*i]
     end
-
+  G=G/ngr
+  for i=1:ngr
+    g[6*i-5:6*i]=g[6*i-5:6*i]./G.*sigma #g= local sigma now
+    sigmaE[i]=sqrt(1/3*secondInv(g[6*i-5:6*i])) #be sure to convert
+    #back to effective stress from the second invariant.
+    end
+  return sigmaE 
+  end
+#probability that a crystal recrystallizes
+function probDRx(fab::AbstractFabric)
+  for i=1:ns
+    sigmaE=localSigmaEff(fab.p[(i-1)*fab.ngr+1:i*fab.ngr],
+        sigma[:,(i-1)*6+1:i*6],fab.ngr)
+    A=expFactor()
+    end
+  end
+#Find the local geometric tensor G (Azuma 1996)
+#p::3 x ngr array
+#g::6 x ngr array (symmetric)
+function localGeomTensor(p,sigma)
+  m=dot(sigma,c) #read: T
+  m=cross(c,T) #read: n
+  m=m/norm(m) #read: n
+  m=cross(m,c)
+  return m/norm(m)
+  end
+##############################  
+#stuff for normal grain growth
+#this gets the area proportions
+function propAreas(rs)
+  rs2=rs.*rs
+  s=sum(rs2)
+  if s==0
+   return 1/length(rs)
+   else 
+     return rs2/sum(rs2)
+   end
+  end
 #gets the rotation matrices
 function getRotMHelper(Array{T,1},A::Array{Float64,2},
     A2=Array{Float64,2},R::Array{Float64,2})

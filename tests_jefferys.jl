@@ -3,14 +3,14 @@ using jefferys,Plotting,PyCall
 ngr=100
 ns=10
 coors=rand(3,ns)
-p=rand(3,ns,ngr)-0.5
+p=rand(3,ngr,ns)-0.5
 #normalize!
-for i=1:ns
-  for j=1:ngr
+for i=1:ngr
+  for j=1:ns
      p[:,i,j]=p[:,i,j]/norm(p[:,i,j])
    end
  end
-h=1
+h=1.0
 C=Array(Float64,6,6,ns)
 vort=zeros(3,3,ns)
 epsdot=zeros(3,3,ns)
@@ -33,5 +33,20 @@ for i=1:10
 
 pl=schmidtPlot(fab.p)
 plt.show()
+
+####
+#Some unit tests
+###
+rs=sort(rand(10))
+assert(sum(jefferys.propAreas(rs))==1)
+assert(nggVelocity(1,1,1)==0)
+assert(nggRate(1,2,0.1,0.0001)<0)
+
+#radius velocity length/time * dt in units length
+#nggVelocity units 1/length*
+nn=10
+av_radius=1
+fab=consFabricNGG2{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
+    FabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)   
 
 
