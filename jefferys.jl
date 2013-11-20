@@ -1,7 +1,6 @@
 module jefferys
 using ODE
-export Fabric,Fabric2,GlobalPars,AbstractFabric
-export solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper
+export Fabric,Fabric2,FabricNGG,genrFT,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper
 ##########################
 ##########Get viscosity###
 ##########################
@@ -68,15 +67,16 @@ genrFT(:(FabricNGG),:(begin
   #nbrs[:,i] is the nbrs of the i'th grain, where i in [1:ngr*ns]
   r::Array{T,1} #radius of grains.
   #Probably don't want to mix grains from different sites
-  function Fabric(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
+  function FabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
+    nbrs=makeRandomNbrs(ns,ngr,nn)
+    r=2*rand(ngr*ns)*av_radius
+
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
-    size(p)==(3,ns,ngr)?nothing:error("Dimension mismatch in 'p'")
+    size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
     size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
     length(nbrs)==ngr*ns*nn?nothing:error("Dimension mismatch in 'nbrs'")
-    nbrs=makeRandomNbrs(ns,ngr,nn)
-    r=2*rand(ngr*ns)*av_radius
     return new(coors,p,ngr,h,ns,C,vort,epsdot,nbrs)
     end
   function makeRandomNbrs(ns::Int,ngr::Int,nn)
@@ -90,11 +90,12 @@ genrFT(:(FabricNGG),:(begin
    end
   end))
 
-function makeRandomNbrs(ns::Int,ngr::Int,nn)
+function makeRandomNbrs(ns::Int,ngr::Int,nn::Int)
   nbrs=Array(Int,ns*ngr,nn)
   for i=1:ns*ngr
     for j=1:nn
       nbrs[i,:]=diffrandi(i+j,i,i+nn)
+      end
     end
   return nbrs
   end
@@ -154,7 +155,7 @@ function rotC(R)
   C = zeros(6,6)
   C[5,5]=1 
   C = K * C * transpose(K) 
-end
+  end
 
 #this is the closure that returns fabEvolve!,
 #which evolves the fabric based on the timestep.
@@ -183,7 +184,10 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
       end
       fab.p=dynRextal!(fab::Fabric2)
       return fab.p
-  end
+    end
+   return fabEvolve!
+   end
+
   function dynRextal!(fab::Fabric2)
     change=rand(fab.ns*fab.ngr)
     for i=1:fab.ns*fab.ngr
@@ -217,7 +221,8 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
       sigmaE=localSigmaEff(fab.p[(i-1)*fab.ngr+1:i*fab.ngr],
           sigma[:,(i-1)*6+1:i*6],fab.ngr)
       A=expFactor()
-
+      end
+    end
   #Find the local geometric tensor G (Azuma 1996)
   #p::3 x ngr array
   #g::6 x ngr array (symmetric)
@@ -307,5 +312,4 @@ function getVisc!(fab::AbstractFabric,pars::GlobalPars,fabEvolve::Function)
   aC=mean(C,3) #check if right
   fab.visc=inv(aC)
   end
-
 end #module
