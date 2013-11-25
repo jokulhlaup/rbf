@@ -180,6 +180,8 @@ for i=1:ns
   return nbrs
 end
 
+end #module Ngg
+
 
 
 
