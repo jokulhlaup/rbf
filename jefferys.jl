@@ -124,12 +124,12 @@ type Nbrs
   end
 
 function advanceRadius(this,rs,grmob,dt)
-  if this==0
+  if this <= 0 | this==NaN
     return 0
     end
   dr=nggRate(this,rs,grmob,dt)
   new=this+dr
-  if new<0
+  if new<0 | this==NaN
     return 0
     else 
       return new
