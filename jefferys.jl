@@ -1,6 +1,6 @@
 module jefferys
-using ODE,Utils
-export consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!
+using ODE,Utils, Debug
+export consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius
 export GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper
 ##########################
 ##########Get viscosity###
@@ -124,32 +124,42 @@ type Nbrs
   end
 
 function advanceRadius(this,rs,grmob,dt)
-  if this <= 0 | this==NaN
-    return 0
-    end
-  dr=nggRate(this,rs,grmob,dt)
-  new=this+dr
-  if new<0 | this==NaN
-    return 0
-    else 
+  
+  println("128")
+  if (this <= 0) | isnan(this)
+    return 0.0 
+  else
+    dr=nggRate(this,rs,grmob,dt)
+    print("135")
+    new=this+dr
+    if ((new<0) | (isnan(new)))
+      return 0.0
+    else
       return new
+      end
     end
   end
 #get the velocity for ngg between two grains
 #Important: OUTWARD from r1, don't fuck that up.
 function nggVelocity(r1,r2,grmob)
-  mc=(1./r2-1./r1)./2
-  return mc*grmob
+  if ((r1>0) & (r2>0))
+    mc=(1./r2-1./r1)./2
+    return mc*grmob
+  else return 0
+    end
   end
 #returns radius dt
 function nggRate(this,rs,grmob,dt)
   pa=propAreas(rs)
-  v=nggVelocity(this,rs,grmob)
-  dV=2/3*pi*(this*this*this-dot(pa,(this-v*dt).^3))
+  v=Array(Float64,length(rs))
+  for i=1:length(rs)
+    v[i]=nggVelocity(this,rs[i],grmob)
+    end
+  dV=sum(2/3*pi*(this*this*this-pa.*(this-v*dt).^3))
   if dV<0
     return -((abs(dV))^3)
     else
-    dV^(1/3)
+      return dV^(1/3)
     end
   end
 
@@ -268,6 +278,22 @@ function rotC(R)
   C[5,5]=1 
   C = K * C * transpose(K) 
   end
+
+
+function fabEv!(pars::GlobalPars,fab::FabricNGG,f)
+  for i=1:fab.ns
+    print("282")
+    fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
+              fab.vort[:,:,i],fab.epsdot[:,:,i])
+    end
+ for i=1:fab.ngr*fab.ns-1
+    print("287")
+    fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
+    print("289\n",i)
+    end
+  return fab.r
+  end
+
 
 #this is the closure that returns fabEvolve!,
 #which evolves the fabric based on the timestep.

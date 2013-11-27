@@ -37,6 +37,7 @@ r=rand(ngr*ns)
 nbrs=makeRandomNbrs!(ns,ngr,nn)
 #fab=FabricNGG{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot,nn,nbrs,r)
 fab=consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
+fabEv!(pars,fab,jefferysRHS)
 fabE=fabricHelper(pars,fab,jefferysRHS)
 fab.p=fabE(pars,fab,jefferysRHS)
 
