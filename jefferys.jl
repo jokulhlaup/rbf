@@ -1,6 +1,7 @@
 module jefferys
-using ODE
-export Fabric,Fabric2,FabricNGG,genrFT,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper
+using ODE,Utils
+export consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!
+export GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper
 ##########################
 ##########Get viscosity###
 ##########################
@@ -68,12 +69,12 @@ type FabricNGG2{T<:Number,I<:Int}<:AbstractFabric
   ngr::I #number of grains at site
   ns::I #number of sites
   h::T
-  prob::T
   C::Array{T,3} #viscosity matrix
   vort::Array{T,3} #vorticity
   epsdot::Array{T,3} #strain rate
   #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
   #stencil::Array{T,1}
+  nn::I
   nbrs::Array{I,2} #Associates nbrs. Hopefully transitive.
   #nbrs[:,i] is the nbrs of the i'th grain, where i in [1:ngr*ns]
   r::Array{T,1} #radius of grains.
@@ -86,75 +87,74 @@ type FabricNGG2{T<:Number,I<:Int}<:AbstractFabric
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
     size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-    return new(coors,p,ngr,h,ns,C,vort,epsdot,nbrs,r)
+    return new(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,r)
     end
   end
 
 
 
 genrFT(:(FabricNGG),:(begin
+  nn::I
   nbrs::Array{I,2} #Associates nbrs. Hopefully transitive.
   #nbrs[:,i] is the nbrs of the i'th grain, where i in [1:ngr*ns]
   r::Array{T,1} #radius of grains.
+  grmob::T
   #Probably don't want to mix grains from different sites
+
   end))
 
 function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
-  nbrs=makeRandomNbrs(ns,ngr,nn)
+  nbrs=makeRandomNbrs!(ns,ngr,nn)
   r=2*rand(ngr*ns)*av_radius
-
+  grmob=1.0
   size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
   size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
   size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
   size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
   size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
   length(nbrs)==ngr*ns*nn?nothing:error("Dimension mismatch in 'nbrs'")
-  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nbrs,r)
+  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,r,grmob)
   end
 
 ######################
 ############
 #####################
-module Ngg
 type Nbrs
   nbrs::Array{Int64,2}
   end
 
 function advanceRadius(this,rs,grmob,dt)
-  dr=nggRate(this,rs,grmob,dt)
-  new=this+dr
-  if new<0
+  if this<=0 | this==NaN
     return 0
-    else (return dr)
     end
-
-  #get the velocity for ngg between two grains
-  #Important: OUTWARD from r1, don't fuck that up.
-  function nggVelocity(r1,r2,grmob)
-    mc=(1./r2-1./r1)./2
-    return mc*grmob
+  dr=nggRate(this,filter(x->x>0,rs),grmob,dt)
+  new=this+dr
+  if new <= 0 | new == NaN
+    return 0
+    else 
+      return new
     end
-  #returns radius dt
-  function nggRate(this,rs,grmob,dt)
-    pa=propAreas(rs)
-    v=nggVelocity(this,rs,grmob)
-    dV=2/3*pi*(this*this*this-dot(pa,(this-v*dt).^3))
-    if dV<0
-      return -((abs(dV))^3)
-      else
-      dV^(1/3)
-      end
+  end
+#get the velocity for ngg between two grains
+#Important: OUTWARD from r1, don't fuck that up.
+function nggVelocity(r1,r2,grmob)
+  mc=(1./r2-1./r1)./2
+  return mc*grmob
+  end
+#returns radius dt
+function nggRate(this,rs,grmob,dt)
+  pa=propAreas(rs)
+  v=nggVelocity(this,rs,grmob)
+  dV=2/3*pi*(this*this*this-dot(pa,(this-v*dt).^3))
+  if dV<0
+    return -((abs(dV))^3)
+    else
+    dV^(1/3)
     end
-  end 
+  end
 
-function makeRandomNbrs(ns::Int,ngr::Int,nn::Int)
-  nbrs=Nbrs(Array(Int,nn,ns*ngr))
-  for i=
 
-function deleteNbr(this::Int)
-  
-
-function setConjugateNbrs(this::Int,nbr::Array{Float64,1},nbrs::Nbrs,nn,repl::Bool=false)
+function setConjugateNbrs(this::Int,nbr::Array{Float64,1},nbrs,nn,repl::Bool=false)
   for i=1:nn
     if nbr[i]==0
       nbr[i]=this
@@ -165,20 +165,49 @@ function setConjugateNbrs(this::Int,nbr::Array{Float64,1},nbrs::Nbrs,nn,repl::Bo
   nbrs[i]=this
   end
 
+function makeRandomNbrs!(nbrs::Array{Int64,2},ns::Int,ngr::Int,nn::Int)
+  @assert(size(nbrs)==(nn,ns*ngr),"'nbrs' not size (nn,ngr*ns)")
+  for i=1:ns
+    for j=1:ngr
+      for k=1:nn
+        if nbrs[k,(i-1)*ngr+j] == 0
+          di=Utils.diffrandi((i-1)*ngr+j,(i-1)*ngr+1,i*ngr)
+          for k=1:nn
+            if nbrs[k,di]==0
+                nbrs[k,(i-1)*ngr+j]=di
+                nbrs[k,di]=(i-1)*ngr+j
+                break
+                end
+              end
+              nbrs[1,di]=(i-1)*ngr+j
+            end
+          end
+        end
+    end
+    return nbrs
+  end
 
+makeRandomNbrs!(ns,ngr,nn)=makeRandomNbrs!(zeros(Int64,nn,ns*ngr),ns,ngr,nn)
 
-
-function makeRandomNbrs(ns::Int,ngr::Int,nn::Int)
-nbrs=Array(Int,nn,ns*ngr)
-for i=1:ns
-  for j=1:ngr
-    for k=1:nn
-      nbrs[k,(i-1)*ngr+j]=Utils.diffrandi((i-1)*ngr+j,(i-1)*ngr,i*ngr)
+function siteRandomNbrs!(nbrs::Array{Int,2})
+  nn,ngr=size(nbrs)
+  for i=1:nn
+    for j=1:ngr
+        for k=1:nn
+          if nbrs[i,j]==0
+            di=Utils.diffrandi(j,1,ngr)
+            if nbrs[k,di]==0
+              nbrs[k,di]=j
+              break
+              end
+            nbrs[1,di]=j
+          end
+        end
       end
     end
   end
-  return nbrs
-end
+
+makeRandomNbrs(ns::Int,ngr::Int,nn::Int)=makeRandomNbrs(zeros(Int64,nn,ns*ngr),ns,ngr,nn)
 
 end #module Ngg
 
@@ -256,10 +285,13 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
   
   #function fabEvolve!(pars::GlobalPars,fab::Fabric3,f)
   function fabEvolve!(pars::GlobalPars,fab::FabricNGG,f)
-    for i=1:fab.ns*fab.ngr
-      fab.p[:,i]=rk44(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,i],
-        fab.vort[:,i],fab.epsdot[:,i])
-      r[i]=advanceRadius(r[i],r[nbrs[:,i]],fab.grmob,fab.dt)
+    for i=1:fab.ns
+      fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
+                fab.vort[:,:,i],fab.epsdot[:,:,i])
+      end
+
+   for i=1:fab.ngr*fab.ns
+      fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
       end
     end
   function fabEvolve!(pars::GlobalPars,fab::Fabric2,f) #jefferys equation
@@ -270,8 +302,9 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
       fab.p=dynRextal!(fab::Fabric2)
       return fab.p
     end
-   return fabEvolve!
-   end
+
+  return fabEvolve!
+  end
 
 function dynRextal!(fab::Fabric2)
   change=rand(fab.ns*fab.ngr)
@@ -331,8 +364,8 @@ function propAreas(rs)
    end
   end
 #gets the rotation matrices
-function getRotMHelper(Array{T,1},A::Array{Float64,2},
-    A2=Array{Float64,2},R::Array{Float64,2})
+function getRotMHelper(p::Array{Float64,1},A::Array{Float64,2},
+    A2::Array{Float64,2},R::Array{Float64,2})
   A=[0 0 p[1]
      0 0 p[2] 
      -p[1] p[2] 0]
@@ -345,7 +378,7 @@ function getRotMHelper(Array{T,1},A::Array{Float64,2},
   end
 
 function getC(fab::AbstractFabric,A::Array{Float64,2},
-    A2=Array{Float64,2},R::Array{Float64,2})
+    A2::Array{Float64,2},R::Array{Float64,2})
   for i=1:fab.ns*fab.ngr
     getRotMHelper(fab.p[3*i-2:3*i],A,A2,R)
     end
