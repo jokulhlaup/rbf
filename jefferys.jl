@@ -104,7 +104,7 @@ genrFT(:(FabricNGG),:(begin
   end))
 
 function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
-  nbrs=makeRandomNbrs!(ns,ngr,nn)
+  nbrs=makeSymNbrs(ns,ngr,0.1)
   r=2*rand(ngr*ns)*av_radius
   grmob=1.0
   size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
@@ -122,6 +122,16 @@ function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
 type Nbrs
   nbrs::Array{Int64,2}
   end
+##########################################
+function advanceRadii(rs)
+  for i=1:ngr
+    #partition
+    for j=2:i-1
+      dVol_ij=nggVelocity(r[i],r[j],grmob)
+      
+
+##########################################      
+
 
 function advanceRadius(this,rs,grmob,dt)
   
@@ -219,6 +229,25 @@ function siteRandomNbrs!(nbrs::Array{Int,2})
 
 makeRandomNbrs(ns::Int,ngr::Int,nn::Int)=makeRandomNbrs(zeros(Int64,nn,ns*ngr),ns,ngr,nn)
 
+function makeSymNbrs(ns::Int,ngr::Int,pr)
+  nbrM=zeros(ngr,ngr,ns)
+  for i=1:ns
+    #change this#######################################################################
+    for j=1:ngr
+      for k=1:j-1  
+        p=rand()
+        if p<pr
+          nbrM[i,j,k]=1
+          nbrM[i,k,j]=1
+          end
+        end
+      if all(x->x==0,nbrM[i,j,:])
+          nbrM[i,j,randi(1,j-1)]=1
+          end
+      end
+    end
+  return nbrM
+  end
 
 
 
@@ -378,6 +407,10 @@ function localGeomTensor(p,sigma)
 ##############################  
 #stuff for normal grain growth
 #this gets the area proportions
+function propAreas(rs,nbrM)
+
+
+
 function propAreas(rs)
   rs2=rs.*rs
   s=sum(rs2)
