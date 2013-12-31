@@ -95,7 +95,8 @@ type FabricNGG2{T<:Number,I<:Int}<:AbstractFabric
 
 genrFT(:(FabricNGG),:(begin
   nn::I
-  nbrs::Array{I,2} #Associates nbrs. Hopefully transitive.
+  nbrs::Array{Bool,2}
+  areas::Array{I,2} #Associates nbrs. Hopefully transitive.
   #nbrs[:,i] is the nbrs of the i'th grain, where i in [1:ngr*ns]
   r::Array{T,1} #radius of grains.
   grmob::T
@@ -106,6 +107,7 @@ genrFT(:(FabricNGG),:(begin
 function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
   nbrs=makeSymNbrs(ns,ngr,0.1)
   r=2*rand(ngr*ns)*av_radius
+  areas=initAreas(r,nbrs)
   grmob=1.0
   size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
   size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
@@ -123,13 +125,31 @@ type Nbrs
   nbrs::Array{Int64,2}
   end
 ##########################################
-function advanceRadii(rs)
-  for i=1:ngr
+function advanceRadii(rs,nbrs,grmob,dt)
+  ngr=length(rs)
+  rs_new=zeros(ngr)
+  vol=4/3.*pi.*rs.^3
+  for i=2:ngr
     #partition
-    for j=2:i-1
-      dVol_ij=nggVelocity(r[i],r[j],grmob)
-      
-
+    for j in (1:i-1)[nbrs[1:i-1,i]]
+      #get volume swept out be each boundary
+      #this is relative to r[i]
+      dVol=dt.*nggVelocity(rs[i],rs[j],grmob)
+      vol[i]=vol[i]+dVol
+      vol[j]=vol[j]-dVol
+      if vol[j]<0
+        vol[i]+=vol[j]
+        vol[j]=0
+        end
+      if vol[i]<0
+        vol[j]+=vol[i]
+        vol[i]=0
+        end
+      end
+    end
+    rs_new=(vol.*0.75/pi).^(1/3)
+    return rs_new,vol
+  end
 ##########################################      
 
 
@@ -149,6 +169,17 @@ function advanceRadius(this,rs,grmob,dt)
       end
     end
   end
+
+function initAreas(rs,nbrs)
+  ngr=length(rs)
+  areas=zeros(ngr,ngr)
+  for i=1:ngr
+    areas[nbrs[:,i],i]=propAreas(rs[nbrs[:,i]])
+    end
+  areas=(areas+areas')/2
+  return areas
+  end
+
 #get the velocity for ngg between two grains
 #Important: OUTWARD from r1, don't fuck that up.
 function nggVelocity(r1,r2,grmob)
@@ -230,19 +261,21 @@ function siteRandomNbrs!(nbrs::Array{Int,2})
 makeRandomNbrs(ns::Int,ngr::Int,nn::Int)=makeRandomNbrs(zeros(Int64,nn,ns*ngr),ns,ngr,nn)
 
 function makeSymNbrs(ns::Int,ngr::Int,pr)
-  nbrM=zeros(ngr,ngr,ns)
+  nbrM=fill(false,ngr,ngr,ns)
   for i=1:ns
     #change this#######################################################################
-    for j=1:ngr
+    for j=2:ngr
       for k=1:j-1  
         p=rand()
         if p<pr
-          nbrM[i,j,k]=1
-          nbrM[i,k,j]=1
+          nbrM[j,k,i]=true
+          nbrM[k,j,i]=true
           end
         end
-      if all(x->x==0,nbrM[i,j,:])
-          nbrM[i,j,randi(1,j-1)]=1
+      if all(x->x==false,nbrM[:,j,i])
+          w=randi(1,j-1)
+          nbrM[j,w,i]=true
+          nbrM[w,j,i]=true
           end
       end
     end
@@ -372,16 +405,19 @@ function dynRextal!(fab::Fabric2)
 
 #finds the effective stress on grains at one site.
 function localSigmaEff(p,sigma,ngr)
-  G=zeros(6)
+  G=zeros(3,3)
   #first find local geometric tensors
+  g=Array(Float64,3,3,ngr)
   for i=1:ngr
-    g[6*i-5:6*i]=localGeomTensor(p[3*i-2:3*i],sigma)
-    G+=g[6*i-5:6*i]
+    g[9*i-8:9*i]=localGeomTensor(p[3*i-2:3*i],sigma)
+    G[1:9]+=g[9*i-8:9*i]
     end
   G=G/ngr
   for i=1:ngr
-    g[6*i-5:6*i]=g[6*i-5:6*i]./G.*sigma #g= local sigma now
-    sigmaE[i]=sqrt(1/3*secondInv(g[6*i-5:6*i])) #be sure to convert
+    #treat zeros!
+    g[9*i-8:9*i]=g[9*i-8:9*i]./G[1:9].*sigma[1:9] #g= local sigma now
+    
+    sigmaE[i]=sqrt(1/3*secondInv(g[9*i-8:9*i])) #be sure to convert
     #back to effective stress from the second invariant.
     end
   return sigmaE 
@@ -398,16 +434,16 @@ function probDRx(fab::AbstractFabric)
 #p::3 x ngr array
 #g::6 x ngr array (symmetric)
 function localGeomTensor(p,sigma)
-  m=dot(sigma,c) #read: T
-  m=cross(c,T) #read: n
-  m=m/norm(m) #read: n
-  m=cross(m,c)
-  return m/norm(m)
+  T=sigma*p #read: T
+  n=cross(p,T) #read: n
+  n=n/norm(n) #read: n
+  m=cross(n,p)
+  lg=(m/norm(m))*p'
+  return lg
   end
 ##############################  
 #stuff for normal grain growth
 #this gets the area proportions
-function propAreas(rs,nbrM)
 
 
 
