@@ -1,7 +1,6 @@
 module jefferys
 using ODE,Utils, Debug
-export consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius
-export GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper
+export consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper
 ##########################
 ##########Get viscosity###
 ##########################
@@ -95,10 +94,10 @@ type FabricNGG2{T<:Number,I<:Int}<:AbstractFabric
 
 genrFT(:(FabricNGG),:(begin
   nn::I
-  nbrs::Array{Bool,2}
-  areas::Array{I,2} #Associates nbrs. Hopefully transitive.
+  nbrs::Array{Bool,3}
+  areas::Array{T,3} #Associates nbrs. Hopefully transitive.
   #nbrs[:,i] is the nbrs of the i'th grain, where i in [1:ngr*ns]
-  r::Array{T,1} #radius of grains.
+  r::Array{T,2} #radius of grains.
   grmob::T
   #Probably don't want to mix grains from different sites
 
@@ -106,16 +105,18 @@ genrFT(:(FabricNGG),:(begin
 
 function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
   nbrs=makeSymNbrs(ns,ngr,0.1)
-  r=2*rand(ngr*ns)*av_radius
-  areas=initAreas(r,nbrs)
+  r=2*rand(ngr,ns)*av_radius
+  areas=zeros(ngr,ngr,ns)
+  for i=1:ns
+    areas[:,:,i]=initAreas(r[:,i],nbrs[:,:,i])
+    end
   grmob=1.0
   size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
   size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
   size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
   size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
   size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-  length(nbrs)==ngr*ns*nn?nothing:error("Dimension mismatch in 'nbrs'")
-  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,r,grmob)
+  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,areas,r,grmob)
   end
 
 ######################
@@ -125,7 +126,7 @@ type Nbrs
   nbrs::Array{Int64,2}
   end
 ##########################################
-function advanceRadii(rs,nbrs,grmob,dt)
+function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,p)
   ngr=length(rs)
   rs_new=zeros(ngr)
   vol=4/3.*pi.*rs.^3
@@ -135,6 +136,7 @@ function advanceRadii(rs,nbrs,grmob,dt)
       #get volume swept out be each boundary
       #this is relative to r[i]
       dVol=dt.*nggVelocity(rs[i],rs[j],grmob)
+      dVol+=dt.*strEnVelocity(p[:,i],p[:,j],sigma)
       vol[i]=vol[i]+dVol
       vol[j]=vol[j]-dVol
       if vol[j]<0
@@ -148,19 +150,16 @@ function advanceRadii(rs,nbrs,grmob,dt)
       end
     end
     rs_new=(vol.*0.75/pi).^(1/3)
-    return rs_new,vol
+    return rs_new
   end
 ##########################################      
 
 
 function advanceRadius(this,rs,grmob,dt)
-  
-  println("128")
   if (this <= 0) | isnan(this)
     return 0.0 
   else
     dr=nggRate(this,rs,grmob,dt)
-    print("135")
     new=this+dr
     if ((new<0) | (isnan(new)))
       return 0.0
@@ -172,6 +171,7 @@ function advanceRadius(this,rs,grmob,dt)
 
 function initAreas(rs,nbrs)
   ngr=length(rs)
+  print(ngr)
   areas=zeros(ngr,ngr)
   for i=1:ngr
     areas[nbrs[:,i],i]=propAreas(rs[nbrs[:,i]])
@@ -273,7 +273,7 @@ function makeSymNbrs(ns::Int,ngr::Int,pr)
           end
         end
       if all(x->x==false,nbrM[:,j,i])
-          w=randi(1,j-1)
+          w=diffrandi(j,1,j-1)
           nbrM[j,w,i]=true
           nbrM[w,j,i]=true
           end
@@ -374,11 +374,11 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
     for i=1:fab.ns
       fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
                 fab.vort[:,:,i],fab.epsdot[:,:,i])
+      fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.p[:,:,i])
       end
-
-   for i=1:fab.ngr*fab.ns
-      fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
-      end
+#   for i=1:fab.ngr*fab.ns
+#      fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
+#      end
     end
   function fabEvolve!(pars::GlobalPars,fab::Fabric2,f) #jefferys equation
     for i=1:fab.ns
@@ -403,6 +403,12 @@ function dynRextal!(fab::Fabric2)
     end
   end
 
+function strEnVelocity(p1,p2,sigma)
+  fac=1
+  e1=localSigmaEff([p1,p2],sigma,2)
+  velocity=fac*(e1[2]-e1[1])
+  return velocity
+  end
 #finds the effective stress on grains at one site.
 function localSigmaEff(p,sigma,ngr)
   G=zeros(3,3)
@@ -413,11 +419,13 @@ function localSigmaEff(p,sigma,ngr)
     G[1:9]+=g[9*i-8:9*i]
     end
   G=G/ngr
+  print(g)
+  sigmaE=zeros(ngr)
   for i=1:ngr
     #treat zeros!
     g[9*i-8:9*i]=g[9*i-8:9*i]./G[1:9].*sigma[1:9] #g= local sigma now
     
-    sigmaE[i]=sqrt(1/3*secondInv(g[9*i-8:9*i])) #be sure to convert
+    sigmaE[i]=sqrt(-1/3*secondInv(g[:,:,ngr])) #be sure to convert
     #back to effective stress from the second invariant.
     end
   return sigmaE 

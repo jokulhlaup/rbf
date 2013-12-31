@@ -1,6 +1,6 @@
 module Utils
 using Base.rand
-export halton,vdc,unifmesh,randir,diffrandi
+export halton,vdc,unifmesh,randir,diffrandi,secondInv
 
 function vdc(n,base)
   x,denom=0,1
@@ -34,11 +34,11 @@ function unifmesh(x,y)
   end
 
 #Get the second invariant of a 3x3 symmetric tensor in Voigt notation.
-function secondInv(x::Array{Number,1})
+function secondInv(x::Array{Float64,1})
   return x[1]*x[2]+x[1]*x[3]+x[2]*x[3]-x[4]^2-x[5]^2-x[6]^2
   end
 
-secondInv(x::Array{Number,2})=secondInv([x[1,1],x[2,2],x[3,3],x[2,3],x[1,3],x[1,2]])
+secondInv(x::Array{Float64,2})=secondInv([x[1,1],x[2,2],x[3,3],x[2,3],x[1,3],x[1,2]])
 
 function randir(dims,lo::Int64,hi::Int64)
   x=rand(Int64,dims)

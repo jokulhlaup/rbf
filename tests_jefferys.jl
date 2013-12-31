@@ -1,4 +1,4 @@
-using jefferys,Plotting,PyCall
+using Utils,jefferys,Plotting,PyCall
 @pyimport matplotlib.pyplot as plt
 ngr=100
 ns=10
@@ -34,7 +34,6 @@ pars=GlobalPars{Float64,Int64}(dt,nrk,f)
 nn=10
 av_radius=1
 r=rand(ngr*ns)
-nbrs=makeRandomNbrs!(ns,ngr,nn)
 #fab=FabricNGG{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot,nn,nbrs,r)
 fab=consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
 fabEv!(pars,fab,jefferysRHS)
@@ -44,11 +43,11 @@ fab.p=fabE(pars,fab,jefferysRHS)
 
 
 
-fab=Fabric{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot)
-fabE=fabricHelper(pars,fab,jefferysRHS)
-fabE(pars,fab,jefferysRHS)
-for i=1:10
- fab.p=fabE(pars,fab,jefferysRHS)
+#fab=Fabric{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot)
+#fabE=fabricHelper(pars,fab,jefferysRHS)
+#fabE(pars,fab,jefferysRHS)
+for i=1:100
+ fabE(pars,fab,jefferysRHS)
  end
 
 pl=schmidtPlot(fab.p)
