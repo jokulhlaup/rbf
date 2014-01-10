@@ -126,7 +126,7 @@ type Nbrs
   nbrs::Array{Int64,2}
   end
 ##########################################
-function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,p)
+function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p)
   ngr=length(rs)
   rs_new=zeros(ngr)
   vol=4/3.*pi.*rs.^3
@@ -135,10 +135,10 @@ function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,p)
     for j in (1:i-1)[nbrs[1:i-1,i]]
       #get volume swept out be each boundary
       #this is relative to r[i]
-      dVol=dt.*nggVelocity(rs[i],rs[j],grmob)
-      dVol+=dt.*strEnVelocity(p[:,i],p[:,j],sigma)
-      vol[i]=vol[i]+dVol
-      vol[j]=vol[j]-dVol
+      dVol=areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
+      dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma)
+      vol[i]=vol[i]-dVol
+      vol[j]=vol[j]+dVol
       if vol[j]<0
         vol[i]+=vol[j]
         vol[j]=0
@@ -374,7 +374,7 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
     for i=1:fab.ns
       fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
                 fab.vort[:,:,i],fab.epsdot[:,:,i])
-      fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.p[:,:,i])
+      fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
       end
 #   for i=1:fab.ngr*fab.ns
 #      fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
@@ -404,7 +404,7 @@ function dynRextal!(fab::Fabric2)
   end
 
 function strEnVelocity(p1,p2,sigma)
-  fac=1
+  fac=1#10000
   e1=localSigmaEff([p1,p2],sigma,2)
   velocity=fac*(e1[2]-e1[1])
   return velocity

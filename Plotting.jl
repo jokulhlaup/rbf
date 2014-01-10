@@ -1,7 +1,7 @@
 module Plotting
 using jefferys,PyCall
 @pyimport matplotlib.pyplot as plt
-export schmidtPlot
+export rextalPlot,schmidtPlot
 
 #converts from normals to a projection in polar coordinates.
 function normal2polar(c)
@@ -25,4 +25,10 @@ function schmidtPlot(c)
   return p
   end
 
+#function kdE(
+function rextalPlot(c,r)
+  n=length(r)
+  cn=filter(i->r[i]>1e-6,1:n)  
+  return schmidtPlot(c)
+  end
 end

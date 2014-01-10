@@ -46,7 +46,7 @@ fab.p=fabE(pars,fab,jefferysRHS)
 #fab=Fabric{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot)
 #fabE=fabricHelper(pars,fab,jefferysRHS)
 #fabE(pars,fab,jefferysRHS)
-for i=1:100
+for i=1:10
  fabE(pars,fab,jefferysRHS)
  end
 
