@@ -126,11 +126,18 @@ type Nbrs
   nbrs::Array{Int64,2}
   end
 ##########################################
-function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p)
+function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
   ngr=length(rs)
   rs_new=zeros(ngr)
   vol=4/3.*pi.*rs.^3
   for i=2:ngr
+    if rs[i]<r_crit
+      if randbool<prNucleation
+        jd=binBoolInd(areas[1:i-1,i],>,ngr)
+        vol[jd]-=nuc_vol
+        vol[i]=nuc_vol
+        end
+      end
     #partition
     for j in (1:i-1)[nbrs[1:i-1,i]]
       #get volume swept out be each boundary
@@ -148,6 +155,7 @@ function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p)
         vol[i]=0
         end
       end
+      nucleate=false
     end
     rs_new=(vol.*0.75/pi).^(1/3)
     return rs_new
