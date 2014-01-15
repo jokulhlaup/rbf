@@ -2,6 +2,17 @@ module Utils
 using Base.rand
 export halton,vdc,unifmesh,randir,diffrandi,secondInv
 
+
+function binBoolInd(x,fn,n)
+  ind=1
+  for i=2:n
+    if fn(x[ind],x[i])==true
+      ind=i
+      end
+    end
+  return ind
+  end
+
 function vdc(n,base)
   x,denom=0,1
   while n>0

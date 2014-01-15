@@ -131,14 +131,7 @@ function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
   rs_new=zeros(ngr)
   vol=4/3.*pi.*rs.^3
   for i=2:ngr
-    if rs[i]<r_crit
-      if randbool<prNucleation
-        jd=binBoolInd(areas[1:i-1,i],>,ngr)
-        vol[jd]-=nuc_vol
-        vol[i]=nuc_vol
-        end
-      end
-    #partition
+        #partition
     for j in (1:i-1)[nbrs[1:i-1,i]]
       #get volume swept out be each boundary
       #this is relative to r[i]
@@ -157,6 +150,18 @@ function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
       end
       nucleate=false
     end
+    if rs[i]<r_crit
+      if rand()<pr_nucleation
+        jd=binBoolInd(areas[1:i-1,i],>,ngr)
+        vol[jd]-=nuc_vol
+        vol[i]=nuc_vol
+        if vol[jd]<0
+          vol[i]+=vol[jd]
+          vol[jd]=0
+          end
+        end
+      end
+
     rs_new=(vol.*0.75/pi).^(1/3)
     return rs_new
   end
