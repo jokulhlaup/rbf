@@ -99,6 +99,7 @@ genrFT(:(FabricNGG),:(begin
   #nbrs[:,i] is the nbrs of the i'th grain, where i in [1:ngr*ns]
   r::Array{T,2} #radius of grains.
   grmob::T
+  eps::Array{T,3} #total strain
   #Probably don't want to mix grains from different sites
 
   end))
@@ -111,6 +112,7 @@ function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
     areas[:,:,i]=initAreas(r[:,i],nbrs[:,:,i])
     end
   grmob=1.0
+  eps=zeros(ngr,ngr,ns)
   size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
   size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
   size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
