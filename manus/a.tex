@@ -38,9 +38,17 @@ A reasonable way to handle this (which I am taking)  is to take the curvature of
 \section{Recrystallization}
 Migration (dynamic) recrystallization is primarily driven by lower strain energy (easy glide) grains consuming higher strain energy grains \citep{duval1995}. At least at larger scales (after the initial nucleation), this reduction in strain energy can be incorporated into the driving force. High dislocation densities from work-hardening in more highly plastically strained grains can also contribute to the driving force, as these dislocations are annihilated by the advancing boundary. The model currently calculates the effective stress on each grain following \citet{azuma96}, which depends on the bulk stress and the orientation of each grain and its neighbors. This stress is then converted into strain energy under the assumption of elasticity.
 
-\section{Goals}
+\section{Fabric model usage}
+The fabric is specified as an instance of a datatype subtyping a general 'Fabric' containing most of the relevant physical information and model parameters, such as number of grains, strain rate, neighbor connectivity, etc. For testing, a constructor function can be used to make a random fabric, or the fabric can be specified. Then, the evolution over one timestep uses a single function "fabE!" which accepts a Fabric instance as an argument and advances the fabric by one timestep. The "fabE!" function itself is polymorphic and will return based on the specific type supplied to it.
 
-1. Estimate the variance of the 
+\section{Goals}
+\begin{itemize}
+\item In the near term, reproduce general small-girdle fabrics by modeling rotation and migration recrystallization. This will show that the model is able to handle recrystallization in arbitrary strain environments.
+
+\item Reproduce WAIS divide thin sections, especially the transition between vertical girdle to single maxima. This may be able to be explained by changing impurity concentrations affecting grain mobility or initial farbic.
+
+\item When the flow model is developed, I will investigate the coupling of the fabric model and the flow. In addition to effects such as boudinage which depend on differing rheologies, it will also be possible to investigate effects due purely to the interdependence of flow and fabric. Recent results \citep{montgomery-smith2011} show that coupled Stokes-Jefferys equations modeling fiber suspensions can induce intiial perturbations in the orientation distribution function to grow significantly in short amounts of time.
+\end{itemize}
 \bibliographystyle{agu}
 \bibliography{anis}
 \end{document}
