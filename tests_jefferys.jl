@@ -1,7 +1,7 @@
 using Utils,jefferys,Plotting,PyCall
 @pyimport matplotlib.pyplot as plt
 ngr=100
-ns=10
+ns=1
 coors=rand(3,ns)
 p=rand(3,ngr,ns)-0.5
 
@@ -20,12 +20,12 @@ h=1.0
 C=Array(Float64,6,6,ns)
 vort=zeros(3,3,ns)
 epsdot=zeros(3,3,ns)
-epsdot[1,1,:]=1
-epsdot[2,2,:]=1
-epsdot[3,3,:]=-2
+epsdot[1,1,:]=-1
+epsdot[2,2,:]=-1
+epsdot[3,3,:]=2
 
 
-dt=5e-3
+dt=0.2#5e-3
 nrk=10
 f=jefferysRHS
 pars=GlobalPars{Float64,Int64}(dt,nrk,f)
@@ -36,9 +36,7 @@ av_radius=1
 r=rand(ngr*ns)
 #fab=FabricNGG{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot,nn,nbrs,r)
 fab=consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
-fabEv!(pars,fab,jefferysRHS)
 fabE=fabricHelper(pars,fab,jefferysRHS)
-fab.p=fabE(pars,fab,jefferysRHS)
 
 
 

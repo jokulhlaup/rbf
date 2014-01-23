@@ -1,6 +1,6 @@
 module Utils
 using Base.rand
-export halton,vdc,unifmesh,randir,diffrandi,secondInv
+export halton,vdc,unifmesh,randir,diffrandi,secondInv,binBoolInd
 
 
 function binBoolInd(x,fn,n)

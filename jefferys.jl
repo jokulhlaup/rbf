@@ -99,38 +99,60 @@ genrFT(:(FabricNGG),:(begin
   #nbrs[:,i] is the nbrs of the i'th grain, where i in [1:ngr*ns]
   r::Array{T,2} #radius of grains.
   grmob::T
-  eps::Array{T,3} #total strain
   #Probably don't want to mix grains from different sites
-
+  pr_nuc::T
+  nuc_vol::T
+  str::Array{T,2}
   end))
 
 function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
   nbrs=makeSymNbrs(ns,ngr,0.1)
   r=2*rand(ngr,ns)*av_radius
+  
   areas=zeros(ngr,ngr,ns)
   for i=1:ns
     areas[:,:,i]=initAreas(r[:,i],nbrs[:,:,i])
     end
   grmob=1.0
-  eps=zeros(ngr,ngr,ns)
+  pr_nuc=0.1
+  nuc_vol=0.1
+  str=zeros(ngr,ns)
   size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
   size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
   size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
   size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
   size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,areas,r,grmob)
+  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,areas,r,grmob,pr_nuc,nuc_vol,str)
   end
 
 ######################
 ############
 #####################
-type Nbrs
-  nbrs::Array{Int64,2}
-  end
 ##########################################
-function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
-  ngr=length(rs)
-  rs_new=zeros(ngr)
+#function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
+function advanceRadii(fab::FabricNGG,k,dt)
+  
+  #nucleates a new grain at position (i,j,k)
+  function nucleateGrain!(fab,i,k,vol)
+    jd=binBoolInd(fab.areas[:,i,k],>,ngr)
+    vol[jd]-=fab.nuc_vol
+    vol[i]=fab.nuc_vol
+    if vol[jd]<0
+      vol[i]+=vol[jd]
+      vol[jd]=0
+      end
+    azimuth=rand()*2*pi  
+    fab.p[:,i,k]=[sin(pi/4)*cos(azimuth),sin(pi/4)*sin(azimuth),cos(pi/4)]#rand(3)
+    #fab.p[:,i,k]/=norm(fab.p[:,i,k])
+    fab.str[i]=0
+
+    end
+
+  rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
+  areas=fab.areas[:,:,k];p=fab.p[:,:,k]
+  
+ # fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
+#  rs_new=zeros(fab.ngr)
   vol=4/3.*pi.*rs.^3
   for i=2:ngr
         #partition
@@ -138,7 +160,9 @@ function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
       #get volume swept out be each boundary
       #this is relative to r[i]
       dVol=areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
-      dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma)
+      dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],fab.epsdot[:,:,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
+      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
+      #print(dVol)
       vol[i]=vol[i]-dVol
       vol[j]=vol[j]+dVol
       if vol[j]<0
@@ -149,27 +173,18 @@ function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
         vol[j]+=vol[i]
         vol[i]=0
         end
-      end
-      nucleate=false
-    end
-    if rs[i]<r_crit
-      if rand()<pr_nucleation
-        jd=binBoolInd(areas[1:i-1,i],>,ngr)
-        vol[jd]-=nuc_vol
-        vol[i]=nuc_vol
-        if vol[jd]<0
-          vol[i]+=vol[jd]
-          vol[jd]=0
-          end
+      end #j
+    if rs[i]<0.4||fab.str[i]>0.02#r_crit  FIX !!!!!!!!!!!!!!!!!!!!!!
+      if rand()<0.5#pr_nucleation
+        nucleateGrain!(fab,i,k,vol)
         end
       end
+    end #i
+  fab.str+=dt  
+  return (vol.*0.75/pi).^(1/3)
 
-    rs_new=(vol.*0.75/pi).^(1/3)
-    return rs_new
   end
 ##########################################      
-
-
 function advanceRadius(this,rs,grmob,dt)
   if (this <= 0) | isnan(this)
     return 0.0 
@@ -186,7 +201,6 @@ function advanceRadius(this,rs,grmob,dt)
 
 function initAreas(rs,nbrs)
   ngr=length(rs)
-  print(ngr)
   areas=zeros(ngr,ngr)
   for i=1:ngr
     areas[nbrs[:,i],i]=propAreas(rs[nbrs[:,i]])
@@ -230,30 +244,6 @@ function setConjugateNbrs(this::Int,nbr::Array{Float64,1},nbrs,nn,repl::Bool=fal
   i=Utils.randir(1,nn)
   nbrs[i]=this
   end
-
-function makeRandomNbrs!(nbrs::Array{Int64,2},ns::Int,ngr::Int,nn::Int)
-  @assert(size(nbrs)==(nn,ns*ngr),"'nbrs' not size (nn,ngr*ns)")
-  for i=1:ns
-    for j=1:ngr
-      for k=1:nn
-        if nbrs[k,(i-1)*ngr+j] == 0
-          di=Utils.diffrandi((i-1)*ngr+j,(i-1)*ngr+1,i*ngr)
-          for k=1:nn
-            if nbrs[k,di]==0
-                nbrs[k,(i-1)*ngr+j]=di
-                nbrs[k,di]=(i-1)*ngr+j
-                break
-                end
-              end
-              nbrs[1,di]=(i-1)*ngr+j
-            end
-          end
-        end
-    end
-    return nbrs
-  end
-
-makeRandomNbrs!(ns,ngr,nn)=makeRandomNbrs!(zeros(Int64,nn,ns*ngr),ns,ngr,nn)
 
 function siteRandomNbrs!(nbrs::Array{Int,2})
   nn,ngr=size(nbrs)
@@ -357,19 +347,19 @@ function rotC(R)
   end
 
 
-function fabEv!(pars::GlobalPars,fab::FabricNGG,f)
-  for i=1:fab.ns
-    print("282")
-    fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
-              fab.vort[:,:,i],fab.epsdot[:,:,i])
-    end
- for i=1:fab.ngr*fab.ns-1
-    print("287")
-    fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
-    print("289\n",i)
-    end
-  return fab.r
-  end
+#function fabEv!(pars::GlobalPars,fab::FabricNGG,f)
+#  for i=1:fab.ns
+#    print("282")
+#    fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
+#              fab.vort[:,:,i],fab.epsdot[:,:,i])
+#    end
+# for i=1:fab.ngr*fab.ns-1
+#    print("287")
+#    fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
+#    print("289\n",i)
+#    end
+#  return fab.r
+#  end
 
 
 #this is the closure that returns fabEvolve!,
@@ -389,7 +379,8 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
     for i=1:fab.ns
       fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
                 fab.vort[:,:,i],fab.epsdot[:,:,i])
-      fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
+      #fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
+      fab.r[:,i]=advanceRadii(fab,i,pars.dt)
       end
 #   for i=1:fab.ngr*fab.ns
 #      fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
@@ -434,7 +425,6 @@ function localSigmaEff(p,sigma,ngr)
     G[1:9]+=g[9*i-8:9*i]
     end
   G=G/ngr
-  print(g)
   sigmaE=zeros(ngr)
   for i=1:ngr
     #treat zeros!
