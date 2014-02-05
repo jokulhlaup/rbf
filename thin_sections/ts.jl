@@ -12,7 +12,7 @@ function readif(rf)
   c=Array(Float64,0)
   for i=1:length(rf)
     
-    try  append!(c,float64(split(replace(rf[500],r"[\t\r]","\r"))[2:3]))  #append!(c,float64(split(rf[i],'\t')[2:3]))
+    try  append!(c,float64(split(replace(rf[i],r"[\t\r]","\r"))[2:3]))  #append!(c,float64(split(rf[i],'\t')[2:3]))
       catch
         continue
       end
