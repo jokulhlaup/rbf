@@ -25,7 +25,7 @@ epsdot[2,2,:]=-1
 epsdot[3,3,:]=2
 
 
-dt=0.2#5e-3
+dt=0.01#5e-3
 nrk=10
 f=jefferysRHS
 pars=GlobalPars{Float64,Int64}(dt,nrk,f)
@@ -44,8 +44,11 @@ fabE=fabricHelper(pars,fab,jefferysRHS)
 #fab=Fabric{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot)
 #fabE=fabricHelper(pars,fab,jefferysRHS)
 #fabE(pars,fab,jefferysRHS)
-for i=1:10
+sv=Array(Float64,0)
+for i=1:100
  fabE(pars,fab,jefferysRHS)
+ x=svd(fab.p[:,:,1])[2]
+ sv=append!(sv,[max(x)/norm(x)])
  end
 
 pl=schmidtPlot(fab.p)

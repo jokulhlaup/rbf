@@ -175,7 +175,8 @@ function advanceRadii(fab::FabricNGG,k,dt)
         end
       end #j
     if rs[i]<0.4||fab.str[i]>0.02#r_crit  FIX !!!!!!!!!!!!!!!!!!!!!!
-      if rand()<0.5#pr_nucleation
+      T=0
+      if rand()<prNucleation(T)#0.5#pr_nucleation
         nucleateGrain!(fab,i,k,vol)
         end
       end
@@ -184,6 +185,11 @@ function advanceRadii(fab::FabricNGG,k,dt)
   return (vol.*0.75/pi).^(1/3)
 
   end
+
+function prNucleation(T)
+  return 0.1
+  end
+
 ##########################################      
 function advanceRadius(this,rs,grmob,dt)
   if (this <= 0) | isnan(this)
