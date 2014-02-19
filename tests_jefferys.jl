@@ -20,8 +20,8 @@ h=1.0
 C=Array(Float64,6,6,ns)
 vort=zeros(3,3,ns)
 epsdot=zeros(3,3,ns)
-epsdot[1,1,:]=-1
-epsdot[2,2,:]=-1
+epsdot[1,1,:]=-0.5
+epsdot[2,2,:]=-1.5
 epsdot[3,3,:]=2
 
 
