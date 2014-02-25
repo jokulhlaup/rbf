@@ -187,7 +187,7 @@ function advanceRadii(fab::FabricNGG,k,dt)
   end
 
 function prNucleation(T)
-  return 0.1
+  return 0.0#1
   end
 
 ##########################################      
@@ -436,7 +436,7 @@ function localSigmaEff(p,sigma,ngr)
     #treat zeros!
     g[9*i-8:9*i]=g[9*i-8:9*i]./G[1:9].*sigma[1:9] #g= local sigma now
     
-    sigmaE[i]=sqrt(-1/3*secondInv(g[:,:,ngr])) #be sure to convert
+    sigmaE[i]=sqrt(abs(-1/3*secondInv(g[:,:,ngr]))) #be sure to convert
     #back to effective stress from the second invariant.
     end
   return sigmaE 

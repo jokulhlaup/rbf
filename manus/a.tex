@@ -44,8 +44,12 @@ Migration (dynamic) recrystallization is primarily driven by lower strain energy
 The fabric is specified as an instance of a datatype subtyping a general 'Fabric' containing most of the relevant physical information and model parameters, such as number of grains, strain rate, neighbor connectivity, etc. For testing, a constructor function can be used to make a random fabric, or the fabric can be specified. Then, the evolution over one timestep uses a single function "fabE!" which accepts a Fabric instance as an argument and advances the fabric by one timestep. The "fabE!" function itself is polymorphic and will return based on the specific type supplied to it.
 
 \section{Tests}
-The model is 
+The model can reproduce characteristic fabrics for a variety of flow situations, such as single maxima, as well as large girdle fabrics. By incorporating recrystallization, small girdle fabrics can also be formed (see fig. 1).
 
+\begin{figure}
+\caption{Scmidt plot of girdle fabric produced under uniaxial compression. The grains rotate to the vertical axis. As they do, they are consumed by grains with lower strain energy.} 
+\includegraphics[width=7cm]{girdle}
+\end{figure}
 \section{Goals}
 \begin{itemize}
 \item In the near term, reproduce general small-girdle fabrics by modeling rotation and migration recrystallization. This will show that the model is able to handle recrystallization in arbitrary strain environments.

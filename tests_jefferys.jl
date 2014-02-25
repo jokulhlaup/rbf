@@ -7,7 +7,7 @@ p=rand(3,ngr,ns)-0.5
 
 
 function jefferysRHS(c,vort,epsdot,dt)
-  return (epsdot*c-(c'*epsdot*c)[1]*c)*dt
+  return vort*dt*c+(-epsdot*c+(c'*epsdot*c)[1]*c)*dt
     end
 
 #normalize!
@@ -19,13 +19,16 @@ for i=1:ngr
 h=1.0
 C=Array(Float64,6,6,ns)
 vort=zeros(3,3,ns)
+vort[3,2]=0.1
+vort[2,3]=-0.1
 epsdot=zeros(3,3,ns)
-epsdot[1,1,:]=-0.5
-epsdot[2,2,:]=-1.5
-epsdot[3,3,:]=2
+epsdot[1,1,:]=0#0.5
+epsdot[2,2,:]=0#-1
+epsdot[3,3,:]=0#0.5
+epsdot[2,3,:]=-0.1
+epsdot[3,2,:]=-0.1
 
-
-dt=0.01#5e-3
+dt=0.1#5e-3
 nrk=10
 f=jefferysRHS
 pars=GlobalPars{Float64,Int64}(dt,nrk,f)
@@ -47,8 +50,8 @@ fabE=fabricHelper(pars,fab,jefferysRHS)
 sv=Array(Float64,0)
 for i=1:100
  fabE(pars,fab,jefferysRHS)
- x=svd(fab.p[:,:,1])[2]
- sv=append!(sv,[max(x)/norm(x)])
+ #x=svd(fab.p[:,:,1])[2]
+ #sv=append!(sv,[max(x)/norm(x)])
  end
 
 pl=schmidtPlot(fab.p)
