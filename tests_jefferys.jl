@@ -1,3 +1,5 @@
+Module Tests
+
 using Utils,jefferys,Plotting,PyCall
 @pyimport matplotlib.pyplot as plt
 ngr=100
@@ -19,14 +21,14 @@ for i=1:ngr
 h=1.0
 C=Array(Float64,6,6,ns)
 vort=zeros(3,3,ns)
-vort[3,2]=0.1
-vort[2,3]=-0.1
+vort[3,2]=-0.1
+vort[2,3]=0.1
 epsdot=zeros(3,3,ns)
-epsdot[1,1,:]=0#0.5
-epsdot[2,2,:]=0#-1
-epsdot[3,3,:]=0#0.5
-epsdot[2,3,:]=-0.1
-epsdot[3,2,:]=-0.1
+epsdot[1,1,:]=-0.05#0.5
+epsdot[2,2,:]=0.1#-1
+epsdot[3,3,:]=-0.05#0.5
+epsdot[2,3,:]=0.1
+epsdot[3,2,:]=0.1
 
 dt=0.1#5e-3
 nrk=10
@@ -50,9 +52,17 @@ fabE=fabricHelper(pars,fab,jefferysRHS)
 sv=Array(Float64,0)
 for i=1:100
  fabE(pars,fab,jefferysRHS)
- #x=svd(fab.p[:,:,1])[2]
- #sv=append!(sv,[max(x)/norm(x)])
+ x=svd(fab.p[:,:,1])[2]
+ sv=append!(sv,[max(x)/norm(x)])
  end
+
+
+
+
+function obj_epsdot(epsd)
+  
+
+
 
 pl=schmidtPlot(fab.p)
 plt.show()
@@ -68,5 +78,5 @@ assert(nggRate(1,2,0.1,0.0001)<0)
 
 
 
-
+end
 

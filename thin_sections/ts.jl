@@ -1,4 +1,6 @@
-cd("C-axisdatabase")
+using Grid Tests
+
+cd("thin_sections/C-axisdatabase")
 dr=readdir()
 c=Dict()
 p=Dict()
@@ -18,7 +20,7 @@ for d=1:length(dr)
   svs[d]=x[1]/norm(x)
   cd("..")
   end
-
+cd("..")
 function readif(rf)
   c=Array(Float64,0)
   for i=1:length(rf)
@@ -31,4 +33,46 @@ function readif(rf)
   return reshape(c,(2,int(length(c)/2)))
   end
 
+
+#now interpolate depth-age
+dr=sort(float(dr))
+
+cs=readdlm("timescale.csv",',')
+cd("..")
+
+
+depth_age=float(cs[3:end,1:2])
+ages=InterpIrregular(depth_age[:,1],depth_age[:,2],1,InterpNearest)
+ts_ages=ages[dr]
+
+
+function wrapper(ages,p,ts_svs,fab,pars,jefferysRHS)
+  t_c=p[1]
+  fab.epsdot[1,1]=p[2]
+  fab.epsdot[2,2]=p[3]
+  fab.epsdot[3,3]=p[4]
+  fab.epsdot[2,3]=p[5]
+  fab.epsdot[1,3]=p[6]
+  fab.epsdot[1,2]=p[7]
+  symmetrize!(fab.epsdot)
+  fab.vort[3,2]=-p[8]
+  fab.vort[2,3]=p[8]
+  fab.epsdot[2,3]=p[8]
+  fab.epsdot[3,2]=p[8]
+  function objective(ages,p)
+    sv=Array(Float64,0)
+    dages=ages[2:end]-ages[1:end-1]
+    for i=1:length(dages)
+      pars.dt=t_c*dage
+      fabE(pars,fab,jefferysRhs)
+      sv[:,i]==svd(fab.p[:,:,1])[2]
+      end
+    sse=sum((ts_svs-sv).^2)
+    return sse
+    end
+  return objective
+  end
+      
+       
 #get singular values and directions
+
