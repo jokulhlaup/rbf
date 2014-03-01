@@ -1,5 +1,3 @@
-Module Tests
-
 using Utils,jefferys,Plotting,PyCall
 @pyimport matplotlib.pyplot as plt
 ngr=100
@@ -21,19 +19,19 @@ for i=1:ngr
 h=1.0
 C=Array(Float64,6,6,ns)
 vort=zeros(3,3,ns)
-vort[3,2]=-0.1
-vort[2,3]=0.1
+vort[3,2]=-0.4
+vort[2,3]=0.4
 epsdot=zeros(3,3,ns)
 epsdot[1,1,:]=-0.05#0.5
 epsdot[2,2,:]=0.1#-1
 epsdot[3,3,:]=-0.05#0.5
-epsdot[2,3,:]=0.1
-epsdot[3,2,:]=0.1
+epsdot[2,3,:]=0.4
+epsdot[3,2,:]=0.4
 
-dt=0.1#5e-3
+dt=0.0001#5e-3
 nrk=10
 f=jefferysRHS
-pars=GlobalPars{Float64,Int64}(dt,nrk,f)
+pars=GlobalPars{Number,Int64}(dt,nrk,f)
 #radius velocity length/time * dt in units length
 #nggVelocity units 1/length*
 nn=10
@@ -77,6 +75,4 @@ assert(nggRate(1,2,0.1,0.0001)<0)
 
 
 
-
-end
 

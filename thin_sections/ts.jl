@@ -46,6 +46,16 @@ ages=InterpIrregular(depth_age[:,1],depth_age[:,2],1,InterpNearest)
 ts_ages=ages[dr]
 
 
+sv=Array(Float64,0)
+dages=ages[2:end]-ages[1:end-1]
+  for i=1:length(dages)
+    pars.dt=dt*dages[i]
+    fabE(pars,fab,jefferysRhs)
+    sv[:,i]==svd(fab.p[:,:,1])[2]
+    end
+
+
+
 function wrapper(ages,p,ts_svs,fab,pars,jefferysRHS)
   t_c=p[1]
   fab.epsdot[1,1]=p[2]

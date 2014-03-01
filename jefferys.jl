@@ -295,7 +295,7 @@ function makeSymNbrs(ns::Int,ngr::Int,pr)
 
 
 
-immutable GlobalPars{T<:Number,I<:Int}
+type GlobalPars{T<:Number,I<:Int}
   dt::T #timestep between velocity timesteps
   nrk::I #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
   hrk::T #better be dt/nrk
@@ -370,7 +370,7 @@ function rotC(R)
 
 #this is the closure that returns fabEvolve!,
 #which evolves the fabric based on the timestep.
-function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
+function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab::AbstractFabric
   #this is the function that actually does the rotation.  
   function fabEvolve!(pars::GlobalPars,fab::Fabric,f) #jefferys equation
     for i=1:fab.ns*fab.ngr
