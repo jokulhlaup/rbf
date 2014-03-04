@@ -19,7 +19,7 @@ function  genrFT(name,body)
       ns::I #number of sites
       C::Array{T,3} #viscosity matrix
       vort::Array{T,3} #vorticity
-      epsdot::Array{T,3} #strain rate
+      sigma::Array{T,3} #strain rate
       
       $body
       end
@@ -29,13 +29,13 @@ function  genrFT(name,body)
     #stencil::Array{T,1}
    #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
 genrFT(:(Fabric),:(begin
-  function Fabric(coors,p,ngr,ns,h,C,vort,epsdot)
+  function Fabric(coors,p,ngr,ns,h,C,vort,sigma)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
     size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
-    size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-    return new(coors,p,ngr,h,ns,C,vort,epsdot)
+    size(sigma)==(3,3,ns)?nothing:error("Dimension mismatch in 'sigma'")
+    return new(coors,p,ngr,h,ns,C,vort,sigma)
     end
   end))
 
@@ -48,17 +48,17 @@ type Fabric2{T<:Number,I<:Int}<:AbstractFabric
   prob::T
   C::Array{T,3} #viscosity matrix
   vort::Array{T,3} #vorticity
-  epsdot::Array{T,3} #strain rate
+  sigma::Array{T,3} #strain rate
   #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
   #stencil::Array{T,1}
  #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
-  function Fabric2(coors,p,ngr,ns,h,prob,C,vort,epsdot)
+  function Fabric2(coors,p,ngr,ns,h,prob,C,vort,sigma)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
     size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
-    size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-    return new(coors,p,ngr,h,ns,prob,C,vort,epsdot)
+    size(sigma)==(3,3,ns)?nothing:error("Dimension mismatch in 'sigma'")
+    return new(coors,p,ngr,h,ns,prob,C,vort,sigma)
     end
   end
 
@@ -70,7 +70,7 @@ type FabricNGG2{T<:Number,I<:Int}<:AbstractFabric
   h::T
   C::Array{T,3} #viscosity matrix
   vort::Array{T,3} #vorticity
-  epsdot::Array{T,3} #strain rate
+  sigma::Array{T,3} #strain rate
   #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
   #stencil::Array{T,1}
   nn::I
@@ -80,13 +80,13 @@ type FabricNGG2{T<:Number,I<:Int}<:AbstractFabric
   #Probably don't want to mix grains from different sites
 
  #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
-  function FabricNGG2(coors,p,ngr,ns,h,prob,C,vort,epsdot,nbrs,r)
+  function FabricNGG2(coors,p,ngr,ns,h,prob,C,vort,sigma,nbrs,r)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
     size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
-    size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-    return new(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,r)
+    size(sigma)==(3,3,ns)?nothing:error("Dimension mismatch in 'sigma'")
+    return new(coors,p,ngr,h,ns,C,vort,sigma,nn,nbrs,r)
     end
   end
 
@@ -105,7 +105,7 @@ genrFT(:(FabricNGG),:(begin
   str::Array{T,2}
   end))
 
-function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
+function consFabricNGG(coors,p,ngr,ns,h,C,vort,sigma,nn,av_radius)
   nbrs=makeSymNbrs(ns,ngr,0.1)
   r=2*rand(ngr,ns)*av_radius
   
@@ -121,8 +121,8 @@ function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
   size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
   size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
   size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
-  size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,areas,r,grmob,pr_nuc,nuc_vol,str)
+  size(sigma)==(3,3,ns)?nothing:error("Dimension mismatch in 'sigma'")
+  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,sigma,nn,nbrs,areas,r,grmob,pr_nuc,nuc_vol,str)
   end
 
 ######################
@@ -422,12 +422,16 @@ function strEnVelocity(p1,p2,sigma)
   return velocity
   end
 #finds the effective stress on grains at one site.
+#In addition, finds the local stress tensors for each grain
+#at a site. 
 function localSigmaEff(p,sigma,ngr)
   G=zeros(3,3)
   #first find local geometric tensors
   g=Array(Float64,3,3,ngr)
+  m=Array(Float64,3,ngr)
+  n=Array(Float64,3,ngr)
   for i=1:ngr
-    g[9*i-8:9*i]=localGeomTensor(p[3*i-2:3*i],sigma)
+    g[9*i-8:9*i],m[3*i+1:3*i],n[3*i+1:3*i=localGeomTensor(p[3*i-2:3*i],sigma)
     G[1:9]+=g[9*i-8:9*i]
     end
   G=G/ngr
@@ -437,6 +441,9 @@ function localSigmaEff(p,sigma,ngr)
     g[9*i-8:9*i]=g[9*i-8:9*i]./G[1:9].*sigma[1:9] #g= local sigma now
     
     sigmaE[i]=sqrt(abs(-1/3*secondInv(g[:,:,ngr]))) #be sure to convert
+    #get stress tensor
+    sigma[i
+
     #back to effective stress from the second invariant.
     end
   return sigmaE 
@@ -458,8 +465,10 @@ function localGeomTensor(p,sigma)
   n=n/norm(n) #read: n
   m=cross(n,p)
   lg=(m/norm(m))*p'
-  return lg
+  return lg,m,n
   end
+
+
 ##############################  
 #stuff for normal grain growth
 #this gets the area proportions
