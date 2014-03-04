@@ -1,4 +1,15 @@
-using Grid Tests
+function readif(rf)
+  c=Array(Float64,0)
+  for i=1:length(rf)
+    
+    try  append!(c,float64(split(replace(rf[i],r"[\t\r]","\r"))[2:3]))  #append!(c,float64(split(rf[i],'\t')[2:3]))
+      catch
+        continue
+      end
+    end
+  return reshape(c,(2,int(length(c)/2)))
+  end
+
 
 cd("thin_sections/C-axisdatabase")
 dr=readdir()
@@ -21,18 +32,6 @@ for d=1:length(dr)
   cd("..")
   end
 cd("..")
-function readif(rf)
-  c=Array(Float64,0)
-  for i=1:length(rf)
-    
-    try  append!(c,float64(split(replace(rf[i],r"[\t\r]","\r"))[2:3]))  #append!(c,float64(split(rf[i],'\t')[2:3]))
-      catch
-        continue
-      end
-    end
-  return reshape(c,(2,int(length(c)/2)))
-  end
-
 
 #now interpolate depth-age
 dr=sort(float(dr))
@@ -47,14 +46,18 @@ ts_ages=ages[dr]
 
 
 sv=Array(Float64,0)
-dages=ages[2:end]-ages[1:end-1]
+dages=ts_ages[2:end]-ts_ages[1:end-1]
   for i=1:length(dages)
     pars.dt=dt*dages[i]
-    fabE(pars,fab,jefferysRhs)
-    sv[:,i]==svd(fab.p[:,:,1])[2]
+    fabE(pars,fab,jefferysRHS)
+    x=(svd(fab.p[:,:,1]))[2]
+    sv=append!(sv,[max(x)/norm(x)])
+
     end
 
-
+plt.plot(ts_ages[2:end],svs[2:end])
+plt.plot(ts_ages[2:end],sv)
+plt.show()
 
 function wrapper(ages,p,ts_svs,fab,pars,jefferysRHS)
   t_c=p[1]

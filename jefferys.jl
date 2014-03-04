@@ -431,7 +431,7 @@ function localSigmaEff(p,sigma,ngr)
   m=Array(Float64,3,ngr)
   n=Array(Float64,3,ngr)
   for i=1:ngr
-    g[9*i-8:9*i],m[3*i+1:3*i],n[3*i+1:3*i=localGeomTensor(p[3*i-2:3*i],sigma)
+    g[9*i-8:9*i],m[3*i+1:3*i],n[3*i+1:(1+i)*3]=localGeomTensor(p[3*i-2:3*i],sigma)
     G[1:9]+=g[9*i-8:9*i]
     end
   G=G/ngr
@@ -442,7 +442,8 @@ function localSigmaEff(p,sigma,ngr)
     
     sigmaE[i]=sqrt(abs(-1/3*secondInv(g[:,:,ngr]))) #be sure to convert
     #get stress tensor
-    sigma[i
+    R=[n[3*i-2:3*i],p[3*i-2:3*i],m[3*i-2:3*i]
+    ]
 
     #back to effective stress from the second invariant.
     end
@@ -465,10 +466,14 @@ function localGeomTensor(p,sigma)
   n=n/norm(n) #read: n
   m=cross(n,p)
   lg=(m/norm(m))*p'
-  return lg,m,n
+  return lg
   end
 
-
+function localVelGrad(sigma,p)
+  b=sigma*p
+  St=b*p'
+  ss=tr(St*sigma)
+  Vg=
 ##############################  
 #stuff for normal grain growth
 #this gets the area proportions
