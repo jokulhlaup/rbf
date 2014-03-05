@@ -1,4 +1,4 @@
-using Grid Tests
+#using Grid Tests
 
 function wrapper(ages,par,ts_svs,fab,pars,jefferysRHS)
   t_c=p[1]
@@ -69,7 +69,8 @@ cd("..")
 
 depth_age=float(cs[3:end,1:2])
 ages=InterpIrregular(depth_age[:,1],depth_age[:,2],1,InterpNearest)
-ts_ages=ages[dr]
+ts_ages=map(x->ages[x],dr)
+
 
 
 sv=Array(Float64,0)
