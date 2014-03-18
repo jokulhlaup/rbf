@@ -1,6 +1,17 @@
 module Utils
 using Base.rand
-export halton,vdc,unifmesh,randir,diffrandi,secondInv
+export rk4!,halton,vdc,unifmesh,randir,diffrandi,secondInv,binBoolInd
+
+function rk4!(f::Function,h::Float64,n::Int64,x,vort,epsdot,m)
+   for i=1:n
+      k1=f(x,vort,epsdot)
+      k2=f(x+k1*h/2,vort,epsdot)
+      k3=f(x+k2*h/2,vort,epsdot)
+      k4=f(x+k3*h/2,vort,epsdot)
+      x+=(1/6)*h*(k1+2*k2+2*k3+k4)
+      end
+   return x
+   end
 
 
 function binBoolInd(x,fn,n)

@@ -19,7 +19,7 @@ function  genrFT(name,body)
       ns::I #number of sites
       C::Array{T,3} #viscosity matrix
       vort::Array{T,3} #vorticity
-      epsdot::Array{T,3} #strain rate
+      sigma::Array{T,3} #strain rate
       
       $body
       end
@@ -29,13 +29,13 @@ function  genrFT(name,body)
     #stencil::Array{T,1}
    #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
 genrFT(:(Fabric),:(begin
-  function Fabric(coors,p,ngr,ns,h,C,vort,epsdot)
+  function Fabric(coors,p,ngr,ns,h,C,vort,sigma)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
     size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
-    size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-    return new(coors,p,ngr,h,ns,C,vort,epsdot)
+    size(sigma)==(3,3,ns)?nothing:error("Dimension mismatch in 'sigma'")
+    return new(coors,p,ngr,h,ns,C,vort,sigma)
     end
   end))
 
@@ -48,17 +48,17 @@ type Fabric2{T<:Number,I<:Int}<:AbstractFabric
   prob::T
   C::Array{T,3} #viscosity matrix
   vort::Array{T,3} #vorticity
-  epsdot::Array{T,3} #strain rate
+  sigma::Array{T,3} #strain rate
   #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
   #stencil::Array{T,1}
  #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
-  function Fabric2(coors,p,ngr,ns,h,prob,C,vort,epsdot)
+  function Fabric2(coors,p,ngr,ns,h,prob,C,vort,sigma)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
     size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
-    size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-    return new(coors,p,ngr,h,ns,prob,C,vort,epsdot)
+    size(sigma)==(3,3,ns)?nothing:error("Dimension mismatch in 'sigma'")
+    return new(coors,p,ngr,h,ns,prob,C,vort,sigma)
     end
   end
 
@@ -70,7 +70,7 @@ type FabricNGG2{T<:Number,I<:Int}<:AbstractFabric
   h::T
   C::Array{T,3} #viscosity matrix
   vort::Array{T,3} #vorticity
-  epsdot::Array{T,3} #strain rate
+  sigma::Array{T,3} #strain rate
   #Fabric(coors,p,ngr,h,ns,C=zeros)=new(coors,p,ngr,h,ns,C)
   #stencil::Array{T,1}
   nn::I
@@ -80,13 +80,13 @@ type FabricNGG2{T<:Number,I<:Int}<:AbstractFabric
   #Probably don't want to mix grains from different sites
 
  #Fabric(coors,p,ngr,ns,C)=new(coors,p,n,C,stencil)
-  function FabricNGG2(coors,p,ngr,ns,h,prob,C,vort,epsdot,nbrs,r)
+  function FabricNGG2(coors,p,ngr,ns,h,prob,C,vort,sigma,nbrs,r)
     size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
     size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
     size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
     size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
-    size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-    return new(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,r)
+    size(sigma)==(3,3,ns)?nothing:error("Dimension mismatch in 'sigma'")
+    return new(coors,p,ngr,h,ns,C,vort,sigma,nn,nbrs,r)
     end
   end
 
@@ -100,35 +100,59 @@ genrFT(:(FabricNGG),:(begin
   r::Array{T,2} #radius of grains.
   grmob::T
   #Probably don't want to mix grains from different sites
-
+  pr_nuc::T
+  nuc_vol::T
+  str::Array{T,2}
   end))
 
-function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
+function consFabricNGG(coors,p,ngr,ns,h,C,vort,sigma,nn,av_radius)
   nbrs=makeSymNbrs(ns,ngr,0.1)
   r=2*rand(ngr,ns)*av_radius
+  
   areas=zeros(ngr,ngr,ns)
   for i=1:ns
     areas[:,:,i]=initAreas(r[:,i],nbrs[:,:,i])
     end
   grmob=1.0
+  pr_nuc=0.1
+  nuc_vol=0.1
+  str=zeros(ngr,ns)
   size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
   size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
   size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
   size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
-  size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,areas,r,grmob)
+  size(sigma)==(3,3,ns)?nothing:error("Dimension mismatch in 'sigma'")
+  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,sigma,nn,nbrs,areas,r,grmob,pr_nuc,nuc_vol,str)
   end
 
 ######################
 ############
 #####################
-type Nbrs
-  nbrs::Array{Int64,2}
-  end
 ##########################################
-function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
-  ngr=length(rs)
-  rs_new=zeros(ngr)
+#function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
+function advanceRadii(fab::FabricNGG,k,dt)
+  
+  #nucleates a new grain at position (i,j,k)
+  function nucleateGrain!(fab,i,k,vol)
+    jd=binBoolInd(fab.areas[:,i,k],>,ngr)
+    vol[jd]-=fab.nuc_vol
+    vol[i]=fab.nuc_vol
+    if vol[jd]<0
+      vol[i]+=vol[jd]
+      vol[jd]=0
+      end
+    azimuth=rand()*2*pi  
+    fab.p[:,i,k]=[sin(pi/4)*cos(azimuth),sin(pi/4)*sin(azimuth),cos(pi/4)]#rand(3)
+    #fab.p[:,i,k]/=norm(fab.p[:,i,k])
+    fab.str[i]=0
+
+    end
+
+  rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
+  areas=fab.areas[:,:,k];p=fab.p[:,:,k]
+  
+ # fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
+#  rs_new=zeros(fab.ngr)
   vol=4/3.*pi.*rs.^3
   for i=2:ngr
         #partition
@@ -136,7 +160,9 @@ function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
       #get volume swept out be each boundary
       #this is relative to r[i]
       dVol=areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
-      dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma)
+      dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],fab.epsdot[:,:,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
+      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
+      #print(dVol)
       vol[i]=vol[i]-dVol
       vol[j]=vol[j]+dVol
       if vol[j]<0
@@ -147,27 +173,24 @@ function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
         vol[j]+=vol[i]
         vol[i]=0
         end
-      end
-      nucleate=false
-    end
-    if rs[i]<r_crit
-      if rand()<pr_nucleation
-        jd=binBoolInd(areas[1:i-1,i],>,ngr)
-        vol[jd]-=nuc_vol
-        vol[i]=nuc_vol
-        if vol[jd]<0
-          vol[i]+=vol[jd]
-          vol[jd]=0
-          end
+      end #j
+    if rs[i]<0.4||fab.str[i]>0.02#r_crit  FIX !!!!!!!!!!!!!!!!!!!!!!
+      T=0
+      if rand()<prNucleation(T)#0.5#pr_nucleation
+        nucleateGrain!(fab,i,k,vol)
         end
       end
+    end #i
+  fab.str+=dt  
+  return (vol.*0.75/pi).^(1/3)
 
-    rs_new=(vol.*0.75/pi).^(1/3)
-    return rs_new
   end
+
+function prNucleation(T)
+  return 0.0#1
+  end
+
 ##########################################      
-
-
 function advanceRadius(this,rs,grmob,dt)
   if (this <= 0) | isnan(this)
     return 0.0 
@@ -184,7 +207,6 @@ function advanceRadius(this,rs,grmob,dt)
 
 function initAreas(rs,nbrs)
   ngr=length(rs)
-  print(ngr)
   areas=zeros(ngr,ngr)
   for i=1:ngr
     areas[nbrs[:,i],i]=propAreas(rs[nbrs[:,i]])
@@ -228,30 +250,6 @@ function setConjugateNbrs(this::Int,nbr::Array{Float64,1},nbrs,nn,repl::Bool=fal
   i=Utils.randir(1,nn)
   nbrs[i]=this
   end
-
-function makeRandomNbrs!(nbrs::Array{Int64,2},ns::Int,ngr::Int,nn::Int)
-  @assert(size(nbrs)==(nn,ns*ngr),"'nbrs' not size (nn,ngr*ns)")
-  for i=1:ns
-    for j=1:ngr
-      for k=1:nn
-        if nbrs[k,(i-1)*ngr+j] == 0
-          di=Utils.diffrandi((i-1)*ngr+j,(i-1)*ngr+1,i*ngr)
-          for k=1:nn
-            if nbrs[k,di]==0
-                nbrs[k,(i-1)*ngr+j]=di
-                nbrs[k,di]=(i-1)*ngr+j
-                break
-                end
-              end
-              nbrs[1,di]=(i-1)*ngr+j
-            end
-          end
-        end
-    end
-    return nbrs
-  end
-
-makeRandomNbrs!(ns,ngr,nn)=makeRandomNbrs!(zeros(Int64,nn,ns*ngr),ns,ngr,nn)
 
 function siteRandomNbrs!(nbrs::Array{Int,2})
   nn,ngr=size(nbrs)
@@ -297,7 +295,7 @@ function makeSymNbrs(ns::Int,ngr::Int,pr)
 
 
 
-immutable GlobalPars{T<:Number,I<:Int}
+type GlobalPars{T<:Number,I<:Int}
   dt::T #timestep between velocity timesteps
   nrk::I #Number of timesteps to be taken per dt for Jeffery's eqn by RK4
   hrk::T #better be dt/nrk
@@ -355,24 +353,24 @@ function rotC(R)
   end
 
 
-function fabEv!(pars::GlobalPars,fab::FabricNGG,f)
-  for i=1:fab.ns
-    print("282")
-    fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
-              fab.vort[:,:,i],fab.epsdot[:,:,i])
-    end
- for i=1:fab.ngr*fab.ns-1
-    print("287")
-    fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
-    print("289\n",i)
-    end
-  return fab.r
-  end
+#function fabEv!(pars::GlobalPars,fab::FabricNGG,f)
+#  for i=1:fab.ns
+#    print("282")
+#    fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
+#              fab.vort[:,:,i],fab.epsdot[:,:,i])
+#    end
+# for i=1:fab.ngr*fab.ns-1
+#    print("287")
+#    fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
+#    print("289\n",i)
+#    end
+#  return fab.r
+#  end
 
 
 #this is the closure that returns fabEvolve!,
 #which evolves the fabric based on the timestep.
-function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
+function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab::AbstractFabric
   #this is the function that actually does the rotation.  
   function fabEvolve!(pars::GlobalPars,fab::Fabric,f) #jefferys equation
     for i=1:fab.ns*fab.ngr
@@ -387,7 +385,8 @@ function fabricHelper(pars::GlobalPars,fab::AbstractFabric,f::Function)
     for i=1:fab.ns
       fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
                 fab.vort[:,:,i],fab.epsdot[:,:,i])
-      fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
+      #fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
+      fab.r[:,i]=advanceRadii(fab,i,pars.dt)
       end
 #   for i=1:fab.ngr*fab.ns
 #      fab.r[i]=advanceRadius(fab.r[i],fab.r[filter(y->y!=0,fab.nbrs[:,i])],fab.grmob,pars.dt)
@@ -423,22 +422,28 @@ function strEnVelocity(p1,p2,sigma)
   return velocity
   end
 #finds the effective stress on grains at one site.
+#In addition, finds the local stress tensors for each grain
+#at a site. 
 function localSigmaEff(p,sigma,ngr)
   G=zeros(3,3)
   #first find local geometric tensors
   g=Array(Float64,3,3,ngr)
+  m=Array(Float64,3,ngr)
+  n=Array(Float64,3,ngr)
   for i=1:ngr
-    g[9*i-8:9*i]=localGeomTensor(p[3*i-2:3*i],sigma)
+    g[9*i-8:9*i],m[3*i+1:3*i],n[3*i+1:3*i=localGeomTensor(p[3*i-2:3*i],sigma)
     G[1:9]+=g[9*i-8:9*i]
     end
   G=G/ngr
-  print(g)
   sigmaE=zeros(ngr)
   for i=1:ngr
     #treat zeros!
     g[9*i-8:9*i]=g[9*i-8:9*i]./G[1:9].*sigma[1:9] #g= local sigma now
     
-    sigmaE[i]=sqrt(-1/3*secondInv(g[:,:,ngr])) #be sure to convert
+    sigmaE[i]=sqrt(abs(-1/3*secondInv(g[:,:,ngr]))) #be sure to convert
+    #get stress tensor
+    sigma[i
+
     #back to effective stress from the second invariant.
     end
   return sigmaE 
@@ -460,8 +465,10 @@ function localGeomTensor(p,sigma)
   n=n/norm(n) #read: n
   m=cross(n,p)
   lg=(m/norm(m))*p'
-  return lg
+  return lg,m,n
   end
+
+
 ##############################  
 #stuff for normal grain growth
 #this gets the area proportions
