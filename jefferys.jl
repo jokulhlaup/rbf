@@ -305,53 +305,6 @@ type GlobalPars{T<:Number,I<:Int}
     end
   end
 
-#Modification of ODE4 from package ODE
-function nRK4(f,ntimes::Int,h::Number,m::Number,dt,p,vort,epsdot)
-  for i=1:ntimes
-     p[:,i]=jefferys.rk4(f,h,m,p[:,i],vort[:,:],epsdot[:,:],dt,m)
-     end
-  return p
-  end
-
-function rk4(f::Function,h::Float64,n::Int64,x,vort,epsdot,dt,m)
-   for i=1:n
-      k1=f(x,vort,epsdot,dt)
-      k2=f(x+k1*h/2,vort,epsdot,dt)
-      k3=f(x+k2*h/2,vort,epsdot,dt)
-      k4=f(x+k3*h/2,vort,epsdot,dt)
-      x+=(1/6)*h*(k1+2*k2+2*k3+k4)
-      end
-   return x
-   end
-
-function jefferysRHS(c,vort,epsdot,dt)
-  return (epsdot*c-(c'*epsdot*c)[1]*c)*dt
-  end
-#Replace this so its rotC(R)
-function rotC(R)
-  # form the K matrix (based on Bowers 'Applied Mechanics of Solids', Chapter 3)
-  K1 = [ R[1,1]^2 R[1,2]^2 R[1,3]^2 ; 
-         R[2,1]^2 R[2,2]^2 R[2,3]^2 ; 
-         R[3,1]^2 R[3,2]^2 R[3,3]^2 ] ;
-  K2 = [ R[1,2]*R[1,3] R[1,3]*R[1,1] R[1,1]*R[1,2] ; 
-         R[2,2]*R[2,3] R[2,3]*R[2,1] R[2,1]*R[2,2] ;
-         R[3,2]*R[3,3] R[3,3]*R[3,1] R[3,1]*R[3,2] ] ;
-  K3 = [ R[2,1]*R[3,1] R[2,2]*R[3,2] R[2,3]*R[3,3] ; 
-         R[3,1]*R[1,1] R[3,2]*R[1,2] R[3,3]*R[1,3] ; 
-         R[1,1]*R[2,1] R[1,2]*R[2,2] R[1,3]*R[2,3] ] ;
-  K4 = [ R[2,2]*R[3,3]+R[2,3]*R[3,2] R[2,3]*R[3,1]+R[2,1]*R[3,3] 
-         R[2,1]*R[3,2]+R[2,2]*R[3,1] ; 
-         R[3,2]*R[1,3]+R[3,3]*R[1,2] R[3,3]*R[1,1]+R[3,1]*R[1,3] 
-         R[3,1]*R[1,2]+R[3,2]*R[1,1] ;       
-         R[1,2].*R[2,3]+R[1,3].*R[2,2] R[1,3].*R[2,1]+
-         R[1,1].*R[2,3] R[1,1].*R[2,2]+R[1,2].*R[2,1]] ; 
-  K = [ K1  2*K2 ; 
-        K3   K4   ] ;
-  C = zeros(6,6)
-  C[5,5]=1 
-  C = K * C * transpose(K) 
-  end
-
 
 #function fabEv!(pars::GlobalPars,fab::FabricNGG,f)
 #  for i=1:fab.ns
@@ -371,20 +324,11 @@ function rotC(R)
 #this is the closure that returns fabEvolve!,
 #which evolves the fabric based on the timestep.
 function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab::AbstractFabric
-  #this is the function that actually does the rotation.  
-  function fabEvolve!(pars::GlobalPars,fab::Fabric,f) #jefferys equation
-    for i=1:fab.ns*fab.ngr
-      fab.p[:,i]=rk4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,i,:],
-          fab.vort[:,:,i],fab.epsdot[:,:,i])
-      end
-      return fab.p
-    end
   
   #function fabEvolve!(pars::GlobalPars,fab::Fabric3,f)
   function fabEvolve!(pars::GlobalPars,fab::FabricNGG,f)
     for i=1:fab.ns
-      fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
-                fab.vort[:,:,i],fab.epsdot[:,:,i])
+      fab.p[:,:,i]=evFab!(
       #fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
       fab.r[:,i]=advanceRadii(fab,i,pars.dt)
       end
@@ -484,6 +428,72 @@ function propAreas(rs)
      return rs2/sum(rs2)
    end
   end
+
+function getRandc(n)
+  c=rand(3,n)-0.5
+  for i=1:n
+     c[:,i]=c[:,i]/norm(c[:,i])
+     end
+  return c
+  end
+getRandc()=getRandc(100)
+
+function evGroup!(p,sigma,dt)
+  cpMat(v)=[0 v[3] -v[2];-v[3] 0 v[1]; v[2] -v[1] 0]
+  function getRotM(x)
+    (norm(x-[0,0,1])<1e-6)?(return eye(3)):pass
+    v=cpMat(x)*z
+    s=norm(v)
+    c=x[3]
+    V=cpMat(v)
+    V[1,2]=V[1,2][1]
+    V[1,3]=V[1,3][1]
+    V[2,3]=V[2,3][1]
+    V[2,1]=V[2,1][1]
+    V[3,1]=V[3,1][1]
+    V[3,2]=V[3,2][1]
+     
+    return eye(3)+V+(V*V)*(1-c)/s^2  
+    end
+
+  function getStrW(c)
+    R=getRotM(c)
+    sigmag=tensor2Voigt(R'*(voigt2Tensor(sigma))*R)
+    Dgv[5]=sigmag[5];Dgv[4]=sigmag[4]
+    Wg[2,3]=Dgv[4]
+    Wg[3,2]=-Dgv[4]
+    Wg[1,3]=Dgv[5]
+    Wg[3,1]=-Dgv[5]
+    Dg=voigt2Tensor(Dgv)
+    Dg=R*Dg*R'
+    Wg=R*Wg*R'
+    print(Dg)
+    return(Wg,Dg)
+    end
+
+  n=size(p)[2]
+  W=zeros(3,3)
+  D=zeros(3,3)
+  Wg=zeros(3,3)
+  Dgv=zeros(6)
+  Dg=zeros(3,3)
+  R=zeros(3,3)
+  W=zeros(3,3)
+  sigmag=zeros(3,3)
+  z=[0,0,1]
+  for i=1:n
+    (Wg,Dg)=getStrW(p[:,i])
+    W+=Wg;D+=Dg
+    p[:,i]=grRotationRate(p[:,i],Wg)*dt+p[:,i]
+    p[:,i]=p[:,i]/norm(p[:,i])
+    Wg=zeros(3,3);Dg=zeros(3,3)
+    end
+  W/=n
+  D/=n
+
+  return (W,D)
+  end #evgroup
+
 #gets the rotation matrices
 function getRotMHelper(p::Array{Float64,1},A::Array{Float64,2},
     A2::Array{Float64,2},R::Array{Float64,2})
@@ -498,30 +508,4 @@ function getRotMHelper(p::Array{Float64,1},A::Array{Float64,2},
   return R
   end
 
-function getC(fab::AbstractFabric,A::Array{Float64,2},
-    A2::Array{Float64,2},R::Array{Float64,2})
-  for i=1:fab.ns*fab.ngr
-    getRotMHelper(fab.p[3*i-2:3*i],A,A2,R)
-    end
-  end
-
-#Main driver routine to get the viscosity.
-#refactor this by 
-#at step zero, generate a closure equiv to fabEvolve! +params
-#then at each timestep, mutate the closure. (can you do that
-#without pushing a new copy onto the stack?)
-function getVisc!(fab::AbstractFabric,pars::GlobalPars,fabEvolve::Function)
-  #advance the viscosity
-  #get new theta
-  fabEvolve!(fab,pars)
-  R=Array(Float64,3,3)
-  A=Array(Float64,3,3)
-  A2=Array(Float64,3,3)
-  #get the rotation matrices for each theta pair
-  getC!(fab,A,A2,R)
-  #now rotate each grain's C matrix (C_ij= delta5,5)
-  #Then invert it to get visc. yay.
-  aC=mean(C,3) #check if right
-  fab.visc=inv(aC)
-  end
 end #module
