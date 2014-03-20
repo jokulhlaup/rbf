@@ -1,7 +1,10 @@
 \documentclass{article}
 \usepackage{mathtools,natbib}
-
+\title{Ice fabric development and hysteresis with a new coupled flow/fabric evolution model}
+\author{Michael Hay}
 \begin{document}
+\maketitle
+
 \begin{abstract}
 Ice crystal orientatation fabric has a strong influence on ice flow due to the plastic anisotropy of ice. Anisotropy can also induce folding and boudinage of layers, which complicates paleoclimate interpretation. In addition, crystal fabric evolution coupled to ice deformation can exhibit hysteresis, which is ignored in current treatments. This can be a source of tilted cone fabrics \citep{throstur2002}, which can induce vertical shear strain in response to horizontal simple shear. The evolution of crystal fabric is driven by strain-induced grain rotation, as well as recrystallization. Most fabric evolution models ignore much of the physical processes involved, or are valid only for highly parameterized fabrics. In this paper, we outline a new fabric model which treats a variety of processes affecting fabric development, and is suitable for inclusion in flow models. The model is validated against thin-section data from the WAIS divide core. In addition, numerical experiments involving hysteresis of the crystal orientation fabric are made.. 
 \end{abstract}
@@ -45,7 +48,7 @@ A reasonable way to handle this (whic this model takes)  is to take the curvatur
 Migration (dynamic) recrystallization is primarily driven by lower strain energy (easy glide) grains consuming higher strain energy grains \citep{duval1995}. At least at larger scales (after the initial nucleation), this reduction in strain energy can be incorporated into the driving force. A grain neighboring a more highly strained grain will advance into the highly strained grain. High dislocation densities from work-hardening in more highly plastically strained grains can also contribute to the driving force, as these dislocations are annihilated by the advancing boundary. The model calculates the effective stress on each grain following \citet{azuma96}, which depends on the bulk stress and the orientation of each grain and its neighbors. 
 
 \section{Fabric model usage}
-The fabric is specified as an instance of a datatype subtyping a general 'Fabric' containing most of the relevant physical information and model parameters, such as number of grains, strain rate, neighbor connectivity, etc. For testing, a constructor function can be used to make a random fabric, or the fabric can be specified. Then, the evolution over one timestep uses a single function "fabE!" which accepts a Fabric instance as an argument and advances the fabric by one timestep. The "fabE!" function itself is polymorphic and will return based on the specific type supplied to it.
+The fabric is specified as an instance of a datatype subtyping a general 'Fabric' containing most of the relevant physical information and model parameters, such as number of grains, strain rate, neighbor connectivity, etc. For testing, a constructor function can be used to make a random fabric, or the fabric can be specified. Then, the evolution over one timestep uses a single function "fabE!" which accepts a Fabric instance as an argument and advances the fabric by one timestep. The "fabE!" function itself is polymorphic and will return based on the specific type supplied to it. See the appendix for model details.
 
 \section{Tests}
 The model can reproduce characteristic fabrics for a variety of flow situations, such as single maxima, as well as large girdle fabrics. By incorporating recrystallization, small girdle fabrics can also be formed (see fig. 1). The model has been fit to thin section data from the West Antarctice Ice Sheet divide core, with good agreement for the first several thousand meters. Below this, the WAIS core fabric transitions to a single maxima and then weakens due to recrystallization. By including temperature anda flow model, good agreement lower in the core is expected.
@@ -68,4 +71,29 @@ The model can reproduce characteristic fabrics for a variety of flow situations,
 \end{itemize}
 \bibliographystyle{agu}
 \bibliography{anis}
+\appendix
+\section{Algorithm for the fabric model}
+
+\textbf{Require:} Fabric c-axis orientations $\mathbf{c_i}$, grain radii $r_i$, bulk strain rate $D$, vorticity tensor  $W$, connectivity information $C_{ij}$;
+\\
+\textbf{For} each grain $\mathbf{g_i}$:
+\\
+\intent -Find local stress on each grain;
+\\
+\indent -Find areas of each boundary between grains;
+\\
+\indent -Find grain growth rate over each boundary;
+\\
+\indent -Integrate grain growth over each boundary over the timestep;
+\\
+\indent -Polygonize grain with probability $p$;
+\\
+\indent -Rotate grain by integrating Jeffery's equation through the timestep.;
+\\
+\textbf{End For}
+\\
+-Advance time by $\delta t$
+\\
+-Return to \textbf{Start}.
+
 \end{document}
