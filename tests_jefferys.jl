@@ -1,6 +1,6 @@
 using Utils,jefferys,Plotting,PyCall
 @pyimport matplotlib.pyplot as plt
-ngr=100
+ngr=30
 ns=1
 coors=rand(3,ns)
 p=rand(3,ngr,ns)-0.5
@@ -28,7 +28,8 @@ epsdot[3,3,:]=-0.05#0.5
 epsdot[2,3,:]=0.4
 epsdot[3,2,:]=0.4
 
-dt=0.0001#5e-3
+dt=0.00005
+#5e-3
 nrk=10
 f=jefferysRHS
 pars=GlobalPars{Number,Int64}(dt,nrk,f)
@@ -51,7 +52,7 @@ sv=Array(Float64,0)
 for i=1:100
  fabE(pars,fab,jefferysRHS)
  x=svd(fab.p[:,:,1])[2]
- sv=append!(sv,[max(x)/norm(x)])
+ sv=append!(sv,[min(x)/norm(x)])
  end
 
 
