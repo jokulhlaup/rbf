@@ -154,12 +154,14 @@ function advanceRadii(fab::FabricNGG,k,dt)
  # fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
 #  rs_new=zeros(fab.ngr)
   vol=4/3.*pi.*rs.^3
+  sigma=voigt2tensor(getC(fab,k)*tensor2voigt(fab.epsdot[:,:,k]))
   for i=2:ngr
         #partition
     for j in (1:i-1)[nbrs[1:i-1,i]]
       #get volume swept out be each boundary
       #this is relative to r[i]
       dVol=areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
+      
       dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],fab.epsdot[:,:,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
       dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
       #print(dVol)
@@ -187,7 +189,7 @@ function advanceRadii(fab::FabricNGG,k,dt)
   end
 
 function prNucleation(T)
-  return 0.0#1
+  return A*e^(-b*T)#1
   end
 
 ##########################################      
@@ -488,26 +490,34 @@ function propAreas(rs)
    end
   end
 #gets the rotation matrices
-function getRotMHelper(p::Array{Float64,1},A::Array{Float64,2},
-    A2::Array{Float64,2},R::Array{Float64,2})
-  A=[0 0 p[1]
-     0 0 p[2] 
-     -p[1] p[2] 0]
-  A2=[-p[2]^2 p[2]*fab[1] 0
-      p[2]*p[1] p[2]^2 0 
-      0 0 p[1]^2+p[2]^2]
-  R[:,:]=sin(acos(p[3]))*A+(1-p[3])*A2
-  R[1,1]+=1;R[2,2]+=1;R[3,3]+=1
-  return R
+function getRotM(x)
+  (norm(x-[0,0,1])<1e-6)?(return eye(3)):nothing
+  cpMat(v)=[0 v[3] -v[2];-v[3] 0 v[1]; v[2] -v[1] 0]
+  z=[0,0,1]
+  v=cpMat(x)*z
+  s=norm(v)
+  c=x[3]
+  V=cpMat(v)
+  V[1,2]=V[1,2][1]
+  V[1,3]=V[1,3][1]
+  V[2,3]=V[2,3][1]
+  V[2,1]=V[2,1][1]
+  V[3,1]=V[3,1][1]
+  V[3,2]=V[3,2][1]
+   
+  return eye(3)+V+(V*V)*(1-c)/s^2  
   end
 
-function getC(fab::AbstractFabric,A::Array{Float64,2},
-    A2::Array{Float64,2},R::Array{Float64,2})
+function getC(fab::AbstractFabric,k)
+  tot_vol=sum(fab.r[:,:,k]^3) #unscaled b/c it is divided anyway
   for i=1:fab.ns*fab.ngr
-    getRotMHelper(fab.p[3*i-2:3*i],A,A2,R)
+    R=getRotM(fab.p[3*i-2:3*i])
+    C+=rotC(R)*(fab.r[i]^3)
     end
+  C/=tot_vol
   end
 
+function getC(fab::AbstractFabric)=getC!(fab,zeros(3,3),zeros(3,3),zeros(3,3))
 #Main driver routine to get the viscosity.
 #refactor this by 
 #at step zero, generate a closure equiv to fabEvolve! +params
@@ -517,11 +527,8 @@ function getVisc!(fab::AbstractFabric,pars::GlobalPars,fabEvolve::Function)
   #advance the viscosity
   #get new theta
   fabEvolve!(fab,pars)
-  R=Array(Float64,3,3)
-  A=Array(Float64,3,3)
-  A2=Array(Float64,3,3)
   #get the rotation matrices for each theta pair
-  getC!(fab,A,A2,R)
+  getC(fab,A,A2,R)
   #now rotate each grain's C matrix (C_ij= delta5,5)
   #Then invert it to get visc. yay.
   aC=mean(C,3) #check if right
