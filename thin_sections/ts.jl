@@ -128,7 +128,7 @@ function dj(x,kink_depth)
     end
 end
      
-dt=1e-5
+dt=5e-5
 fab.epsdot=zeros(3,3,1)
 fab.vort=zeros(3,3,1)
 sv=Array(Float64,0)
@@ -139,7 +139,7 @@ let(i=9)
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])*10
     com=ts_smoothedVertStrain[i]
     ss=dj(dr[i],2000)*100
-    fab.temp=ts_temps[i]+6
+    fab.temp=ts_temps[i]
     fab.epsdot[1,1]=-2*com
     fab.epsdot[2,2]=com
     fab.epsdot[3,3]=com
@@ -147,7 +147,7 @@ let(i=9)
 end
 s=zeros(3)
 count=0
-while (w>0.187183) & (count<1000)
+while (w>0.187183) & (count<100)
     count+=1
     fabE(pars,fab,jefferysRHS)
     s=svd(fab.p[:,:,1])[2]
@@ -155,16 +155,16 @@ while (w>0.187183) & (count<1000)
     print(w,"\n")
 end
 pout=Array(Float64,3,length(fab.p[1,:]),54)
-  for i=10:length(ts_ages)-1
+  for i=1:length(ts_ages)-1
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
     com=ts_smoothedVertStrain[i]
-    ss=dj(dr[i],1000)*100
-    fab.temp=ts_temps[i]+6
+    ss=dj(dr[i],2000)*5
+    fab.temp=ts_temps[i]
     fab.epsdot[3,1]=ss
     fab.epsdot[1,3]=ss
-    fab.epsdot[1,1]=-2.*com/10
-    fab.epsdot[2,2]=com/10
-    fab.epsdot[3,3]=com/10
+    fab.epsdot[1,1]=-2.*com
+    fab.epsdot[2,2]=com
+    fab.epsdot[3,3]=com
     fab.vort[3,1]=ss
     fab.vort[1,3]=-ss
     fab.epsdot=-fab.epsdot
@@ -178,7 +178,7 @@ for i=1:size(sv)[2]
   sv[:,i]=sv[:,i]/norm(sv[:,i])
 end
 
-plt.plot(dr[11:54],sv[1,:]');plt.plot(dr[10:54],x[1,10:54]');plt.show()
+plt.plot(ts_ages[2:54],sv[1,:]');plt.plot(ts_ages[2:54],x[1,2:54]');plt.show()
 
 smoothedLayerThickness=ddepthdtau
 

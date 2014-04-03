@@ -193,7 +193,7 @@ function prNucleation(A,b,T)
   return A*exp(b*(T))#1
   end
 
-prNucleation(T)=prNucleation(1.,0.15,T)
+prNucleation(T)=prNucleation(1.,0.01,T)
 ##########################################      
 function advanceRadius(this,rs,grmob,dt)
   if (this <= 0) | isnan(this)
