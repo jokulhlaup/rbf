@@ -140,13 +140,16 @@ function advanceRadii(fab::FabricNGG,k,dt)
     vol[i]=fab.nuc_vol
     if vol[jd]<0
       vol[i]+=vol[jd]
-      vol[jd]=0
+      vol[jd]=0.
       end
-    azimuth=rand()*2*pi  
-    zenith=rand()*pi/2
-    fab.p[:,i,k]=[sin(zenith)*cos(azimuth),sin(zenith)*sin(azimuth),cos(zenith)]#rand(3)
+    fab.p[:,i,k]=getRandOrient()
+    fab.str[i,k]=0.
+    end
+  function getRandOrient()     
+    azimuth=rand()*2.0*pi  
+    zenith=rand()*pi/2.0
+    return [sin(zenith)*cos(azimuth),sin(zenith)*sin(azimuth),cos(zenith)]#rand(3)
     #fab.p[:,i,k]/=norm(fab.p[:,i,k])
-    fab.str[i]=0
     end
 
   rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
@@ -163,23 +166,27 @@ function advanceRadii(fab::FabricNGG,k,dt)
       #this is relative to r[i]
       dVol=-areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
       
-      dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma[:,:,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
+      dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma[:,:,k],fab.str[i,k],fab.str[j,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
 #      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
       #print(dVol)
       vol[i]=vol[i]-dVol
       vol[j]=vol[j]+dVol
       if vol[j]<0
         vol[i]+=vol[j]
-        vol[j]=0
+        vol[j]=0.
         end
       if vol[i]<0
         vol[j]+=vol[i]
-        vol[i]=0
+        vol[i]=0.
         end
       end #j
-    if rs[i]<1e-4||fab.str[i]>2.#r_crit  FIX !!!!!!!!!!!!!!!!!!!!!!
+    if rs[i]<1e-4#r_crit  FIX !!!!!!!!!!!!!!!!!!!!!!
       if rand()<dt*prNucleation(fab.temp)#0.5#pr_nucleation
         nucleateGrain!(fab,i,k,vol)
+        if fab.str[i]>2.
+          fab.p[:,i,k]=getRandOrient()
+          fab.str[i,k]=0.
+          end
         end
       end
     end #i
@@ -193,7 +200,7 @@ function prNucleation(A,b,T)
   return A*exp(b*(T))#1
   end
 
-prNucleation(T)=prNucleation(1.,0.01,T)
+prNucleation(T)=prNucleation(1.,0.03,T)
 ##########################################      
 function advanceRadius(this,rs,grmob,dt)
   if (this <= 0) | isnan(this)
@@ -418,10 +425,10 @@ function dynRextal!(fab::Fabric2)
     end
   end
 
-function strEnVelocity(p1,p2,sigma)
+function strEnVelocity(p1,p2,sigma,str1,str2)
   fac=1#10000
   e1=localSigmaEff([p1,p2],sigma,2)
-  velocity=fac*(e1[2]-e1[1])
+  velocity=fac*(e1[2]-e1[1])+(str2-str1)
   return velocity
   end
 #finds the effective stress on grains at one site.

@@ -147,7 +147,7 @@ let(i=9)
 end
 s=zeros(3)
 count=0
-while (w>0.187183) & (count<100)
+while (w>0.28) & (count<100)
     count+=1
     fabE(pars,fab,jefferysRHS)
     s=svd(fab.p[:,:,1])[2]
@@ -155,11 +155,13 @@ while (w>0.187183) & (count<100)
     print(w,"\n")
 end
 pout=Array(Float64,3,length(fab.p[1,:]),54)
+grmobs=ones(54)
+grmobs[21:end]=100
   for i=1:length(ts_ages)-1
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
     com=ts_smoothedVertStrain[i]
-    ss=dj(dr[i],2000)*5
-    fab.temp=ts_temps[i]
+    ss=dj(dr[i],2000)*10
+    fab.temp=ts_temps[i]+55
     fab.epsdot[3,1]=ss
     fab.epsdot[1,3]=ss
     fab.epsdot[1,1]=-2.*com
@@ -167,6 +169,7 @@ pout=Array(Float64,3,length(fab.p[1,:]),54)
     fab.epsdot[3,3]=com
     fab.vort[3,1]=ss
     fab.vort[1,3]=-ss
+    fab.grmob=grmobs[i]
     fab.epsdot=-fab.epsdot
     fabE(pars,fab,jefferysRHS)
     pout[:,:,i]=p[:,:,1]
