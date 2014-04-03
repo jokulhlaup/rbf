@@ -42,29 +42,49 @@ function readif(rf)
 cd("thin_sections/C-axisdatabase")
 dr=readdir()
 c=Dict()
-p=Dict()
+pd=Dict()
 svs=Array(Float64,length(dr))
+x=Array(Float64,3,length(dr))
 for d=1:length(dr)
   cd(dr[d])
   rf=readdlm("c-axes.txt",'\n')
   i=int(dr[d])
   c[i]=readif(rf)
   #convert to rads
+  #c[i][2,:] is theta (azimuth angle)
   c[i]=c[i]*pi/180
-  p[i]=Array(Float64,3,length(c[i][1,:]))
-  p[i][1,:]=cos(c[i][1,:])
-  p[i][2,:]=sin(c[i][1,:]).*cos(c[i][2,:])
-  p[i][3,:]=sin(c[i][1,:]).*sin(c[i][2,:])
-  x=svd(p[i])[2]
-  svs[d]=minimum(x)/norm(x)
+  #get regular pi
+  #c[i][1,:]=acos(sin(c[i][2,:]).*sin(c[i][1,:]))
+  pd[i]=Array(Float64,3,length(c[i][1,:]))
+  pd[i][1,:]=cos(c[i][1,:])
+  pd[i][2,:]=sin(c[i][1,:]).*cos(c[i][2,:])
+  pd[i][3,:]=sin(c[i][1,:]).*sin(c[i][2,:])
+  for j = 1:length(pd[i])/3
+    if pd[i][3,j] < 0
+    pd[i][1,j] = - pd[i][1,j]  ;
+    pd[i][2,j] = -pd[i][2,j];
+    pd[i][3,j] = -pd[i][2,j] ;
+      end
+    end
+  x[:,d]=svd(pd[i])[2]
+  svs[d]=minimum(x[:,d])/norm(x[:,d])
   cd("..")
+  x[:,d]=sort(x[:,d])/norm(x[:,d])
   end
 
 cd("..")
 cs=readdlm("timescale.csv",',')
 
+
+
 #now interpolate depth-age
 dr=sort(float(dr))
+
+depth_temps=readdlm("temp.TXT")
+predicted_temps=loess(depth_temps[:,1],depth_temps[:,2])
+ts_temps=predict(predicted_temps,dr[1:50])
+bottom_grad=(ts_temps[50]-ts_temps[49])/(dr[50]-dr[49])
+append!(ts_temps,ts_temps[50]+bottom_grad*[20,40,60,80])
 
 
 
@@ -100,18 +120,65 @@ svsi=InterpIrregular(ages_good,smoothedVertStrain,1,InterpNearest)
 
 ts_smoothedVertStrain=map(x->svsi[x],ts_ages)
 
-fab.epsdot=zeros(3,3,1)
-  for i=1:length(ts_ages)-1
-    com=ts_smoothedVertStrain[i]
-    fab.epsdot[3,3]=-com
-    fab.epsdot[2,2]=-com
-    fab.epsdot[1,1]=2*com
-    pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
-    fabE(pars,fab,jefferysRHS)
-    append!(sv,[minimum(svd(fab.p[:,:,1])[2])])
+function dj(x,kink_depth)
+    if x< kink_depth 
+        return 0
+    else 
+        return (x-kink_depth)/1000
     end
+end
+     
+dt=1e-5
+fab.epsdot=zeros(3,3,1)
+fab.vort=zeros(3,3,1)
+sv=Array(Float64,0)
 
+#initialize
+w=1.
+let(i=9)
+    pars.dt=dt*(ts_ages[i+1]-ts_ages[i])*10
+    com=ts_smoothedVertStrain[i]
+    ss=dj(dr[i],2000)*100
+    fab.temp=ts_temps[i]+6
+    fab.epsdot[1,1]=-2*com
+    fab.epsdot[2,2]=com
+    fab.epsdot[3,3]=com
+    fab.epsdot=-fab.epsdot
+end
+s=zeros(3)
+count=0
+while (w>0.187183) & (count<1000)
+    count+=1
+    fabE(pars,fab,jefferysRHS)
+    s=svd(fab.p[:,:,1])[2]
+    w=min(s)/norm(s)
+    print(w,"\n")
+end
+pout=Array(Float64,3,length(fab.p[1,:]),54)
+  for i=10:length(ts_ages)-1
+    pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
+    com=ts_smoothedVertStrain[i]
+    ss=dj(dr[i],1000)*100
+    fab.temp=ts_temps[i]+6
+    fab.epsdot[3,1]=ss
+    fab.epsdot[1,3]=ss
+    fab.epsdot[1,1]=-2.*com/10
+    fab.epsdot[2,2]=com/10
+    fab.epsdot[3,3]=com/10
+    fab.vort[3,1]=ss
+    fab.vort[1,3]=-ss
+    fab.epsdot=-fab.epsdot
+    fabE(pars,fab,jefferysRHS)
+    pout[:,:,i]=p[:,:,1]
+    append!(sv,sort(svd(fab.p[:,:,1])[2]))
+    end
+sv=reshape(sv,(3,int(length(sv)/3)))
+schmidtPlot(fab.p);plt.show()
+for i=1:size(sv)[2]
+  sv[:,i]=sv[:,i]/norm(sv[:,i])
+end
 
+plt.plot(dr[11:54],sv[1,:]');plt.plot(dr[10:54],x[1,10:54]');plt.show()
 
 smoothedLayerThickness=ddepthdtau
 

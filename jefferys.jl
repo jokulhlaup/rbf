@@ -103,9 +103,10 @@ genrFT(:(FabricNGG),:(begin
   pr_nuc::T
   nuc_vol::T
   str::Array{T,2}
+  temp::Float64
   end))
 
-function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
+function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
   nbrs=makeSymNbrs(ns,ngr,0.1)
   r=2*rand(ngr,ns)*av_radius
   
@@ -122,7 +123,7 @@ function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
   size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
   size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
   size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,areas,r,grmob,pr_nuc,nuc_vol,str)
+  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,areas,r,grmob,pr_nuc,nuc_vol,str,temp)
   end
 
 ######################
@@ -142,10 +143,10 @@ function advanceRadii(fab::FabricNGG,k,dt)
       vol[jd]=0
       end
     azimuth=rand()*2*pi  
-    fab.p[:,i,k]=[sin(pi/4)*cos(azimuth),sin(pi/4)*sin(azimuth),cos(pi/4)]#rand(3)
+    zenith=rand()*pi/2
+    fab.p[:,i,k]=[sin(zenith)*cos(azimuth),sin(zenith)*sin(azimuth),cos(zenith)]#rand(3)
     #fab.p[:,i,k]/=norm(fab.p[:,i,k])
     fab.str[i]=0
-
     end
 
   rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
@@ -154,16 +155,16 @@ function advanceRadii(fab::FabricNGG,k,dt)
  # fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
 #  rs_new=zeros(fab.ngr)
   vol=4/3.*pi.*rs.^3
-  sigma=voigt2tensor(getC(fab,k)*tensor2voigt(fab.epsdot[:,:,k]))
+  sigma=voigt2Tensor(getC(fab,k)*tensor2Voigt(fab.epsdot[:,:,k]))
   for i=2:ngr
         #partition
     for j in (1:i-1)[nbrs[1:i-1,i]]
       #get volume swept out be each boundary
       #this is relative to r[i]
-      dVol=areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
+      dVol=-areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
       
-      dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],fab.epsdot[:,:,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
-      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
+      dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma[:,:,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
+#      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
       #print(dVol)
       vol[i]=vol[i]-dVol
       vol[j]=vol[j]+dVol
@@ -176,22 +177,23 @@ function advanceRadii(fab::FabricNGG,k,dt)
         vol[i]=0
         end
       end #j
-    if rs[i]<0.4||fab.str[i]>0.02#r_crit  FIX !!!!!!!!!!!!!!!!!!!!!!
-      T=0
-      if rand()<prNucleation(T)#0.5#pr_nucleation
+    if rs[i]<1e-4||fab.str[i]>2.#r_crit  FIX !!!!!!!!!!!!!!!!!!!!!!
+      if rand()<dt*prNucleation(fab.temp)#0.5#pr_nucleation
         nucleateGrain!(fab,i,k,vol)
         end
       end
     end #i
-  fab.str+=dt  
+
+  fab.str+=dt*sqrt(abs(secondInv(fab.epsdot[:,:,k])))  
   return (vol.*0.75/pi).^(1/3)
 
   end
 
-function prNucleation(T)
-  return A*e^(-b*T)#1
+function prNucleation(A,b,T)
+  return A*exp(b*(T))#1
   end
 
+prNucleation(T)=prNucleation(1.,0.15,T)
 ##########################################      
 function advanceRadius(this,rs,grmob,dt)
   if (this <= 0) | isnan(this)
@@ -315,13 +317,13 @@ function nRK4(f,ntimes::Int,h::Number,m::Number,dt,p,vort,epsdot)
   return p
   end
 
-function rk4(f::Function,h::Float64,n::Int64,x,vort,epsdot,dt,m)
+function rk4(f::Function,n::Int64,x,vort,epsdot,dt)
    for i=1:n
       k1=f(x,vort,epsdot,dt)
-      k2=f(x+k1*h/2,vort,epsdot,dt)
-      k3=f(x+k2*h/2,vort,epsdot,dt)
-      k4=f(x+k3*h/2,vort,epsdot,dt)
-      x+=(1/6)*h*(k1+2*k2+2*k3+k4)
+      k2=f(x+k1*dt/2,vort,epsdot,dt)
+      k3=f(x+k2*dt/2,vort,epsdot,dt)
+      k4=f(x+k3*dt/2,vort,epsdot,dt)
+      x+=(1/6)*dt*(k1+2*k2+2*k3+k4)
       end
    return x
    end
@@ -341,12 +343,9 @@ function rotC(R)
   K3 = [ R[2,1]*R[3,1] R[2,2]*R[3,2] R[2,3]*R[3,3] ; 
          R[3,1]*R[1,1] R[3,2]*R[1,2] R[3,3]*R[1,3] ; 
          R[1,1]*R[2,1] R[1,2]*R[2,2] R[1,3]*R[2,3] ] ;
-  K4 = [ R[2,2]*R[3,3]+R[2,3]*R[3,2] R[2,3]*R[3,1]+R[2,1]*R[3,3] 
-         R[2,1]*R[3,2]+R[2,2]*R[3,1] ; 
-         R[3,2]*R[1,3]+R[3,3]*R[1,2] R[3,3]*R[1,1]+R[3,1]*R[1,3] 
-         R[3,1]*R[1,2]+R[3,2]*R[1,1] ;       
-         R[1,2].*R[2,3]+R[1,3].*R[2,2] R[1,3].*R[2,1]+
-         R[1,1].*R[2,3] R[1,1].*R[2,2]+R[1,2].*R[2,1]] ; 
+  K4 = [ R[2,2]*R[3,3]+R[2,3]*R[3,2] R[2,3]*R[3,1]+R[2,1]*R[3,3] R[2,1]*R[3,2]+R[2,2]*R[3,1] ; 
+         R[3,2]*R[1,3]+R[3,3]*R[1,2] R[3,3]*R[1,1]+R[3,1]*R[1,3] R[3,1]*R[1,2]+R[3,2]*R[1,1] ;       
+         R[1,2].*R[2,3]+R[1,3].*R[2,2] R[1,3].*R[2,1]+ R[1,1].*R[2,3] R[1,1].*R[2,2]+R[1,2].*R[2,1]] ; 
   K = [ K1  2*K2 ; 
         K3   K4   ] ;
   C = zeros(6,6)
@@ -385,8 +384,10 @@ function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab:
   #function fabEvolve!(pars::GlobalPars,fab::Fabric3,f)
   function fabEvolve!(pars::GlobalPars,fab::FabricNGG,f)
     for i=1:fab.ns
-      fab.p[:,:,i]=nRK4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,:,i],
-                fab.vort[:,:,i],fab.epsdot[:,:,i])
+      for j=1:fab.ngr
+      fab.p[:,j,i]=rk4(f,pars.nrk,fab.p[:,j,i],fab.vort[:,:,i],fab.epsdot[:,:,i],pars.dt)
+        end
+
       #fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
       fab.r[:,i]=advanceRadii(fab,i,pars.dt)
       end
@@ -509,7 +510,8 @@ function getRotM(x)
   end
 
 function getC(fab::AbstractFabric,k)
-  tot_vol=sum(fab.r[:,:,k]^3) #unscaled b/c it is divided anyway
+  tot_vol=sum(fab.r[:,:,k].^3) #unscaled b/c it is divided anyway
+  C=zeros(6,6)
   for i=1:fab.ns*fab.ngr
     R=getRotM(fab.p[3*i-2:3*i])
     C+=rotC(R)*(fab.r[i]^3)
@@ -517,21 +519,9 @@ function getC(fab::AbstractFabric,k)
   C/=tot_vol
   end
 
-function getC(fab::AbstractFabric)=getC!(fab,zeros(3,3),zeros(3,3),zeros(3,3))
 #Main driver routine to get the viscosity.
 #refactor this by 
 #at step zero, generate a closure equiv to fabEvolve! +params
 #then at each timestep, mutate the closure. (can you do that
 #without pushing a new copy onto the stack?)
-function getVisc!(fab::AbstractFabric,pars::GlobalPars,fabEvolve::Function)
-  #advance the viscosity
-  #get new theta
-  fabEvolve!(fab,pars)
-  #get the rotation matrices for each theta pair
-  getC(fab,A,A2,R)
-  #now rotate each grain's C matrix (C_ij= delta5,5)
-  #Then invert it to get visc. yay.
-  aC=mean(C,3) #check if right
-  fab.visc=inv(aC)
-  end
 end #module

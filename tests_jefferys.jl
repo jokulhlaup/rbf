@@ -19,16 +19,17 @@ for i=1:ngr
 h=1.0
 C=Array(Float64,6,6,ns)
 vort=zeros(3,3,ns)
-vort[3,2]=-0.4
-vort[2,3]=0.4
-epsdot=zeros(3,3,ns)
-epsdot[1,1,:]=-0.05#0.5
-epsdot[2,2,:]=0.1#-1
-epsdot[3,3,:]=-0.05#0.5
-epsdot[2,3,:]=0.4
-epsdot[3,2,:]=0.4
+vort[2,3]=0.8
+vort[3,2]=-0.8
 
-dt=0.00005
+#epsdot=zeros(3,3,ns)
+#epsdot[1,1,:]=-0.1#0.5
+#epsdot[2,2,:]=0.2#-1
+#epsdot[3,3,:]=-0.1#0.5
+epsdot[2,3,:]=0.8
+epsdot[3,2,:]=0.8
+
+dt=1e-1
 #5e-3
 nrk=10
 f=jefferysRHS
@@ -37,9 +38,10 @@ pars=GlobalPars{Number,Int64}(dt,nrk,f)
 #nggVelocity units 1/length*
 nn=10
 av_radius=1
+temp=-100.
 r=rand(ngr*ns)
 #fab=FabricNGG{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot,nn,nbrs,r)
-fab=consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius)
+fab=consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
 fabE=fabricHelper(pars,fab,jefferysRHS)
 
 
@@ -54,7 +56,7 @@ for i=1:100
  x=svd(fab.p[:,:,1])[2]
  sv=append!(sv,[min(x)/norm(x)])
  end
-
+schmidtPlot(fab.p);plt.show()
 
 
 

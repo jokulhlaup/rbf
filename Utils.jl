@@ -1,7 +1,18 @@
 module Utils
 using Base.rand
-export rk4!,halton,vdc,unifmesh,randir,diffrandi,secondInv,binBoolInd
+export voigt2Tensor,tensor2Voigt,rk4!,halton,vdc,unifmesh,randir,diffrandi,secondInv,binBoolInd
 
+function filterZeros(x::Array{Float64,2},y::Array{Float64,1},ind::Int64)
+  m,n=size(x)
+  length(y)==n?nothing:error("Dimension mismatch")
+  res=Array(Float64,0)
+  ind==2?x=x':nothing
+  for i=1:n
+     y[i]==0?nothing:append!(res,x[:,i])
+  end
+  ind==2?x=x':nothing
+  return reshape(res,(m,int(length(res)/m)))
+  end
 function rk4!(f::Function,h::Float64,n::Int64,x,vort,epsdot,m)
    for i=1:n
       k1=f(x,vort,epsdot)
@@ -13,7 +24,18 @@ function rk4!(f::Function,h::Float64,n::Int64,x,vort,epsdot,m)
    return x
    end
 
-
+function voigt2Tensor(v)
+  x=zeros(3,3)
+  x[1,1]=v[1];x[1,2]=v[6];x[1,3]=v[5]
+  x[2,3]=v[4];x[2,2]=v[2];x[3,3]=v[3]
+  return symmetrize!(x)
+  end
+function tensor2Voigt(v)
+  x=zeros(6)
+  x[1]=v[1,1];x[2]=v[2,2];x[3]=v[3,3]
+  x[4]=v[2,3];x[5]=v[1,3];x[6]=v[1,2]
+  return x
+  end
 function binBoolInd(x,fn,n)
   ind=1
   for i=2:n
