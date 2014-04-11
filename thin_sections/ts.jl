@@ -27,7 +27,8 @@ function wrapper(ages,par,ts_svs,fab,pars,jefferysRHS)
     end
   return objective
   end
-  
+fabE,fab,pars=Constructors.mkFab()
+
 function readif(rf)
   c=Array(Float64,0)
   for i=1:length(rf)

@@ -1,5 +1,5 @@
 module jefferys
-using ODE, Utils, Debug
+using ODE, Utils
 export consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas
 ##########################
 ##########Get viscosity###
@@ -180,7 +180,7 @@ function advanceRadii(fab::FabricNGG,k,dt)
         vol[i]=0.
         end
       end #j
-    if rs[i]<1e-4#r_crit  FIX !!!!!!!!!!!!!!!!!!!!!!
+    if rs[i]<1e-4#r_crit
       if rand()<dt*prNucleation(fab.temp)#0.5#pr_nucleation
         nucleateGrain!(fab,i,k,vol)
         end
