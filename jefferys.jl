@@ -183,10 +183,6 @@ function advanceRadii(fab::FabricNGG,k,dt)
     if rs[i]<1e-4#r_crit  FIX !!!!!!!!!!!!!!!!!!!!!!
       if rand()<dt*prNucleation(fab.temp)#0.5#pr_nucleation
         nucleateGrain!(fab,i,k,vol)
-        if fab.str[i]>2.
-          fab.p[:,i,k]=getRandOrient()
-          fab.str[i,k]=0.
-          end
         end
       end
     end #i
