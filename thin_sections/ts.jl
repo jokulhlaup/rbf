@@ -128,7 +128,7 @@ function dj(x,kink_depth)
     end
 end
      
-dt=5e-5
+dt=4e-5
 fab.epsdot=zeros(3,3,1)
 fab.vort=zeros(3,3,1)
 sv=Array(Float64,0)
@@ -147,7 +147,7 @@ let(i=9)
 end
 s=zeros(3)
 count=0
-while (w>0.28) & (count<100)
+while (w>0.4) & (count<100)
     count+=1
     fabE(pars,fab,jefferysRHS)
     s=svd(fab.p[:,:,1])[2]
