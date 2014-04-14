@@ -1,6 +1,6 @@
 using Utils,jefferys,Plotting,PyCall
 @pyimport matplotlib.pyplot as plt
-ngr=30
+ngr=300
 ns=1
 coors=rand(3,ns)
 p=rand(3,ngr,ns)-0.5
@@ -21,7 +21,7 @@ C=Array(Float64,6,6,ns)
 vort=zeros(3,3,ns)
 vort[2,3]=0.8
 vort[3,2]=-0.8
-
+epsdot=zeros(3,3,ns)
 #epsdot=zeros(3,3,ns)
 #epsdot[1,1,:]=-0.1#0.5
 #epsdot[2,2,:]=0.2#-1
