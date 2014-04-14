@@ -27,8 +27,7 @@ function wrapper(ages,par,ts_svs,fab,pars,jefferysRHS)
     end
   return objective
   end
-fabE,fab,pars=Constructors.mkFab()
-
+  
 function readif(rf)
   c=Array(Float64,0)
   for i=1:length(rf)
@@ -129,14 +128,14 @@ function dj(x,kink_depth)
     end
 end
      
-dt=4e-5
 fab.epsdot=zeros(3,3,1)
 fab.vort=zeros(3,3,1)
 sv=Array(Float64,0)
-
-#initialize
-w=1.
-let(i=9)
+function init2svd(fab,smsvd)
+  #initialize
+  w=1.
+  dt=4e-5
+  let(i=9)
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])*10
     com=ts_smoothedVertStrain[i]
     ss=dj(dr[i],2000)*100
@@ -145,16 +144,19 @@ let(i=9)
     fab.epsdot[2,2]=com
     fab.epsdot[3,3]=com
     fab.epsdot=-fab.epsdot
-end
-s=zeros(3)
-count=0
-while (w>0.4) & (count<100)
+    end
+  s=zeros(3)
+  count=0
+  while (w>smsvd) & (count<100)
     count+=1
     fabE(pars,fab,jefferysRHS)
     s=svd(fab.p[:,:,1])[2]
     w=min(s)/norm(s)
     print(w,"\n")
-end
+    end
+  return fab
+  end
+  
 pout=Array(Float64,3,length(fab.p[1,:]),54)
 grmobs=ones(54)
 grmobs[21:end]=100
