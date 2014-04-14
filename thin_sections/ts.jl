@@ -1,4 +1,5 @@
 using Loess,Grid,PyCall
+
 @pyimport matplotlib.pyplot as plt
 
 function wrapper(ages,par,ts_svs,fab,pars,jefferysRHS)
@@ -128,22 +129,21 @@ function dj(x,kink_depth)
     end
 end
      
+(fabE,fab,pars)=Constructors.mkFab(300)
+dt=2e-5
 fab.epsdot=zeros(3,3,1)
 fab.vort=zeros(3,3,1)
-sv=Array(Float64,0)
 function init2svd(fab,smsvd)
   #initialize
   w=1.
-  dt=4e-5
-  let(i=9)
+  let(i=1)
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])*10
     com=ts_smoothedVertStrain[i]
     ss=dj(dr[i],2000)*100
     fab.temp=ts_temps[i]
-    fab.epsdot[1,1]=-2*com
-    fab.epsdot[2,2]=com
-    fab.epsdot[3,3]=com
-    fab.epsdot=-fab.epsdot
+    fab.epsdot[1,1]=2.0*com
+    fab.epsdot[2,2]=0.0
+    fab.epsdot[3,3]=-2.0*com
     end
   s=zeros(3)
   count=0
@@ -154,17 +154,24 @@ function init2svd(fab,smsvd)
     w=min(s)/norm(s)
     print(w,"\n")
     end
-  return fab
   end
-  
+
+
+init2svd(fab,0.8)
 pout=Array(Float64,3,length(fab.p[1,:]),54)
+
+function evThruCore(p)
+sv=Array(Float64,0)
+n=size(p)[2]
+(fabE,fab,pars)=Constructors.mkFab(n)
+fab.p=p
 grmobs=ones(54)
 grmobs[21:end]=100
   for i=1:length(ts_ages)-1
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
     com=ts_smoothedVertStrain[i]
-    ss=dj(dr[i],2000)*10
-    fab.temp=ts_temps[i]+55
+    ss=dj(dr[i],2400)*30
+    fab.temp=ts_temps[i]+45
     fab.epsdot[3,1]=ss
     fab.epsdot[1,3]=ss
     fab.epsdot[1,1]=-2.*com
@@ -175,14 +182,27 @@ grmobs[21:end]=100
     fab.grmob=grmobs[i]
     fab.epsdot=-fab.epsdot
     fabE(pars,fab,jefferysRHS)
-    pout[:,:,i]=p[:,:,1]
+    pout[:,:,i]=fab.p[:,:,1]
     append!(sv,sort(svd(fab.p[:,:,1])[2]))
     end
+    return sv
+end
 sv=reshape(sv,(3,int(length(sv)/3)))
 schmidtPlot(fab.p);plt.show()
 for i=1:size(sv)[2]
   sv[:,i]=sv[:,i]/norm(sv[:,i])
 end
+
+function t
+
+
+
+function sPn(n)
+  schmidtPlot(pout[:,:,n])
+  plt.show()
+  schmidtPlot(pd[int(dr[n])])
+  plt.show()
+  end
 
 plt.plot(ts_ages[2:54],sv[1,:]');plt.plot(ts_ages[2:54],x[1,2:54]');plt.show()
 
