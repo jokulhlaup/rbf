@@ -130,6 +130,12 @@ function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
 ############
 #####################
 ##########################################
+function nanch(test_var)
+  if any(isnan,test_var)
+    error("NaN in ",test_var)
+  end
+  end
+
 #function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
 function advanceRadii(fab::FabricNGG,k,dt)
   
@@ -138,12 +144,16 @@ function advanceRadii(fab::FabricNGG,k,dt)
     jd=binBoolInd(fab.areas[:,i,k],>,ngr)
     vol[jd]-=fab.nuc_vol
     vol[i]=fab.nuc_vol
+
+    nanch(vol)
     if vol[jd]<0
       vol[i]+=vol[jd]
       vol[jd]=0.
       end
+    nanch(vol)
     fab.p[:,i,k]=getRandOrient()
     fab.str[i,k]=0.
+
     end
   function getRandOrient()     
     azimuth=rand()*2.0*pi  
@@ -154,23 +164,35 @@ function advanceRadii(fab::FabricNGG,k,dt)
 
   rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
   areas=fab.areas[:,:,k];p=fab.p[:,:,k]
-  
+  nanch(rs)
  # fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
 #  rs_new=zeros(fab.ngr)
   vol=4/3.*pi.*rs.^3
   sigma=voigt2Tensor(getC(fab,k)*tensor2Voigt(fab.epsdot[:,:,k]))
   for i=2:ngr
         #partition
+    if any(isnan,p[:,i])
+      p[:,i]=getRandOrient()
+      end
     for j in (1:i-1)[nbrs[1:i-1,i]]
       #get volume swept out be each boundary
       #this is relative to r[i]
       dVol=-areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
-      
+      nanch(dVol)
+      if any(isnan,p[:,j])
+        p[:,j]=getRandOrient()
+        end
+      nanch(p[:,j])
+      nanch(p[:,i])
+
       dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma[:,:,k],fab.str[i,k],fab.str[j,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
+      nanch(dVol)
 #      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
       #print(dVol)
       vol[i]=vol[i]-dVol
       vol[j]=vol[j]+dVol
+      nanch(vol)
+      (isnan(rs[i])||isnan(rs[j]))?error("isNaN: ", i,", ", j):nothing
       if vol[j]<0
         vol[i]+=vol[j]
         vol[j]=0.
@@ -186,7 +208,7 @@ function advanceRadii(fab::FabricNGG,k,dt)
         end
       end
     end #i
-
+  
   fab.str+=dt*sqrt(abs(secondInv(fab.epsdot[:,:,k])))  
   return (vol.*0.75/pi).^(1/3)
 
@@ -422,9 +444,11 @@ function dynRextal!(fab::Fabric2)
   end
 
 function strEnVelocity(p1,p2,sigma,str1,str2)
-  fac=1#10000
+  fac=1.
   e1=localSigmaEff([p1,p2],sigma,2)
+  nanch(e1)
   velocity=fac*(e1[2]-e1[1])+(str2-str1)
+  nanch(velocity)
   return velocity
   end
 #finds the effective stress on grains at one site.
@@ -432,6 +456,8 @@ function strEnVelocity(p1,p2,sigma,str1,str2)
 #at a site. 
 function localSigmaEff(p,sigma,ngr)
   G=zeros(3,3)
+  nanch(sigma)
+  nanch(p)
   #first find local geometric tensors
   g=zeros(Float64,3,3,ngr)
   m=zeros(Float64,3,ngr)
@@ -444,12 +470,16 @@ function localSigmaEff(p,sigma,ngr)
     G[1:9]+=g[9*i-8:9*i]
     end
   G=G/ngr
+  nanch(G)
+  nanch(g)
   sigmaE=zeros(ngr)
   for i=1:ngr
     #treat zeros!
     g[9*i-8:9*i]=g[9*i-8:9*i]./G[1:9].*sigma[1:9] #g= local sigma now
+    nanch(g)
     
     sigmaE[i]=sqrt(abs(-1/3*secondInv(g[:,:,ngr]))) #be sure to convert
+    nanch(sigmaE)
     #get stress tensor
     #sigma[i
 
@@ -517,7 +547,7 @@ function getC(fab::AbstractFabric,k)
   C=zeros(6,6)
   for i=1:fab.ns*fab.ngr
     R=getRotM(fab.p[3*i-2:3*i])
-    C+=rotC(R)*(fab.r[i]^3)
+    C+=rotC(R).*(fab.r[i]^3)
     end
   C/=tot_vol
   end
