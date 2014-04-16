@@ -1,6 +1,6 @@
 module jefferys
 using ODE, Utils
-export consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas
+export getRandOrient,consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas
 ##########################
 ##########Get viscosity###
 ##########################
@@ -108,7 +108,7 @@ genrFT(:(FabricNGG),:(begin
 
 function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
   nbrs=makeSymNbrs(ns,ngr,0.1)
-  r=2*rand(ngr,ns)*av_radius
+  r=2.*rand(ngr,ns)*av_radius
   
   areas=zeros(ngr,ngr,ns)
   for i=1:ns
@@ -133,7 +133,7 @@ function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
 function nanch(test_var)
   if any(isnan,test_var)
     error("NaN in ",test_var)
-  end
+    end
   end
 
 #function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
@@ -153,8 +153,8 @@ function advanceRadii(fab::FabricNGG,k,dt)
     nanch(vol)
     fab.p[:,i,k]=getRandOrient()
     fab.str[i,k]=0.
-
     end
+
   function getRandOrient()     
     azimuth=rand()*2.0*pi  
     zenith=rand()*pi/2.0
@@ -165,15 +165,18 @@ function advanceRadii(fab::FabricNGG,k,dt)
   rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
   areas=fab.areas[:,:,k];p=fab.p[:,:,k]
   nanch(rs)
- # fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
-#  rs_new=zeros(fab.ngr)
-  vol=4/3.*pi.*rs.^3
-  sigma=voigt2Tensor(getC(fab,k)*tensor2Voigt(fab.epsdot[:,:,k]))
-  for i=2:ngr
-        #partition
+  for i=1:ngr
     if any(isnan,p[:,i])
       p[:,i]=getRandOrient()
+      fab.p[:,i,k]=getRandOrient()
       end
+    end
+  vol=4./3.*pi.*rs.^3.
+  C=getC(fab,k)
+  nanch(C)
+  for i=1:ngr
+        #partition
+    sigma=voigt2Tensor(C*tensor2Voigt(fab.epsdot[:,:,k]))
     for j in (1:i-1)[nbrs[1:i-1,i]]
       #get volume swept out be each boundary
       #this is relative to r[i]
@@ -402,6 +405,7 @@ function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab:
     for i=1:fab.ns*fab.ngr
       fab.p[:,i]=rk4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,i,:],
           fab.vort[:,:,i],fab.epsdot[:,:,i])
+      fab.p[:,i]=fab.p[:,i]/norm(fab.p[:,i])
       end
       return fab.p
     end

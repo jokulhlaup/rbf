@@ -1,4 +1,4 @@
-using Loess,Grid,PyCall
+using Plotting,Loess,Grid,PyCall,Constructors,Utils
 
 @pyimport matplotlib.pyplot as plt
 
@@ -158,15 +158,16 @@ function init2svd(fab,smsvd)
 
 
 init2svd(fab,0.8)
-pout=Array(Float64,3,length(fab.p[1,:]),54)
 
 function evThruCore(p)
 sv=Array(Float64,0)
 n=size(p)[2]
 (fabE,fab,pars)=Constructors.mkFab(n)
-fab.p=p
+fab.p[:,:,1]=p
 grmobs=ones(54)
 grmobs[21:end]=100
+pout=zeros(3,n,54)
+fab.vort=zeros(3,3,1)
   for i=1:length(ts_ages)-1
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
     com=ts_smoothedVertStrain[i]
@@ -184,16 +185,26 @@ grmobs[21:end]=100
     fabE(pars,fab,jefferysRHS)
     pout[:,:,i]=fab.p[:,:,1]
     append!(sv,sort(svd(fab.p[:,:,1])[2]))
+    print("\n",i)
     end
-    return sv
+  sv=reshape(sv,(3,int(length(sv)/3)))  
+  for i=1:size(sv)[2]
+    sv[:,i]=sv[:,i]/norm(sv[:,i])
+    end
+  return sv
 end
-sv=reshape(sv,(3,int(length(sv)/3)))
 schmidtPlot(fab.p);plt.show()
 for i=1:size(sv)[2]
   sv[:,i]=sv[:,i]/norm(sv[:,i])
 end
 
-function t
+function evAll(fab)
+  for i=1:53
+    sv[i,:,:]=evThruCore(pd[int(dr[i])])
+    println(i)
+    end
+  return sv
+  end
 
 
 

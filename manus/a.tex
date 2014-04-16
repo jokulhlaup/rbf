@@ -42,7 +42,7 @@ From \citet{durand2006}, the grain boundary velocity between two grains due to n
 \[\frac{dr_1}{dt} = K \left( \frac{1}{r_1}-\frac{1}{r_2} \right)
 \]
 
-where $K$ is an Arrhenius factor dependent on temperature, and $P$. The difficulty in implementing this using the procedure outlined in the previous section is to determine the radius of curvature at the boundary between the two grains. Clearly, the curvature of each grain must be the negative of the other. In addition, taken over the entire boundary, the integral of the curvature over the boundary of the grain must always be $4 \pi$. This means that, for example, the grain having negative curvature must "make up" that curvature elsewhere on its boundary. 
+where $K$ is an Arrhenius factor dependent on temperature, and $P$. The difficulty in implementing this using the procedure outlined in the previous section is to determine the radius of curvature at the boundary between the two grains. Clearly, the curvature of each grain must be the negative of the other. In addition, taken over the entire boundary, the integral of the curvature over the boundary of the grain must always be $4 \pi$. This means that, for example, the grain having negative curvature must ``make up'' that curvature elsewhere on its boundary. 
 
 A reasonable way to handle this (which this model takes)  is to take the curvature of the boundary to be the harmonic mean of the curvatures of the two surfaces (or the regular mean of the radii). This means that the smaller grain will have positive curvature on the boundary, which is a reasonable assumption. The other, far less practical, alternative is to solve a constrained optimization problem to determine the curvatures such that the curvature of all boundaries of each grain adds to $4 \pi$. For this to be well-posed, some grains must be declared as grains on the exterior of the polycrystal, with the only constraint being that their total is $4 \pi$ as well. 
 
@@ -54,8 +54,18 @@ To have a realistic treatment of recrystallization, it is necessary to partition
 \section{Fabric model usage}
 The fabric is specified as an instance of a datatype subtyping a general 'Fabric' containing most of the relevant physical information and model parameters, such as number of grains, strain rate, neighbor connectivity, etc. For testing, a constructor function can be used to make a random fabric, or the fabric can be specified. Then, the evolution over one timestep uses a single function "fabE!" which accepts a Fabric instance as an argument and advances the fabric by one timestep. The "fabE!" function itself is polymorphic and will return based on the specific type supplied to it. See the appendix for model details.
 
-\section{Tests}
-The model can reproduce characteristic fabrics for a variety of flow situations, such as single maxima, as well as large girdle fabrics. By incorporating recrystallization, small girdle fabrics can also be formed (see fig. 1). The model was has fit to thin section data \citet{joan} from the West Antarctice Ice Sheet divide core, forced with a thinning function derived from the WDC06 chronology, with good agreement, especially for the first two thousand meters. Below this, the WAIS core fabric transitions to a single maxima due to increased horizontal shear and then weakens due to recrystallization. By including temperature and flow model, good agreement lower in the core is expected.
+\section{Model Validation}
+The model can reproduce characteristic fabrics for a variety of flow situations, such as single maxima, as well as large girdle fabrics. By incorporating recrystallization, small girdle fabrics can also be formed (see fig. 1). The model was has fit to thin section data \citet{joan} from the West Antarctice Ice Sheet divide core, forced with a thinning function derived from the WDC06 chronology, with good agreement, especially for the first two thousand meters.
+
+\subsection{Thin Section Data}
+The ice-core thin section data consist of 54 thin sections from depths of 140 meters to 3405 meters, and a corresponding age range of 480 years to $67,800$ B.P. There are several hundred grains in each thin section. The thin sections fabrics display oscillitory behavior. In figure 2, the smallest singular value of each sample is plotted. There are large excursions in several places, which are much too large to be explained by sampling error. 
+
+The fabric model itself is conceptually a Lagrangian model tracking a packet of grains as they are advected through the ice sheet over time, whereas each thin section posesses different initial conditions and physical properties. Thus, a this is expected to be a significant source of mismatch between between observed fabric and modeled fabric. 
+
+The thin section at 140 m already shows significant development of a preferred orientation. This is in line with the results of \citet{diprinzio2005} at Siple Dome, where preffered orientations were observed in the firn as shallow as 22 m. In addition, at the Siple Dome site, recrystallization was found in some layers of shallow, cold ice. A similar process may contribute to the variability observed in the WAIS thin sections.
+
+\subsection{Results}
+<<TRYING VARIOUS ICS HERE>>
 \begin{figure}
 \caption{Plot of the modeled smallest  singular value of the modeled fabric versus that of the WAIS thin section data. In the upper part of the core, there is a large girdle from extension in one horizontal axis, tending towards a single maximum as simple shear increases. Corresponding Schmidt plots to selected sites are indicated.}
 \includegraphics[width=12cm]{waisfit3}
