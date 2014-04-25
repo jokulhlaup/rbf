@@ -89,7 +89,7 @@ append!(ts_temps,ts_temps[50]+bottom_grad*[20,40,60,80])
 
 
 
-depth_age=float(cs[3:end,1:2])
+depth_age=convert(Array{Float64,2},cs[3:end,1:2])
 ages=InterpIrregular(depth_age[:,1],depth_age[:,2],1,InterpNearest)
 ts_ages=map(x->ages[x],dr)
 
@@ -159,11 +159,24 @@ function init2svd(fab,smsvd)
 
 init2svd(fab,0.8)
 
+function emdSM(p)
+    n=size(p,2)
+    a=p'*[0,0,1]
+    a[abs(a) .> 1.]=0.99999
+    return sum(abs(acos(a)))/n 
+    end
+
+
 function evThruCore(p)
+emdss=Array(Float64,54)
+emdg=Array(Float64,54)
 sv=Array(Float64,0)
 n=size(p)[2]
+smax=repmat([0. 0. 1.],n)'
+girdle=getGirdle(n)
 (fabE,fab,pars)=Constructors.mkFab(n)
-fab.p[:,:,1]=p
+fab.p[:,:,1]=p;
+emdist=zeros(54)
 grmobs=ones(54)
 grmobs[21:end]=100
 pout=zeros(3,n,54)
@@ -171,8 +184,8 @@ fab.vort=zeros(3,3,1)
   for i=1:length(ts_ages)-1
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
     com=ts_smoothedVertStrain[i]
-    ss=dj(dr[i],2400)*30
-    fab.temp=ts_temps[i]+45
+    ss=dj(dr[i],2700)*90
+    fab.temp=ts_temps[i]+90
     fab.epsdot[3,1]=ss
     fab.epsdot[1,3]=ss
     fab.epsdot[1,1]=-2.*com
@@ -184,22 +197,58 @@ fab.vort=zeros(3,3,1)
     fab.epsdot=-fab.epsdot
     fabE(pars,fab,jefferysRHS)
     pout[:,:,i]=fab.p[:,:,1]
+    
+    #emdss[i]=emdSM(fab.p[:,:,1])
+    #cost,pinds,emdg[i]=earthMoversDist(fab.p[:,:,1],girdle)
+    #emdss[i] /= n;emdg /= n 
     append!(sv,sort(svd(fab.p[:,:,1])[2]))
+
     print("\n",i)
+    
+
     end
   sv=reshape(sv,(3,int(length(sv)/3)))  
   for i=1:size(sv)[2]
     sv[:,i]=sv[:,i]/norm(sv[:,i])
     end
-  return sv
+  return (pout,sv,emdss,emdg,fab)
 end
+
+
+emdstss=zeros(54)
+for i=1:54
+    pda=proj2UpHem!(pd[int(dr[i])])
+    p=proj2UpHem!(pout[:,:,i])
+    emdstss[i]=emdSM(pda)
+    emdss[i]=emdSM(p)
+    print(i)
+end
+#function evDiff(m)
+#    TmpAdjust=
+#    sv=Array(Float64,0)
+#    n=size(p)[2]
+#    (fabE,fab,pars)=Constructors.mkFab(n)
+#    fab.p[:,:,1]=p;
+#    grmobs=ones(54)
+#    grmobs[21:end]=100
+#    pout=zeros(3,n,54)
+#    fab.vort=zeros(3,3,1)
+
+
 schmidtPlot(fab.p);plt.show()
 for i=1:size(sv)[2]
   sv[:,i]=sv[:,i]/norm(sv[:,i])
 end
 
+function getGirdle(n)
+  thetas=linspace(-pi/2,pi/2,n)
+  return [zeros(n)',sin(thetas)',cos(thetas)']
+  end
+
 function evAll(fab)
   for i=1:53
+    n=size(pd[int(dr[i])],2)
+    girdlequiv=getGirdle(n)
     sv[i,:,:]=evThruCore(pd[int(dr[i])])
     println(i)
     end

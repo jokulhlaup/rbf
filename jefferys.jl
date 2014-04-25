@@ -1,5 +1,5 @@
 module jefferys
-using ODE, Utils
+using ODE, Utils,PyCall
 export getRandOrient,consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas
 ##########################
 ##########Get viscosity###
@@ -218,7 +218,7 @@ function advanceRadii(fab::FabricNGG,k,dt)
   end
 
 function prNucleation(A,b,T)
-  return A*exp(b*(T))#1
+  return exp(b*(T))#1
   end
 
 prNucleation(T)=prNucleation(1.,0.03,T)
