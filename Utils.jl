@@ -53,7 +53,7 @@ function rotp(theta,p)
 #wts wts1 and wts2, st sum(wts1)=sum(wts2);
 #Th
 
-function earthMoversDist(ps1::Array{Float64,2},ps2::Array{Float64,2},munk::PyObject)
+function earthMoversDist(ps1::Array{Float64,2},ps2::Array{Float64,2})
   (dim,n)=size(ps1)
   costs=Array(Float64,n,n)
   for i=1:n
@@ -66,18 +66,8 @@ function earthMoversDist(ps1::Array{Float64,2},ps2::Array{Float64,2},munk::PyObj
         end
       end
   end
-  costs2=deepcopy(costs)
-  permind=pyutils.getPermIndices(costs2,munk)+1
-  tc=0.
-  for i=1:n
-    tc=tc+costs[permind[i,1],permind[i,2]]
-    end
-  return (costs,permind,tc)
-  end
-
-function earthMoversDist(ps1::Array{Float64,2},ps2::Array{Float64,2})
-  munk=pyutils.getMunkres()
-  return earthMoversDist(ps1,ps2,munk)
+  tc=assignment(costs)
+  return tc
   end
 
 function emd2sm(p)

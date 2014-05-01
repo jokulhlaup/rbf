@@ -1,5 +1,5 @@
 using Plotting,Loess,Grid,PyCall,Constructors,Utils
-
+require("lsap/Assignment.jl")
 @pyimport matplotlib.pyplot as plt
 
 function wrapper(ages,par,ts_svs,fab,pars,jefferysRHS)
@@ -181,10 +181,12 @@ grmobs=ones(54)
 grmobs[21:end]=100
 pout=zeros(3,n,54)
 fab.vort=zeros(3,3,1)
+println("starting")
   for i=1:length(ts_ages)-1
+    println("asdfasdf")
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
     com=ts_smoothedVertStrain[i]
-    ss=dj(dr[i],2700)*90
+    ss=dj(dr[i],2900)*10
     fab.temp=ts_temps[i]+90
     fab.epsdot[3,1]=ss
     fab.epsdot[1,3]=ss
@@ -198,12 +200,13 @@ fab.vort=zeros(3,3,1)
     fabE(pars,fab,jefferysRHS)
     pout[:,:,i]=fab.p[:,:,1]
     
-    #emdss[i]=emdSM(fab.p[:,:,1])
-    #cost,pinds,emdg[i]=earthMoversDist(fab.p[:,:,1],girdle)
+    emdss[i]=emdSM(fab.p[:,:,1])
+    println("just before")
+    emdg[i]=earthMoversDist(fab.p[:,:,1],girdle)
     #emdss[i] /= n;emdg /= n 
     append!(sv,sort(svd(fab.p[:,:,1])[2]))
-
-    print("\n",i)
+     
+    println("\n step",i)
     
 
     end
