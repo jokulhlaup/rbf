@@ -1,6 +1,6 @@
 using Utils,jefferys,Plotting,PyCall
 @pyimport matplotlib.pyplot as plt
-ngr=300
+ngr=800
 ns=1
 coors=rand(3,ns)
 p=rand(3,ngr,ns)-0.5
@@ -55,6 +55,7 @@ for i=1:100
  fabE(pars,fab,jefferysRHS)
  x=svd(fab.p[:,:,1])[2]
  sv=append!(sv,[min(x)/norm(x)])
+ print('\n',i)
  end
 schmidtPlot(fab.p);plt.show()
 
