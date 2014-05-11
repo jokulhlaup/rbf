@@ -156,7 +156,7 @@ function binBoolInd(x,fn,n)
   end
 
 function vdc(n,base)
-  x,denom=0,1
+  x,denom=0.,1.
   while n>0
     x+=n%base/(denom*=base)
     n=floor(n/base)

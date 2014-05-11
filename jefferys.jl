@@ -370,7 +370,7 @@ function dot21(a,b)
     return res
 end
 function jefferysRHS(c,vort,epsdot,dt)
-  res=(epsdot*c.-(dot21(c'*epsdot,c).*c))*dt
+  res=(vort*c+epsdot*c.-(dot21(c'*epsdot,c).*c))*dt
   return res
   end
 

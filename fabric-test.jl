@@ -16,7 +16,7 @@ const epsdot=epsdot1
 const vort=vort1
 
 function f(p)
-  m=((epsdot*p)-((p')*epsdot*p)[1]*p)#+(vort*p)
+  m=(vort*p + (epsdot*p)-((p')*epsdot*p)[1]*p)#+(vort*p)
   return m
   end
 #using anonymous
