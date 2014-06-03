@@ -30,14 +30,14 @@ To track the rheological properties of a polycrystal, it is necessary to know th
 
 Let $g^{\star}$ be an arbitrary interior grain. This grain has neighbors $g_1,...,g_m$, with radii $r_i$. $g^{\star}$ has a surface area $T$. The surface that $g^{\star}$ shares with neighbor $n_i$ is $S_i$, with surface area $s_i$. Now, assume that $s_i$ is proportional to the surface area of grain $g_i$, or equivalently, $s_i=\alpha r_i^2$.
 
-Now, examine the interface between $g^{\star}$ and $n_i$. Due to grain growth, recrystallization, or other processes, this moves with velocity $v_i$ outwardly normal to the surface. Thus, taken over all neighboring grains, $\frac{dV^{\star}}{dt}=\sum_{i}s_i v_i$. Therefore, if a velocity between two grains can be determined, then this provides a means of determining grain-size evolution based on the properties of a grain and its neighbors.
+Now, examine the interface between $g^{\star}$ and $n_i$. Due to grain growth, recrystallization, or other processes, this interface moves with velocity $v_i$ outwardly normal to the surface. Thus, taken over all neighboring grains, $\frac{dV^{\star}}{dt}=\sum_{i}s_i v_i$. Therefore, if a velocity between two grains can be determined, then this provides a means of determining grain-size evolution based on the properties of a grain and its neighbors.
 
 To implement this for a polycrystal, the less computationally intensive way is to declare that each grain has several neighbors with which to determine the growth rate. To deal with grains disappearing or nucleating, originally the polycrystal is declared to have a number of grains with zero radius. Nucleated grains simply assign a nonzero radius to a formerly zero radius grain, and consumed grains are assigned a zero radius. 
 
 \section{Grain Growth}
 Normal grain growth is induced by a driving force related to the local curvature at the grain surface.
 
-From \citet{durand2006}, the grain boundary velocity between two grains due to normal grain growth can be given by
+From \citet{durand2006}, the grain-boundary velocity between two grains due to normal grain growth can be given by
 
 \[\frac{dr_1}{dt} = K \left( \frac{1}{r_1}-\frac{1}{r_2} \right)
 \]
@@ -61,8 +61,6 @@ The fabric model itself is conceptually a Lagrangian model tracking a packet of 
 
 A common method to summarize a fabric with grain orientations $X$ is to calculate eigenvalues and eigenvectors of the matrix formed by $X X'$. This can capture certain general features such as the strength of a single maximum fabric or a girdle fabric. However, it is unable to capture non-linear features of orientation distributions. For our analysis, we summarize fabrics using the ``earth mover distance'' (EMD). The EMD between two point sets $P_1$ and $P_2$, with vectors of associated weights for each point $W_1$ and $W_2$, is given by the minimum work required to move the weights from points on $P_1$ to the points on $P_2$. In this case, we are transforming c-axis normal vectors from one observed fabric to another across the upper hemisphere. The work to move a weight $w$ from a point $x$ to a point $y$ on the upper hemisphere is then given by ${wd}$, where $d$ is the great-circle distance. This measure can detect changes in fabric which are not reflected in the fabric eigenvalues, such as the difference between a double girdle and a diffuse single girdle. In addition, it is a relatively robust measure, with qualitatively similar fabrics producing similar results. To model the "girdleness" and single-maximum strength of a fabric, we measure the EMD between the fabric and a perfect single maximum and a perfect girdle. That is, fabrics with c-axis orientations concentrated at only one point, in the case of a single maximum fabric, or along a plane, in the case of a girdle fabric. The results are shown in figure !!THE FIGURE!!. 
 
-To understand the stochasticity which can be expected, we also took repeated bootstrap samples of the top thin section, and ran simulations with these samples. The results (fig 4) show that difference between the 5\% and 95\% quantiles roughly are constant over time. However, individual realizations tend to oscillate strongly, and not typically with the same sign. 
-
 \subsection{Results}
 
 
@@ -80,10 +78,15 @@ To understand the stochasticity which can be expected, we also took repeated boo
 
 \begin{figure}
 \caption{90\% confidence interval and median of evolution of the distribution of the fabric sample at the top of the core, inferred from repeated bootstrap samples of the thin section data. Two sample realizations are also included.}
+\includegraphics[width=12cm]{ci}
+\end{figure}
 The models fits the WAIS divide thin section fabric samples quite well. Jeffery's equation predicts grain rotation for a bulk strain rate well. Indeed, rotation via Jeffery's equation provides a better fit than using vorticity tensor derived for each grain individually. The transition from girdle to single maxima deeper in the core due to increased horizontal shear is captured resonably well, however the thin sections show a more diffuse single maximum developing. In these models, accumulation is assumed to be constant. Varying accumulation may contribute to spurious oscillations of the thinning function used to drive the model. In addition, grain boundary mobility for the model is held constant, which causes recrystallization of Pleistocene ice to be under-predicted.  
+
+To understand the stochasticity which we may expect, we also repeatedly resampled the c-axis angles of the top thin section at 140m, with replacement, and forced the model with the WAIS divide data with the resampled (bootstrapped) samples as initial conditions. The bootstrapped sample c-axis angles have the same distribution as the original. With 400 grains, the resampled fabrics differ by a fair amount. Variability in EMD between samples stays at roughly the same magnitude throughout the model run. The results (fig 4) show that difference between the 5\% and 95\% quantiles of girdle EMD of the ensemble stays relatively consistent over time. Thus, initial perturbations of the fabric do not disappear over time.  However, the EMDs of the resampled fabrics oscillate over time. The higher frequencey oscillations, to a large extent, do not covary between resampled fabrics. A fabric which was previously stronger than another may later become weaker, and vice-versa. This is due to both the stocasticity of recrystallization, and that nearest neighbors are chosen randomly. Similar behavior can be expected in ice sheets, as the number of nearest neighbors of each grain, and the sizes of the neighbors, can differ greatly from grain to grain. Now, these are limited samples of several hundred grains. Very large fabric samples evolve much more deterministically, as the stocasticity inherent in recrystallization and nearest neighbor selection does not affect bulk properties as much. However, these results do point to significant fabric variability on the meter-scale. This may be important in the development of small-scale flow features like boudinage. In addition, it is possible that the rapidly varying oscillations could cause transient flow on the meter-scale. 
 
 
 \section{Conclusions}
+We showed a fabric evolution model which includes recrystallization and grain rotation. Grain growth and recrystallization depends on nearest-neighbor interactions. The model fits the WAIS ice core fabric data quite well. The models display a great deal of stocastic variability, with fabrics oscillating unpredictably over time. This suggests that random fabric variability may be important with small-scale flow.
 !!More stuff
 Future work will include coupling of the fabric model to a fully anisotropic flow model. This is necessary to investigate flow disruptions such as boudinage and folding. In addition, recent results \citep{montgomery-smith2011} show that coupled Stokes-Jefferys equations modeling fiber suspensions can induce intiial perturbations in the orientation distribution function to grow significantly in short amounts of time. The case of ice fabric is extremely similar. This opens up the possibility that small perturbations of the intitial fabric could grow into persistent large perturbations. This could be a source of the sometimes chaotic flow disturbances observed in some ice cores.
 
