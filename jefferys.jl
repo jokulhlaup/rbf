@@ -1,5 +1,5 @@
 module jefferys
-using ODE, Utils,PyCall
+using ODE, Utils,PyCall,Devectorize
 export getRandOrient,consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas
 ##########################
 ##########Get viscosity###
@@ -136,44 +136,51 @@ function nanch(test_var)
     end
   end
 
+
+#nucleates a new grain at position (i,j,k)
+function nucleateGrain!(fab,i,k,vol)
+  jd=binBoolInd(fab.areas[:,i,k],>,fab.ngr)
+  vol[jd]-=fab.nuc_vol
+  vol[i]=fab.nuc_vol
+
+  #nanch(vol)
+  if vol[jd]<0
+    vol[i]+=vol[jd]
+    vol[jd]=0.
+    end
+  #nanch(vol)
+  fab.p[:,i,k]=getRandOrient()
+  fab.str[i,k]=0.
+  end
+
+function getRandOrient()     
+  azimuth=rand()*2.0*pi  
+  zenith=rand()*pi/2.0
+  return [sin(zenith)*cos(azimuth),sin(zenith)*sin(azimuth),cos(zenith)]#rand(3)
+  #fab.p[:,i,k]/=norm(fab.p[:,i,k])
+  end
+
+
+function chnan(p)
+     return (isnan(p[1]) || isnan(p[2]) || isnan(p[3]))
+end
+
+
 #function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
 function advanceRadii(fab::FabricNGG,k,dt)
   
-  #nucleates a new grain at position (i,j,k)
-  function nucleateGrain!(fab,i,k,vol)
-    jd=binBoolInd(fab.areas[:,i,k],>,ngr)
-    vol[jd]-=fab.nuc_vol
-    vol[i]=fab.nuc_vol
-
-    nanch(vol)
-    if vol[jd]<0
-      vol[i]+=vol[jd]
-      vol[jd]=0.
-      end
-    nanch(vol)
-    fab.p[:,i,k]=getRandOrient()
-    fab.str[i,k]=0.
-    end
-
-  function getRandOrient()     
-    azimuth=rand()*2.0*pi  
-    zenith=rand()*pi/2.0
-    return [sin(zenith)*cos(azimuth),sin(zenith)*sin(azimuth),cos(zenith)]#rand(3)
-    #fab.p[:,i,k]/=norm(fab.p[:,i,k])
-    end
-
   rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
   areas=fab.areas[:,:,k];p=fab.p[:,:,k]
-  nanch(rs)
+  #nanch(rs)
   for i=1:ngr
-    if any(isnan,p[:,i])
+    if chnan(p[:,i])
       p[:,i]=getRandOrient()
       fab.p[:,i,k]=getRandOrient()
       end
     end
   vol=4./3.*pi.*rs.^3.
   C=getC(fab,k)
-  nanch(C)
+  #nanch(C)
   for i=1:ngr
         #partition
     sigma=voigt2Tensor(C*tensor2Voigt(fab.epsdot[:,:,k]))
@@ -181,20 +188,20 @@ function advanceRadii(fab::FabricNGG,k,dt)
       #get volume swept out be each boundary
       #this is relative to r[i]
       dVol=-areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
-      nanch(dVol)
-      if any(isnan,p[:,j])
+      #nanch(dVol)
+      if chnan(p[:,j])
         p[:,j]=getRandOrient()
         end
-      nanch(p[:,j])
-      nanch(p[:,i])
+      #nanch(p[:,j])
+      #nanch(p[:,i])
 
       dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma[:,:,k],fab.str[i,k],fab.str[j,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
-      nanch(dVol)
+      #nanch(dVol)
 #      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
       #print(dVol)
       vol[i]=vol[i]-dVol
       vol[j]=vol[j]+dVol
-      nanch(vol)
+      #nanch(vol)
       (isnan(rs[i])||isnan(rs[j]))?error("isNaN: ", i,", ", j):nothing
       if vol[j]<0
         vol[i]+=vol[j]
@@ -212,7 +219,7 @@ function advanceRadii(fab::FabricNGG,k,dt)
       end
     end #i
   
-  fab.str+=dt*sqrt(abs(secondInv(fab.epsdot[:,:,k])))  
+  fab.str .+=dt*sqrt(abs(secondInv(fab.epsdot[:,:,k])))  
   return (vol.*0.75/pi).^(1/3)
 
   end
@@ -345,20 +352,29 @@ function nRK4(f,ntimes::Int,h::Number,m::Number,dt,p,vort,epsdot)
   return p
   end
 
+
+
 function rk4(f::Function,n::Int64,x,vort,epsdot,dt)
    for i=1:n
       k1=f(x,vort,epsdot,dt)
       k2=f(x+k1*dt/2,vort,epsdot,dt)
       k3=f(x+k2*dt/2,vort,epsdot,dt)
       k4=f(x+k3*dt/2,vort,epsdot,dt)
-      x+=(1/6)*dt*(k1+2*k2+2*k3+k4)
+      x+=(1./6).*dt.*(k1.+2.*k2.+2.*k3.+k4)
       end
    return x
    end
 
+function dot21(a,b) 
+    @inbounds res= a[1]*b[1]+a[2]*b[2]+a[3]*b[3]
+    return res
+end
 function jefferysRHS(c,vort,epsdot,dt)
-  return (epsdot*c-(c'*epsdot*c)[1]*c)*dt
+  res=(epsdot*c.-(dot21(c'*epsdot,c).*c))*dt
+  return res
   end
+
+
 #Replace this so its rotC(R)
 function rotC(R)
   # form the K matrix (based on Bowers 'Applied Mechanics of Solids', Chapter 3)
@@ -409,7 +425,7 @@ function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab:
       end
       return fab.p
     end
-  
+   
   #function fabEvolve!(pars::GlobalPars,fab::Fabric3,f)
   function fabEvolve!(pars::GlobalPars,fab::FabricNGG,f)
     for i=1:fab.ns
@@ -442,7 +458,7 @@ function dynRextal!(fab::Fabric2)
     p=rand()
     if p<fab.prob
       x=rand(3)-0.5
-      fab.p[3*i-2:3*i]=x/norm(x)
+      fab.p[3*i-2:3*i]=x./norm(x)
       end
     end
   end
@@ -450,9 +466,9 @@ function dynRextal!(fab::Fabric2)
 function strEnVelocity(p1,p2,sigma,str1,str2)
   fac=1.
   e1=localSigmaEff([p1,p2],sigma,2)
-  nanch(e1)
+  #nanch(e1)
   velocity=fac*(e1[2]-e1[1])+(str2-str1)
-  nanch(velocity)
+  #nanch(velocity)
   return velocity
   end
 #finds the effective stress on grains at one site.
@@ -460,30 +476,30 @@ function strEnVelocity(p1,p2,sigma,str1,str2)
 #at a site. 
 function localSigmaEff(p,sigma,ngr)
   G=zeros(3,3)
-  nanch(sigma)
-  nanch(p)
+  #nanch(sigma)
+  #nanch(p)
   #first find local geometric tensors
   g=zeros(Float64,3,3,ngr)
   m=zeros(Float64,3,ngr)
   n=zeros(Float64,3,ngr)
   for i=1:ngr
     o=localGeomTensor(p[3*i-2:3*i],sigma)
-    g[9*i-8:9*i]=o[1]
-    m[3*i-2:3*i]=o[2]
-    n[3*i-2:3*i]=o[3]
-    G[1:9]+=g[9*i-8:9*i]
+     g[9*i-8:9*i]=o[1]
+     m[3*i-2:3*i]=o[2]
+     n[3*i-2:3*i]=o[3]
+     G[1:9]+=g[9*i-8:9*i]
     end
-  G=G/ngr
-  nanch(G)
-  nanch(g)
+   G=G./ngr
+  #nanch(G)
+  #nanch(g)
   sigmaE=zeros(ngr)
   for i=1:ngr
     #treat zeros!
-    g[9*i-8:9*i]=g[9*i-8:9*i]./G[1:9].*sigma[1:9] #g= local sigma now
-    nanch(g)
+     g[9*i-8:9*i]=g[9*i-8:9*i]./G[1:9].*sigma[1:9] #g= local sigma now
+    #nanch(g)
     
     sigmaE[i]=sqrt(abs(-1/3*secondInv(g[:,:,ngr]))) #be sure to convert
-    nanch(sigmaE)
+    #nanch(sigmaE)
     #get stress tensor
     #sigma[i
 
@@ -505,7 +521,7 @@ function probDRx(fab::AbstractFabric)
 function localGeomTensor(p,sigma)
   T=sigma*p #read: T
   n=cross(p,T) #read: n
-  n=n/norm(n) #read: n
+   n=n./norm(n) #read: n
   m=cross(n,p)
   lg=(m/norm(m))*p'
   return (lg,m,n)
@@ -551,9 +567,9 @@ function getC(fab::AbstractFabric,k)
   C=zeros(6,6)
   for i=1:fab.ns*fab.ngr
     R=getRotM(fab.p[3*i-2:3*i])
-    C+=rotC(R).*(fab.r[i]^3)
+     C+=rotC(R).*(fab.r[i]^3)
     end
-  C/=tot_vol
+   C/=tot_vol
   end
 
 #Main driver routine to get the viscosity.

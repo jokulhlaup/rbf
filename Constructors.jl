@@ -1,4 +1,3 @@
-module Constructors
 
 using Utils,Plotting,PyCall,jefferys
 export jefferysRHS,mkFab
@@ -51,5 +50,4 @@ return (fabE,fab,pars)
 end
 
 mkFab()=mkFab(30)
-end #module
 

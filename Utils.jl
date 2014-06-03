@@ -1,5 +1,6 @@
 module Utils
-using Base.rand,PyCall
+using Base.rand,PyCall,Optim
+include("lsap/Assignment.jl")
 export voigt2Tensor,tensor2Voigt,rk4!,halton,vdc,unifmesh,randir,diffrandi,secondInv,binBoolInd,earthMoversDist
 unshift!(PyVector(pyimport("sys")["path"]), "")
 @pyimport pyutils
@@ -23,20 +24,39 @@ function getRandc(n)
     return p
   end
 
+function distMat(ps1,ps2)
+    m=size(ps1,2)
+    n=size(ps2,2)
+    costs=Array(Float64,m,n)
+    for i=1:m
+        for j=1:n
+            dp=abs(dot(ps1[:,i],ps2[:,j]))
+            if dp <=1.
+                costs[i,j]=acos(dp)
+            elseif 1.<dp
+                costs[i,j]=0.
+            end
+        end
+    end
+   return costs
+end
+   
+
 
 #find the horizontal axis rotation with the optimal
 #alignment between p1 and p2.
 #Returns (theta,p2_rotated,distance)
 function alignFabrics(p1,p2)
-  obj(theta)=alignFabricsObj(theta,p1,p2)[1]
+  svp1=svd(p1)[1][:,3]
+  obj(theta)=alignFabricsObj(theta,svp1,p2)
   res=Optim.optimize(obj,[0.],method=:simulated_annealing)
   return(-res.minimum,res.f_minimum,rotp(-res.minimum[1],p2))
   end
-function alignFabricsObj(thetab,p1,p2)
+function alignFabricsObj(thetab,svp1,p2)
   theta=thetab[1];
   p2_rot=rotp(theta,p2)
-  (costs,permind,tc)=earthMoversDist(p1,p2_rot);
-  return tc
+  tc=svd(p2_rot)[1][:,3]
+  return acos(abs(dot(tc,svp1)))
   end
 
 function rotp(theta,p)
@@ -53,7 +73,7 @@ function rotp(theta,p)
 #wts wts1 and wts2, st sum(wts1)=sum(wts2);
 #Th
 
-function earthMoversDist(ps1::Array{Float64,2},ps2::Array{Float64,2},munk::PyObject)
+function earthMoversDist(ps1::Array{Float64,2},ps2::Array{Float64,2})
   (dim,n)=size(ps1)
   costs=Array(Float64,n,n)
   for i=1:n
@@ -66,18 +86,8 @@ function earthMoversDist(ps1::Array{Float64,2},ps2::Array{Float64,2},munk::PyObj
         end
       end
   end
-  costs2=deepcopy(costs)
-  permind=pyutils.getPermIndices(costs2,munk)+1
-  tc=0.
-  for i=1:n
-    tc=tc+costs[permind[i,1],permind[i,2]]
-    end
-  return (costs,permind,tc)
-  end
-
-function earthMoversDist(ps1::Array{Float64,2},ps2::Array{Float64,2})
-  munk=pyutils.getMunkres()
-  return earthMoversDist(ps1,ps2,munk)
+  tc=assignment(costs)
+  return tc
   end
 
 function emd2sm(p)
