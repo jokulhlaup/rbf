@@ -22,10 +22,10 @@ vort=zeros(3,3,ns)
 vort[2,3]=0.8
 vort[3,2]=-0.8
 epsdot=zeros(3,3,ns)
-#epsdot=zeros(3,3,ns)
-#epsdot[1,1,:]=-0.1#0.5
-#epsdot[2,2,:]=0.2#-1
-#epsdot[3,3,:]=-0.1#0.5
+epsdot=zeros(3,3,ns)
+epsdot[1,1,:]=-0.1#0.5
+epsdot[2,2,:]=0.2#-1
+epsdot[3,3,:]=-0.1#0.5
 epsdot[2,3,:]=0.8
 epsdot[3,2,:]=0.8
 

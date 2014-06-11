@@ -30,12 +30,12 @@ epsdot=zeros(3,3,ns)
 #epsdot[1,1,:]=-0.1#0.5
 #epsdot[2,2,:]=0.2#-1
 #epsdot[3,3,:]=-0.1#0.5
-epsdot[2,3,:]=0.8
-epsdot[3,2,:]=0.8
+#epsdot[2,3,:]=0.8
+#epsdot[3,2,:]=0.8
 
 dt=1e-1
 #5e-3
-nrk=10
+nrk=100
 f=jefferysRHS
 pars=GlobalPars{Number,Int64}(dt,nrk,f)
 #radius velocity length/time * dt in units length
