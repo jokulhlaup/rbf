@@ -165,25 +165,37 @@ function chnan(p)
      return (isnan(p[1]) || isnan(p[2]) || isnan(p[3]))
 end
 
+function rotate_site(fab::FabricNGG,k,dt)
+  C=getC(fab,k)
+  sigma=voigt2Tensor(C*tensor2Voigt(fab.epsdot[:,:,k]))
+  C_gr=zeros(6,6); C_gr[5,5]=1; C_gr[4,4]=1
+  for i=1:fab.ngr
+    norm_stress=rotC(
+    
+
+    
+        
 
 #function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
 function advanceRadii(fab::FabricNGG,k,dt)
   
   rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
   areas=fab.areas[:,:,k];p=fab.p[:,:,k]
+
+  C=getC(fab,k)
+  sigma=voigt2Tensor(C*tensor2Voigt(fab.epsdot[:,:,k]))
   #nanch(rs)
   for i=1:ngr
+    rotate_gr(fab,sigma,i,k)  
     if chnan(p[:,i])
       p[:,i]=getRandOrient()
       fab.p[:,i,k]=getRandOrient()
       end
     end
   vol=4./3.*pi.*rs.^3.
-  C=getC(fab,k)
   #nanch(C)
   for i=1:ngr
         #partition
-    sigma=voigt2Tensor(C*tensor2Voigt(fab.epsdot[:,:,k]))
     for j in (1:i-1)[nbrs[1:i-1,i]]
       #get volume swept out be each boundary
       #this is relative to r[i]
@@ -394,6 +406,7 @@ function rotC(R)
         K3   K4   ] ;
   C = zeros(6,6)
   C[5,5]=1 
+  C[4,4]=1
   C = K * C * transpose(K) 
   end
 
