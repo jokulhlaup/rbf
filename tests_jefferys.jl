@@ -18,16 +18,20 @@ for i=1:ngr
  end
 h=1.0
 C=Array(Float64,6,6,ns)
-vort=zeros(3,3,ns)
-vort[2,3]=0.8
-vort[3,2]=-0.8
-epsdot=zeros(3,3,ns)
-epsdot=zeros(3,3,ns)
-epsdot[1,1,:]=-0.1#0.5
-epsdot[2,2,:]=0.2#-1
-epsdot[3,3,:]=-0.1#0.5
-epsdot[2,3,:]=0.8
-epsdot[3,2,:]=0.8
+vort_ss=zeros(3,3,ns)
+vort_lg=zeros(3,3,ns)
+vort_ss[2,3]=0.8
+vort_ss[3,2]=-0.8
+epsdot_ss=zeros(3,3,ns)
+epsdot_lg=zeros(3,3,ns)
+epsdot_lg[1,1,:]=-0.1#0.5
+epsdot_lg[2,2,:]=0.2#-1
+epsdot_lg[3,3,:]=-0.1#0.5
+epsdot_ss[2,3,:]=0.8
+epsdot_ss[3,2,:]=0.8
+
+epsdot_lg_ss=epsdot_lg + epsdot_ss
+vort_lg_ss = vort_ss
 
 dt=1e-1
 #5e-3
@@ -50,6 +54,9 @@ fabE=fabricHelper(pars,fab,jefferysRHS)
 #fab=Fabric{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot)
 #fabE=fabricHelper(pars,fab,jefferysRHS)
 #fabE(pars,fab,jefferysRHS)
+epsdot = epsdot_ss
+vort = vort_ss
+
 sv=Array(Float64,0)
 for i=1:100
  fabE(pars,fab,jefferysRHS)
