@@ -1,6 +1,6 @@
 module jefferys
 using ODE, Utils
-export getRandOrient,consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas
+export consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas
 ##########################
 ##########Get viscosity###
 ##########################
@@ -104,12 +104,11 @@ genrFT(:(FabricNGG),:(begin
   nuc_vol::T
   str::Array{T,2}
   temp::Float64
-  softness::Array{T,2}
   end))
 
 function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
   nbrs=makeSymNbrs(ns,ngr,0.1)
-  r=2.*rand(ngr,ns)*av_radius
+  r=2*rand(ngr,ns)*av_radius
   
   areas=zeros(ngr,ngr,ns)
   for i=1:ns
@@ -118,14 +117,13 @@ function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
   grmob=1.0
   pr_nuc=0.1
   nuc_vol=0.1
-  softness=ones(ngr,ns)
   str=zeros(ngr,ns)
   size(coors)==(3,ns)?nothing:error("Dimension mismatch in 'coors'")
   size(p)==(3,ngr,ns)?nothing:error("Dimension mismatch in 'p'")
   size(C)==(6,6,ns)?nothing:error("Dimension mismatch in 'C'")
   size(vort)==(3,3,ns)?nothing:error("Dimension mismatch in 'vort'")
   size(epsdot)==(3,3,ns)?nothing:error("Dimension mismatch in 'epsdot'")
-  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,areas,r,grmob,pr_nuc,nuc_vol,str,temp,softness)
+  return FabricNGG{Float64,Int64}(coors,p,ngr,h,ns,C,vort,epsdot,nn,nbrs,areas,r,grmob,pr_nuc,nuc_vol,str,temp)
   end
 
 ######################
@@ -135,7 +133,7 @@ function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
 function nanch(test_var)
   if any(isnan,test_var)
     error("NaN in ",test_var)
-    end
+  end
   end
 
 #function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
@@ -155,8 +153,8 @@ function advanceRadii(fab::FabricNGG,k,dt)
     nanch(vol)
     fab.p[:,i,k]=getRandOrient()
     fab.str[i,k]=0.
-    end
 
+    end
   function getRandOrient()     
     azimuth=rand()*2.0*pi  
     zenith=rand()*pi/2.0
@@ -167,45 +165,34 @@ function advanceRadii(fab::FabricNGG,k,dt)
   rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
   areas=fab.areas[:,:,k];p=fab.p[:,:,k]
   nanch(rs)
-  for i=1:ngr
-    if any(isnan,p[:,i]) | isnan(rs[i])
-      println("nan found!")
-      p[:,i]=getRandOrient()
-      fab.p[:,i,k]=getRandOrient()
-      if isnan(rs[i]) 
-          fab.r[i,k]=fab.nuc_vol
-      end
-      #nucleateGrain!(fab,i,k,fab.nuc_vol)
-      end
-    end
-  vol=4./3.*pi.*rs.^3.
-  C=getC(fab,k)
-  nanch(C)
-
-  sigma=voigt2Tensor(C*tensor2Voigt(fab.epsdot[:,:,k]))
-  for i=1:ngr
+ # fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
+#  rs_new=zeros(fab.ngr)
+  vol=4/3.*pi.*rs.^3
+  sigma=voigt2Tensor(getC(fab,k)*tensor2Voigt(fab.epsdot[:,:,k]))
+  for i=2:ngr
         #partition
-        softness[i,k]=sigma*fab.p[:.i,k]
+    if any(isnan,p[:,i])
+      p[:,i]=getRandOrient()
+      end
     for j in (1:i-1)[nbrs[1:i-1,i]]
       #get volume swept out be each boundary
       #this is relative to r[i]
       dVol=-areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
-      #nanch(dVol)
+      nanch(dVol)
       if any(isnan,p[:,j])
         p[:,j]=getRandOrient()
-        fab.r[i,k]=fab.nuc_vol
         end
-      #nanch(p[:,j])
-      #nanch(p[:,i])
+      nanch(p[:,j])
+      nanch(p[:,i])
 
       dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma[:,:,k],fab.str[i,k],fab.str[j,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
-      #nanch(dVol)
+      nanch(dVol)
 #      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
       #print(dVol)
       vol[i]=vol[i]-dVol
       vol[j]=vol[j]+dVol
-      #nanch(vol)
-      #(isnan(rs[i])||isnan(rs[j]))?error("isNaN: ", i,", ", j):nothing
+      nanch(vol)
+      (isnan(rs[i])||isnan(rs[j]))?error("isNaN: ", i,", ", j):nothing
       if vol[j]<0
         vol[i]+=vol[j]
         vol[j]=0.
@@ -216,49 +203,16 @@ function advanceRadii(fab::FabricNGG,k,dt)
         end
       end #j
     if rs[i]<1e-4#r_crit
-      if rand()<prNucleation(fab.temp)#0.5#pr_nucleation
+      if rand()<dt*prNucleation(fab.temp)#0.5#pr_nucleation
         nucleateGrain!(fab,i,k,vol)
         end
       end
-    
-    for i=1:ngr
-        soft=softness(fab,i,k)
-        m=localGeomTensor(fab.p[:,i,k],sigma)
-
     end #i
   
-  fab.str+=dt*sqrt(abs(secondInv(fab.epsdot[:,:,k])))
+  fab.str+=dt*sqrt(abs(secondInv(fab.epsdot[:,:,k])))  
   return (vol.*0.75/pi).^(1/3)
 
   end
-
-function rss(sigma,p)
-    return norm(sigma*p)
-end
-
-function softness(fab,sigma,vols,i,1)
-    rss_i=rss(sigma,vols,fab.p[:,i,1])
-    if rss_i=0 return 1.0
-    srss=rss_i #get indices with nonzero
-    svol=0
-    nn=size(nbrs,1)
-    nnacc=0
-    for j=1:nn
-        if vol(nbrs[j,i]) > 0.
-            ssrss=rss(sigma,fab.p[:,i,1])*vol[nbrs[j,i]]
-            svol+=vol[nbrs[j,i]]
-            nnacc+=1
-        end
-    end
-    return 0.5*srss + svol*srss/(rss_i*2*nnacc)
-end
-
-    
-
-
-    
-
-
 
 function prNucleation(A,b,T)
   return A*exp(b*(T))#1
@@ -394,7 +348,7 @@ function rk4(f::Function,n::Int64,x,vort,epsdot,dt)
       k2=f(x+k1*dt/2,vort,epsdot,dt)
       k3=f(x+k2*dt/2,vort,epsdot,dt)
       k4=f(x+k3*dt/2,vort,epsdot,dt)
-      x+=(1/6)*dt*(k1+2*k2+2*k3+k4)/n
+      x+=(1/6)*dt*(k1+2*k2+2*k3+k4)
       end
    return x
    end
@@ -448,7 +402,6 @@ function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab:
     for i=1:fab.ns*fab.ngr
       fab.p[:,i]=rk4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,i,:],
           fab.vort[:,:,i],fab.epsdot[:,:,i])
-      fab.p[:,i]=fab.p[:,i]/norm(fab.p[:,i])
       end
       return fab.p
     end
@@ -456,9 +409,9 @@ function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab:
   #function fabEvolve!(pars::GlobalPars,fab::Fabric3,f)
   function fabEvolve!(pars::GlobalPars,fab::FabricNGG,f)
     for i=1:fab.ns
-      #for j=1:fab.ngr
-      #fab.p[:,j,i]=rk4(f,pars.nrk,fab.p[:,j,i],fab.vort[:,:,i],fab.epsdot[:,:,i],pars.dt)
-      #  end
+      for j=1:fab.ngr
+      fab.p[:,j,i]=rk4(f,pars.nrk,fab.p[:,j,i],fab.vort[:,:,i],fab.epsdot[:,:,i],pars.dt)
+        end
 
       #fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
       fab.r[:,i]=advanceRadii(fab,i,pars.dt)
