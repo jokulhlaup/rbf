@@ -35,7 +35,7 @@ epsdot=zeros(3,3,ns)
 
 dt=1e-1
 #5e-3
-nrk=100
+nrk=1000
 f=jefferysRHS
 pars=GlobalPars{Number,Int64}(dt,nrk,f)
 #radius velocity length/time * dt in units length

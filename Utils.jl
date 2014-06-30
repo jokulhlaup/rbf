@@ -5,6 +5,22 @@ export voigt2Tensor,tensor2Voigt,rk4!,halton,vdc,unifmesh,randir,diffrandi,secon
 unshift!(PyVector(pyimport("sys")["path"]), "")
 @pyimport pyutils
 
+#function get_perms(v,depth=1)
+#    n=length(v)
+#    u=deepcopy(v)
+#    assert(n<7, "too long")
+#    perms=Array(Any,factorial(v))
+#
+#    if n==1
+#        perms=[v]; return;
+#    for i=depth+1:n #swap first and i
+#        u[depth]=v[i]
+#        u[i]=v[depth]
+#        get_perms(u,depth+1)
+        
+
+
+
 function proj2UpHem!(p)
   n=size(p)[2]
   for i=1:n

@@ -130,9 +130,11 @@ function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
 ############
 #####################
 ##########################################
-function nanch(test_var)
-  if any(isnan,test_var)
-    error("NaN in ",test_var)
+macro nanch(test_var)
+  quote
+  if any(isnan,$test_var)
+    error("NaN in ", $test_var)
+  end
   end
   end
 
@@ -145,12 +147,12 @@ function advanceRadii(fab::FabricNGG,k,dt)
     vol[jd]-=fab.nuc_vol
     vol[i]=fab.nuc_vol
 
-    nanch(vol)
+    @nanch(vol)
     if vol[jd]<0
       vol[i]+=vol[jd]
       vol[jd]=0.
       end
-    nanch(vol)
+    @nanch(vol)
     fab.p[:,i,k]=getRandOrient()
     fab.str[i,k]=0.
 
@@ -164,11 +166,19 @@ function advanceRadii(fab::FabricNGG,k,dt)
 
   rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
   areas=fab.areas[:,:,k];p=fab.p[:,:,k]
-  nanch(rs)
+  @nanch(rs)
  # fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
 #  rs_new=zeros(fab.ngr)
   vol=4/3.*pi.*rs.^3
+  for i=1:ngr
+    if any(isnan,p[:,i])
+      p[:,i]=getRandOrient()
+      end
+    end
+
   sigma=voigt2Tensor(getC(fab,k)*tensor2Voigt(fab.epsdot[:,:,k]))
+  println(sigma)
+  @nanch(sigma)
   for i=2:ngr
         #partition
     if any(isnan,p[:,i])
@@ -178,20 +188,21 @@ function advanceRadii(fab::FabricNGG,k,dt)
       #get volume swept out be each boundary
       #this is relative to r[i]
       dVol=-areas[i,j]*dt.*nggVelocity(rs[i],rs[j],grmob)
-      nanch(dVol)
+      @nanch(dVol)
       if any(isnan,p[:,j])
         p[:,j]=getRandOrient()
         end
-      nanch(p[:,j])
-      nanch(p[:,i])
-
+      @nanch(p[:,j])
+      @nanch(p[:,i])
+      @nanch(sigma)
+      @nanch(fab.str)
       dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma[:,:,k],fab.str[i,k],fab.str[j,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
-      nanch(dVol)
+      @nanch(dVol)
 #      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
       #print(dVol)
       vol[i]=vol[i]-dVol
       vol[j]=vol[j]+dVol
-      nanch(vol)
+      @nanch(vol)
       (isnan(rs[i])||isnan(rs[j]))?error("isNaN: ", i,", ", j):nothing
       if vol[j]<0
         vol[i]+=vol[j]
@@ -353,6 +364,18 @@ function rk4(f::Function,n::Int64,x,vort,epsdot,dt)
    return x
    end
 
+function rk4(n::Int64,x,vort,epsdot,dt)
+   for i=1:n
+      k1=f(x,vort,epsdot,dt)
+      k2=f(x+k1*dt/2,vort,epsdot,dt)
+      k3=f(x+k2*dt/2,vort,epsdot,dt)
+      k4=f(x+k3*dt/2,vort,epsdot,dt)
+      x+=(1/6)*dt*(k1+2*k2+2*k3+k4)
+      end
+   return x
+   end
+
+
 function jefferysRHS(c,vort,epsdot,dt)
   return (epsdot*c-(c'*epsdot*c)[1]*c)*dt
   end
@@ -446,9 +469,9 @@ function dynRextal!(fab::Fabric2)
 function strEnVelocity(p1,p2,sigma,str1,str2)
   fac=1.
   e1=localSigmaEff([p1,p2],sigma,2)
-  nanch(e1)
+  @nanch(e1)
   velocity=fac*(e1[2]-e1[1])+(str2-str1)
-  nanch(velocity)
+  @nanch(velocity)
   return velocity
   end
 #finds the effective stress on grains at one site.
@@ -456,8 +479,8 @@ function strEnVelocity(p1,p2,sigma,str1,str2)
 #at a site. 
 function localSigmaEff(p,sigma,ngr)
   G=zeros(3,3)
-  nanch(sigma)
-  nanch(p)
+  @nanch(sigma)
+  @nanch(p)
   #first find local geometric tensors
   g=zeros(Float64,3,3,ngr)
   m=zeros(Float64,3,ngr)
@@ -470,16 +493,16 @@ function localSigmaEff(p,sigma,ngr)
     G[1:9]+=g[9*i-8:9*i]
     end
   G=G/ngr
-  nanch(G)
-  nanch(g)
+  @nanch(G)
+  @nanch(g)
   sigmaE=zeros(ngr)
   for i=1:ngr
     #treat zeros!
     g[9*i-8:9*i]=g[9*i-8:9*i]./G[1:9].*sigma[1:9] #g= local sigma now
-    nanch(g)
+    @nanch(g)
     
     sigmaE[i]=sqrt(abs(-1/3*secondInv(g[:,:,ngr]))) #be sure to convert
-    nanch(sigmaE)
+    @nanch(sigmaE)
     #get stress tensor
     #sigma[i
 
