@@ -165,12 +165,12 @@ function chnan(p)
      return (isnan(p[1]) || isnan(p[2]) || isnan(p[3]))
 end
 
-function rotate_site(fab::FabricNGG,k,dt)
-  C=getC(fab,k)
-  sigma=voigt2Tensor(C*tensor2Voigt(fab.epsdot[:,:,k]))
-  C_gr=zeros(6,6); C_gr[5,5]=1; C_gr[4,4]=1
-  for i=1:fab.ngr
-    norm_stress=rotC(
+#function rotate_site(fab::FabricNGG,k,dt)
+#  C=getC(fab,k)
+#  sigma=voigt2Tensor(C*tensor2Voigt(fab.epsdot[:,:,k]))
+#  C_gr=zeros(6,6); C_gr[5,5]=1; C_gr[4,4]=1
+#  for i=1:fab.ngr
+#    norm_stress=rotC(
     
 
     
@@ -186,7 +186,6 @@ function advanceRadii(fab::FabricNGG,k,dt)
   sigma=voigt2Tensor(C*tensor2Voigt(fab.epsdot[:,:,k]))
   #nanch(rs)
   for i=1:ngr
-    rotate_gr(fab,sigma,i,k)  
     if chnan(p[:,i])
       p[:,i]=getRandOrient()
       fab.p[:,i,k]=getRandOrient()
