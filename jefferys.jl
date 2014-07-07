@@ -138,6 +138,14 @@ macro nanch(test_var)
   end
   end
 
+macro nanch2(test_var,name)
+  quote
+    if any(isnan($test_var))
+      error("NaN in ", $test_var," ",$name)
+      end
+    end
+  end
+
 #function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
 function advanceRadii(fab::FabricNGG,k,dt)
   
@@ -177,6 +185,9 @@ function advanceRadii(fab::FabricNGG,k,dt)
     end
 
   sigma=voigt2Tensor(getC(fab,k)*tensor2Voigt(fab.epsdot[:,:,k]))
+  if any(isnan,sigma)
+      sigma=zeros(size(sigma))
+  end
   println(sigma)
   @nanch(sigma)
   for i=2:ngr
@@ -193,16 +204,18 @@ function advanceRadii(fab::FabricNGG,k,dt)
         p[:,j]=getRandOrient()
         end
       @nanch(p[:,j])
-      @nanch(p[:,i])
-      @nanch(sigma)
-      @nanch(fab.str)
+      @nanch2(p[:,i],"p[:,i]")
+      println(197);@nanch2(sigma,"sigma")
+      @nanch2(fab.str,"string")
+      println(198)
       dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma[:,:,k],fab.str[i,k],fab.str[j,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
-      @nanch(dVol)
+      @nanch2(dVol,"dVol")
+      println(204)
 #      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
       #print(dVol)
       vol[i]=vol[i]-dVol
       vol[j]=vol[j]+dVol
-      @nanch(vol)
+      @nanch2(vol,"vol")
       (isnan(rs[i])||isnan(rs[j]))?error("isNaN: ", i,", ", j):nothing
       if vol[j]<0
         vol[i]+=vol[j]
@@ -377,7 +390,8 @@ function rk4(n::Int64,x,vort,epsdot,dt)
 
 
 function jefferysRHS(c,vort,epsdot,dt)
-  return (epsdot*c-(c'*epsdot*c)[1]*c)*dt
+#  return (vort*c + epsdot*c-(c'*epsdot*c)[1]*c)*dt
+   return (-vort*c + epsdot*c -(c'*epsdot*c)[1]*c)*dt
   end
 #Replace this so its rotC(R)
 function rotC(R)
@@ -467,6 +481,9 @@ function dynRextal!(fab::Fabric2)
   end
 
 function strEnVelocity(p1,p2,sigma,str1,str2)
+  if all(sigma.==0)
+      return 0.
+  end
   fac=1.
   e1=localSigmaEff([p1,p2],sigma,2)
   @nanch(e1)
@@ -478,9 +495,15 @@ function strEnVelocity(p1,p2,sigma,str1,str2)
 #In addition, finds the local stress tensors for each grain
 #at a site. 
 function localSigmaEff(p,sigma,ngr)
+  if all(sigma.==0)
+      return 0.
+  end
   G=zeros(3,3)
-  @nanch(sigma)
-  @nanch(p)
+  @nanch2(sigma,"sigma492")
+  @nanch2(p,"p 493")
+  if all(x->x==0,sigma)
+      error("sigma ekwals zero")
+  end
   #first find local geometric tensors
   g=zeros(Float64,3,3,ngr)
   m=zeros(Float64,3,ngr)
@@ -493,16 +516,16 @@ function localSigmaEff(p,sigma,ngr)
     G[1:9]+=g[9*i-8:9*i]
     end
   G=G/ngr
-  @nanch(G)
-  @nanch(g)
+  @nanch2(G,"G")
+  @nanch2(g,"g1")
   sigmaE=zeros(ngr)
   for i=1:ngr
     #treat zeros!
     g[9*i-8:9*i]=g[9*i-8:9*i]./G[1:9].*sigma[1:9] #g= local sigma now
-    @nanch(g)
+    @nanch2(g,"g")
     
     sigmaE[i]=sqrt(abs(-1/3*secondInv(g[:,:,ngr]))) #be sure to convert
-    @nanch(sigmaE)
+    @nanch2(sigmaE,"sigmae")
     #get stress tensor
     #sigma[i
 
