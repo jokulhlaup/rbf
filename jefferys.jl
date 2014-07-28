@@ -146,6 +146,50 @@ macro nanch2(test_var,name)
     end
   end
 
+velgrad(sigma,Sx,Sy)=Sx*ddot(Sx,sigma)+Sy*ddot(Sy,sigma)#+Sz*ddot(Sz,sigma)
+ddot(A,B)=trace(A*B')
+
+function thorRot!(fab,k,dt,stress_fac)
+  #get bulk sigma
+  sigma=voigt2Tensor(getC(fab,k)*tensor2Voigt(fab.epsdot[:,:,k]))
+  #now, get unneighbored RSS for each grain
+  n=size(fab.p,2)
+  b0=zeros(3,n);
+  b1=zeros(3,n);
+  rss=Array(Float64,n)
+  rss_0=Array(Float64,n)
+  softness=Array(Float64,n)
+  S0=Array(Float64,3,3,n);S1=Array(Float64,3,3,n)
+  for i=1:n
+    b0[3,i]=0.;
+    b0[1,i]=1.;
+    b0[2,i]=b0[1,i]*fab.p[1,i,k]/fab.p[2,i,k];
+    b0[:,i]=b0[:,i]/norm(b0[:,i])
+    b1[:,i]=cross(b0[:,i],fab.p[:,i,k])
+    S0[:,:,i]=b0[:,i]*fab.p[:,i,k]'
+    S1[:,:,i]=b1[:,i]*fab.p[:,i,k]'
+    rss_0[i]=norm(ddot(S0[:,:,i],sigma)*b0[:,i] + ddot(S1[:,:,i],sigma)*b1[:,i])
+
+    #traction=sigma*fab.p[:,i,k]
+    #norm_str=traction*p
+    #rss=sqrt(dot(traction,traction)-dot(norm_str,norm_str))
+    end
+  for i=1:n
+    softness[i]=((1-stress_fac) + dot(stress_fac*fab.nbrs[:,i],rss_0)/rss_0[i])
+    gamma_0=ddot(S0[:,:,i],sigma)*softness[i]
+    gamma_1=ddot(S0[:,:,i],sigma)*softness[i]
+    v_grad=S0[:,:,i]*gamma_0+S1[:,:,i]*gamma_1
+    fab.p[:,i,k]-=(v_grad-v_grad')*fab.p[:,i,k]*dt
+    end
+  end
+
+#function rotate_vgrad(p,vgrad)
+  
+
+  
+
+  
+
 #function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
 function advanceRadii(fab::FabricNGG,k,dt)
   
@@ -188,7 +232,6 @@ function advanceRadii(fab::FabricNGG,k,dt)
   if any(isnan,sigma)
       sigma=zeros(size(sigma))
   end
-  println(sigma)
   @nanch(sigma)
   for i=2:ngr
         #partition
@@ -205,12 +248,10 @@ function advanceRadii(fab::FabricNGG,k,dt)
         end
       @nanch(p[:,j])
       @nanch2(p[:,i],"p[:,i]")
-      println(197);@nanch2(sigma,"sigma")
+      @nanch2(sigma,"sigma")
       @nanch2(fab.str,"string")
-      println(198)
       dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma[:,:,k],fab.str[i,k],fab.str[j,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
       @nanch2(dVol,"dVol")
-      println(204)
 #      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
       #print(dVol)
       vol[i]=vol[i]-dVol
@@ -227,7 +268,7 @@ function advanceRadii(fab::FabricNGG,k,dt)
         end
       end #j
     if rs[i]<1e-4#r_crit
-      if rand()<dt*prNucleation(fab.temp)#0.5#pr_nucleation
+      if rand()<prNucleation(fab.temp,dt)#0.5#pr_nucleation
         nucleateGrain!(fab,i,k,vol)
         end
       end
@@ -242,7 +283,7 @@ function prNucleation(A,b,T)
   return A*exp(b*(T))#1
   end
 
-prNucleation(T)=prNucleation(1.,0.03,T)
+prNucleation(T,dt)=prNucleation(1.,0.03/dt,T)
 ##########################################      
 function advanceRadius(this,rs,grmob,dt)
   if (this <= 0) | isnan(this)
@@ -446,10 +487,8 @@ function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab:
   #function fabEvolve!(pars::GlobalPars,fab::Fabric3,f)
   function fabEvolve!(pars::GlobalPars,fab::FabricNGG,f)
     for i=1:fab.ns
-      for j=1:fab.ngr
-      fab.p[:,j,i]=rk4(f,pars.nrk,fab.p[:,j,i],fab.vort[:,:,i],fab.epsdot[:,:,i],pars.dt)
-        end
-
+      #update the orientations
+      thorRot!(fab,i,pars.dt,1.)
       #fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
       fab.r[:,i]=advanceRadii(fab,i,pars.dt)
       end
