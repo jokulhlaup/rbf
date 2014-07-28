@@ -37,7 +37,6 @@ Let $g^{\star}$ be an arbitrary interior grain. This grain has neighbors $g_1,..
 Now, examine the interface between $g^{\star}$ and $n_i$. Due to grain growth, recrystallization, or other processes, this interface moves with velocity $u_i$ outwardly normal to the surface. Thus, taken over all neighboring grains, $\frac{dV^{\star}}{dt}=\sum_{i}s_i u_i$. Therefore, if a velocity between two grains can be determined, then this provides a means of determining grain-size evolution based on the properties of a grain and its neighbors.
 
 To implement this for a polycrystal, the less computationally intensive way is to declare that each grain has several neighbors with which to determine the growth rate. To deal with grains disappearing or nucleating, originally the polycrystal is declared to have a number of grains with zero radius. Nucleated grains simply assign a nonzero radius to a formerly zero radius grain, and consumed grains are assigned a zero radius. 
-
 \section{Grain Growth}
 Normal grain growth is induced by a driving force related to the local curvature at the grain surface.
 
@@ -54,7 +53,9 @@ To determine plastic strain, it is necessary to partition the bulk strain rate b
 
 
 \section{Model Validation}
-For a variety of flow situations, the model can reproduce characteristic fabrics such as single maxima, and large girdle fabrics. By incorporating recrystallization, double girdle fabrics and small girdles are produced. This is in qualitative agreement with typical ice-core fabrics types. In figure 1, examples are given of several fabric types produced from different flow scenarios. We validated the model by forcing it with data from the WAIS divide ice core, including temperature and a thinning function derived from the WDC06 chronology. This is then compared to thin-section data collected from the core (Donald Voigt, personal communication).
+For a variety of flow situations, the model can reproduce characteristic fabrics such as single maxima, and large girdle fabrics. By incorporating recrystallization, double girdle fabrics and small girdles are produced. This is in qualitative agreement with typical ice-core fabric types. In <<Figure 1>>, examples are given of several fabric types produced from different flow scenarios. 
+
+We validated the model by forcing it with from the West Antarctic Ice Sheet (WAIS) divide ice core. The flow near the WAIS divide ice-core site is dominated by uniaxial extension, with horizontal shear becoming important near the base. Dynamic recrystallization also occurs near the bed. including temperature and a thinning function derived from the WDC06 chronology. This is then compared to thin-section data collected from the core (Donald Voigt, personal communication).
 
 \subsection{Thin Section Data}
 The ice-core thin section data consist of 54 thin sections from depths of 140 meters to 3405 meters, and a corresponding age range of 480 years to $67,800$ B.P. There are several hundred grains in each thin section. The thin-section fabrics display oscillatory behavior. In figure 2, the smallest singular value of each sample is plotted. There are large excursions in several places, which are much too large to be explained by sampling error. 
