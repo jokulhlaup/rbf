@@ -1,0 +1,87 @@
+\begin{thebibliography}{16}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{{\it Alley et~al.\/}(1997){\it Alley, Gow, Meese, Fitzpatrick,
+  Waddington, and Bolzan\/}}]{alley97}
+Alley, R., A.~Gow, D.~Meese, J.~Fitzpatrick, E.~Waddington, and J.~Bolzan,
+  Grain-scale processes, folding, and stratigraphic disturbance in the gisp2
+  ice core, {\it Journal of geophysical research\/}, {\it 102\/}, 26,819--26,
+  1997.
+
+\bibitem[{{\it Azuma\/}(1994)}]{azuma94}
+Azuma, N., A flow law for anisotropic ice and its application to ice sheets,
+  {\it Earth and Planetary Science Letters\/}, {\it 128\/}, 601--614, 1994.
+
+\bibitem[{{\it Azuma and Goto-Azuma\/}(1996)}]{azuma96}
+Azuma, N., and K.~Goto-Azuma, An anisotropic flow law for ice-sheet ice and its
+  implications, {\it Annals of Glaciology\/}, {\it 23\/}, 202--208, 1996.
+
+\bibitem[{{\it DiPrinzio et~al.\/}(2005){\it DiPrinzio, Wilen, Alley,
+  Fitzpatrick, Spencer, and Gow\/}}]{diprinzio2005}
+DiPrinzio, C., L.~Wilen, R.~Alley, J.~Fitzpatrick, M.~Spencer, and A.~Gow,
+  Fabric and texture at siple dome, antarctica, {\it Journal of Glaciology\/},
+  {\it 51\/}, 281--290, 2005.
+
+\bibitem[{{\it Durand et~al.\/}(2006)}]{durand2006}
+Durand, G., et~al., Effect of impurities on grain growth in cold ice sheets,
+  {\it Journal of Geophysical Research: Earth Surface (2003--2012)\/}, {\it
+  111\/}, 2006.
+
+\bibitem[{{\it Duval and Castelnau\/}(1995)}]{duval1995}
+Duval, P., and O.~Castelnau, Dynamic recrystallization of ice in polar ice
+  sheets, {\it Le Journal de Physique IV\/}, {\it 5\/}, C3--197, 1995.
+
+\bibitem[{{\it Gillet-Chaulet et~al.\/}(2005){\it Gillet-Chaulet, Gagliardini,
+  Meyssonnier, Montagnat, and Castelnau\/}}]{gillet2005}
+Gillet-Chaulet, F., O.~Gagliardini, J.~Meyssonnier, M.~Montagnat, and
+  O.~Castelnau, A user-friendly anisotropic flow law for ice-sheet modelling,
+  {\it Journal of glaciology\/}, {\it 51\/}, 3--14, 2005.
+
+\bibitem[{{\it Gillet-Chaulet et~al.\/}(2006){\it Gillet-Chaulet, Gagliardini,
+  Meyssonnier, Zwinger, and Ruokolainen\/}}]{gillet2006}
+Gillet-Chaulet, F., O.~Gagliardini, J.~Meyssonnier, T.~Zwinger, and
+  J.~Ruokolainen, Flow-induced anisotropy in polar ice and related ice-sheet
+  flow modelling, {\it Journal of non-newtonian fluid mechanics\/}, {\it
+  134\/}, 33--43, 2006.
+
+\bibitem[{{\it Kennedy et~al.\/}(2013){\it Kennedy, Pettit, and
+  Di~Prinzio\/}}]{kennedy}
+Kennedy, J.~H., E.~C. Pettit, and C.~L. Di~Prinzio, The evolution of crystal
+  fabric in ice sheets and its link to climate history, {\it Journal of
+  Glaciology\/}, {\it 59\/}, 357--373, 2013.
+
+\bibitem[{{\it Molinari et~al.\/}(1987){\it Molinari, Canova, and
+  Ahzi\/}}]{molinari}
+Molinari, A., G.~Canova, and S.~Ahzi, A self consistent approach of the large
+  deformation polycrystal viscoplasticity, {\it Acta Metallurgica\/}, {\it
+  35\/}, 2983 -- 2994, 1987.
+
+\bibitem[{{\it Montgomery-Smith\/}(2011)}]{montgomery-smith2011}
+Montgomery-Smith, S., Perturbations of the coupled jeffery-stokes equations,
+  {\it Journal of Fluid Mechanics\/}, {\it 681\/}, 622--638, 2011.
+
+\bibitem[{{\it Pettit et~al.\/}(2007){\it Pettit, Thorsteinsson, Jacobson, and
+  Waddington\/}}]{pettit2007}
+Pettit, E., T.~Thorsteinsson, H.~Jacobson, and E.~Waddington, The role of
+  crystal fabric in flow near an ice divide, {\it Journal of Glaciology\/},
+  {\it 53\/}, 277--288, 2007.
+
+\bibitem[{{\it Sachs\/}(1928)}]{sachs}
+Sachs, G., Zur ableitung einer fliebedingung, {\it Z. Vereins Dtsch. Ing.\/},
+  {\it 12\/}, 734--736, 1928.
+
+\bibitem[{{\it Taylor\/}(1938)}]{taylor}
+Taylor, G.~I., Analysis of plastic strain in a cubic crystal, {\it Stephen
+  Timoshenko 60th Anniversary Volume\/}, pp. 218--224, 1938.
+
+\bibitem[{{\it Thorsteinsson\/}(2002)}]{thorsteinsson2002nni}
+Thorsteinsson, T., Fabric development with nearest-neighbor interaction and
+  dynamic recrystallization, {\it J. Geophys. Res\/}, {\it 107\/}, 10--1019,
+  2002.
+
+\bibitem[{{\it Thorsteinsson and Waddington\/}(2002)}]{throstur2002}
+Thorsteinsson, T., and E.~Waddington, Folding in strongly anisotropic layers
+  near ice-sheet centers, {\it Annals of Glaciology\/}, {\it 35\/}, 480--486,
+  2002.
+
+\end{thebibliography}

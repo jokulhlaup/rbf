@@ -163,13 +163,12 @@ function thorRot!(fab,k,dt,stress_fac)
   for i=1:n
     b0[3,i]=0.;
     b0[1,i]=1.;
-    b0[2,i]=b0[1,i]*fab.p[1,i,k]/fab.p[2,i,k];
+    b0[2,i]=-b0[1,i]*fab.p[1,i,k]/fab.p[2,i,k];
     b0[:,i]=b0[:,i]/norm(b0[:,i])
     b1[:,i]=cross(b0[:,i],fab.p[:,i,k])
     S0[:,:,i]=b0[:,i]*fab.p[:,i,k]'
     S1[:,:,i]=b1[:,i]*fab.p[:,i,k]'
     rss_0[i]=norm(ddot(S0[:,:,i],sigma)*b0[:,i] + ddot(S1[:,:,i],sigma)*b1[:,i])
-
     #traction=sigma*fab.p[:,i,k]
     #norm_str=traction*p
     #rss=sqrt(dot(traction,traction)-dot(norm_str,norm_str))
@@ -180,6 +179,7 @@ function thorRot!(fab,k,dt,stress_fac)
     gamma_1=ddot(S0[:,:,i],sigma)*softness[i]
     v_grad=S0[:,:,i]*gamma_0+S1[:,:,i]*gamma_1
     fab.p[:,i,k]-=(v_grad-v_grad')*fab.p[:,i,k]*dt
+    fab.p[:,i,k]/=norm(fab.p[:,i,k])
     end
   end
 
@@ -453,6 +453,7 @@ function rotC(R)
         K3   K4   ] ;
   C = zeros(6,6)
   C[5,5]=1 
+  C[4,4]=1
   C = K * C * transpose(K) 
   end
 

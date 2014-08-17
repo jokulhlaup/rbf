@@ -1,0 +1,51 @@
+This is BibTeX, Version 0.99d (TeX Live 2013/Arch Linux)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: a.aux
+The style file: agu.bst
+Database file #1: anis.bib
+I was expecting an "="---line 425 of file anis.bib
+ : Web 
+ :     of Science-Category = {{Geography, Physical; Geosciences, Multidisciplinary}},
+I'm skipping whatever remains of this entry
+You've used 16 entries,
+            2789 wiz_defined-function locations,
+            1094 strings with 11022 characters,
+and the built_in function-call counts, 15421 in all, are:
+= -- 2030
+> -- 562
+< -- 9
++ -- 324
+- -- 135
+* -- 971
+:= -- 1454
+add.period$ -- 16
+call.type$ -- 16
+change.case$ -- 92
+chr.to.int$ -- 16
+cite$ -- 48
+duplicate$ -- 1411
+empty$ -- 681
+format.name$ -- 179
+if$ -- 3102
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 16
+newline$ -- 52
+num.names$ -- 64
+pop$ -- 575
+preamble$ -- 1
+purify$ -- 76
+quote$ -- 0
+skip$ -- 1131
+stack$ -- 0
+substring$ -- 775
+swap$ -- 1267
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 144
+warning$ -- 0
+while$ -- 92
+width$ -- 0
+write$ -- 179
+(There was 1 error message)
