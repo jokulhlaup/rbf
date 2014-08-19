@@ -1,7 +1,9 @@
 module Utils
-using Base.rand,PyCall,Optim
+using Base.rand,PyCall#,Optim
 include("lsap/Assignment.jl")
-export voigt2Tensor,tensor2Voigt,rk4!,halton,vdc,unifmesh,randir,diffrandi,secondInv,binBoolInd,earthMoversDist
+export voigt2Tensor,tensor2Voigt,rk4!
+export halton,vdc,unifmesh,randir
+export diffrandi,secondInv,binBoolInd,earthMoversDist
 unshift!(PyVector(pyimport("sys")["path"]), "")
 @pyimport pyutils
 
