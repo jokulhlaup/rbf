@@ -1,5 +1,5 @@
 module jefferys
-using ODE, Utils
+using Utils
 export consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas
 ##########################
 ##########Get viscosity###
