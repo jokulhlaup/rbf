@@ -1,6 +1,6 @@
 module jefferys
 using Utils
-export consFabricNGG,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas
+export consFabricNGG,getRotM,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas,getC
 ##########################
 ##########Get viscosity###
 ##########################
@@ -149,10 +149,17 @@ macro nanch2(test_var,name)
 velgrad(sigma,Sx,Sy)=Sx*ddot(Sx,sigma)+Sy*ddot(Sy,sigma)#+Sz*ddot(Sz,sigma)
 ddot(A,B)=trace(A*B')
 
-function thorRot!(fab,k,dt,stress_fac)
+function thorRot!(fab,pars,k,dt,stress_fac)
   #get bulk sigma
-  sigma=voigt2Tensor(getC(fab,k)*tensor2Voigt(fab.epsdot[:,:,k]))
-  #now, get unneighbored RSS for each grain
+  #bulk sigma in voigt; 
+  bulk_sigma=voigt2Tensor(getC(fab,1)*tensor2Voigt(fab.epsdot[:,:,k]))
+  # bulk_sigma=zeros(3,3);
+  #bulk_sigma[1,1]=1
+  #bulk_sigma[2,2]=1
+  #bulk_sigma[3,3]=-2
+
+  #now, get RSS on the basal plane for each grain
+  
   n=size(fab.p,2)
   b0=zeros(3,n);
   b1=zeros(3,n);
@@ -160,30 +167,59 @@ function thorRot!(fab,k,dt,stress_fac)
   rss_0=Array(Float64,n)
   softness=Array(Float64,n)
   S0=Array(Float64,3,3,n);S1=Array(Float64,3,3,n)
+  vort=zeros(3,3,n)
+  rst=Array(Float64,6,n);
+  rss_0=Array(Float64,n);
   for i=1:n
-    b0[3,i]=0.;
-    b0[1,i]=1.;
-    b0[2,i]=-b0[1,i]*fab.p[1,i,k]/fab.p[2,i,k];
-    b0[:,i]=b0[:,i]/norm(b0[:,i])
-    b1[:,i]=cross(b0[:,i],fab.p[:,i,k])
-    S0[:,:,i]=b0[:,i]*fab.p[:,i,k]'
-    S1[:,:,i]=b1[:,i]*fab.p[:,i,k]'
-    rss_0[i]=norm(ddot(S0[:,:,i],sigma)*b0[:,i] + ddot(S1[:,:,i],sigma)*b1[:,i])
+    C=zeros(6,6)
+    C[5,5]=1.
+    C[6,6]=0.01
+    C[1,1]=0.01
+    C[2,2]=0.01
+    C[3,3]=0.01
+    C[4,4]=1.
+    if i==50;print('C',C);end
+    R=getRotM(fab.p[:,i,k])
+    #the resolved strain tensor (voigt)
+    rst[:,i]=C*tensor2Voigt(R*bulk_sigma*R')
+    rss_0[i]=sqrt(0.5*(rst[4,i]^2+rst[5,i]^2)) 
+    vort[1,3,i]=rst[5,i]
+    vort[1,2,i]=rst[6,i]
+    vort[2,1,i]=-rst[6,i]
+    vort[2,3,i]=rst[4,i]
+    vort[3,1,i]=-rst[5,i]
+    vort[3,2,i]=-rst[4,i]
+    #vort[:,:,i]=R'*vort[:,:,i]*R
+    if i==50;print(vort[:,:,i]);end
+#    b0[3,i]=0;
+#    b0[1,i]=1;
+#    b0[2,i]=-b0[1,i]*fab.p[1,i,k]/fab.p[2,i,k];
+#    b0[:,i]=b0[:,i]/norm(b0[:,i])
+#    b1[:,i]=cross(b0[:,i],fab.p[:,i,k])
+    #S0[:,:,i]=(b0[:,i]*fab.p[:,i,k]' )'
+    #S1[:,:,i]=(b1[:,i]*fab.p[:,i,k]')'
+    #rss_0[i]=norm(ddot(S0[:,:,i],sigma)*b0[:,i] + ddot(S1[:,:,i],sigma)*b1[:,i])
     #traction=sigma*fab.p[:,i,k]
     #norm_str=traction*p
     #rss=sqrt(dot(traction,traction)-dot(norm_str,norm_str))
     end
   for i=1:n
-    softness[i]=((1-stress_fac) + dot(stress_fac*fab.nbrs[:,i],rss_0)/rss_0[i])
-    gamma_0=ddot(S0[:,:,i],sigma)*softness[i]
-    gamma_1=ddot(S0[:,:,i],sigma)*softness[i]
-    v_grad=S0[:,:,i]*gamma_0+S1[:,:,i]*gamma_1
-    fab.p[:,i,k]-=(v_grad-v_grad')*fab.p[:,i,k]*dt
+    softness[i]=((1-stress_fac) + dot(stress_fac*fab.areas[:,i],rss_0)/rss_0[i])
+    #gamma_0=ddot(S0[:,:,i],sigma)*softness[i]
+    #gamma_1=ddot(S1[:,:,i],sigma)*softness[i]
+#    v_grad=S0[:,:,i]*gamma_0+S1[:,:,i]*gamma_1
+    #fab.p[:,i,k]+=(v_grad-v_grad')*fab.p[:,i,k]*dt
+    if(i==50);print("delta, ", vort[:,:,i]*fab.p[:,i,k]*dt);end
+    #fab.p[:,i,k]-=vort[:,:,i]*fab.p[:,i,k]*dt
+
+    fab.p[:,i,k]=softness[i]*rk4(pars.f,fab.ngr,fab.p[:,i,k],vort[:,:,i],voigt2Tensor(rst[:,i]),dt);
     fab.p[:,i,k]/=norm(fab.p[:,i,k])
     end
   end
 
+#function viscRot!(fab,k,dt,stress_fac)
 #function rotate_vgrad(p,vgrad)
+
   
 
   
@@ -228,7 +264,7 @@ function advanceRadii(fab::FabricNGG,k,dt)
       end
     end
 
-  sigma=voigt2Tensor(getC(fab,k)*tensor2Voigt(fab.epsdot[:,:,k]))
+  sigma=voigt2Tensor(inv(getC(fab,k))*tensor2Voigt(fab.epsdot[:,:,k]))
   if any(isnan,sigma)
       sigma=zeros(size(sigma))
   end
@@ -436,6 +472,13 @@ function jefferysRHS(c,vort,epsdot,dt)
   end
 #Replace this so its rotC(R)
 function rotC(R)
+  C = zeros(6,6)
+  C[5,5]=1 
+  C[4,4]=1
+  rotC(R,C)
+  end
+ 
+function rotC(R,C)
   # form the K matrix (based on Bowers 'Applied Mechanics of Solids', Chapter 3)
   K1 = [ R[1,1]^2 R[1,2]^2 R[1,3]^2 ; 
          R[2,1]^2 R[2,2]^2 R[2,3]^2 ; 
@@ -451,9 +494,6 @@ function rotC(R)
          R[1,2].*R[2,3]+R[1,3].*R[2,2] R[1,3].*R[2,1]+ R[1,1].*R[2,3] R[1,1].*R[2,2]+R[1,2].*R[2,1]] ; 
   K = [ K1  2*K2 ; 
         K3   K4   ] ;
-  C = zeros(6,6)
-  C[5,5]=1 
-  C[4,4]=1
   C = K * C * transpose(K) 
   end
 
@@ -489,7 +529,7 @@ function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab:
   function fabEvolve!(pars::GlobalPars,fab::FabricNGG,f)
     for i=1:fab.ns
       #update the orientations
-      thorRot!(fab,i,pars.dt,1.)
+      thorRot!(fab,pars,i,pars.dt,1.)
       #fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
       fab.r[:,i]=advanceRadii(fab,i,pars.dt)
       end
@@ -630,10 +670,13 @@ function getRotM(x)
 
 function getC(fab::AbstractFabric,k)
   tot_vol=sum(fab.r[:,:,k].^3) #unscaled b/c it is divided anyway
+  #change this such that accepts arbitrary C_p
   C=zeros(6,6)
+  C_p=100.*eye(6)
+  C_p[4,4]=1.;C_p[5,5]=1.
   for i=1:fab.ns*fab.ngr
     R=getRotM(fab.p[3*i-2:3*i])
-    C+=rotC(R).*(fab.r[i]^3)
+    C+=rotC(R,C_p).*(fab.r[i]^3)
     end
   C/=tot_vol
   end

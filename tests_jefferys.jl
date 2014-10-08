@@ -24,14 +24,20 @@ vort_ss[2,3]=0.8
 vort_ss[3,2]=-0.8
 epsdot_ss=zeros(3,3,ns)
 epsdot_lg=zeros(3,3,ns)
-epsdot_lg[1,1,:]=-0.1#0.5
-epsdot_lg[2,2,:]=0.2#-1
-epsdot_lg[3,3,:]=-0.1#0.5
+epsdot_lg[1,1,:]=0.1#0.5
+epsdot_lg[2,2,:]=0.1#-1
+epsdot_lg[3,3,:]=-0.2#0.5
 epsdot_ss[2,3,:]=0.8
 epsdot_ss[3,2,:]=0.8
 
 epsdot_lg_ss=epsdot_lg + epsdot_ss
 vort_lg_ss = vort_ss
+#fab=Fabric{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot)
+#fabE=fabricHelper(pars,fab,jefferysRHS)
+#fabE(pars,fab,jefferysRHS)
+epsdot = epsdot_lg
+vort = vort_lg
+
 
 dt=1e-1
 #5e-3
@@ -48,14 +54,11 @@ r=rand(ngr*ns)
 fab=consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
 fabE=fabricHelper(pars,fab,jefferysRHS)
 
-
-
-
-#fab=Fabric{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot)
-#fabE=fabricHelper(pars,fab,jefferysRHS)
-#fabE(pars,fab,jefferysRHS)
-epsdot = epsdot_ss
-vort = vort_ss
+function tryn(n)
+    for i=1:n
+    jefferys.thorRot!(fab,1,dt,1)
+    end
+end
 
 sv=Array(Float64,0)
 for i=1:100
