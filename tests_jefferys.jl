@@ -39,7 +39,7 @@ epsdot = epsdot_lg
 vort = vort_lg
 
 
-dt=1e-1
+dt=1e-2
 #5e-3
 nrk=10
 f=jefferysRHS
@@ -55,10 +55,30 @@ fab=consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
 fabE=fabricHelper(pars,fab,jefferysRHS)
 
 function tryn(n)
-    for i=1:n
-    jefferys.thorRot!(fab,1,dt,1)
-    end
+   for i=1:n
+      jefferys.thorRot!(fab,pars,1,dt,0.5)
+   end
+end;tryn(10);schmidtPlot(fab.p);plt.show()
+
+function plotByAngle(n)
+   zenith=pi/2
+   bulk_sigma=zeros(3,3);
+   bulk_sigma[1,1]=1
+   bulk_sigma[2,2]=1
+   bulk_sigma[3,3]=-2
+   rss_0=-ones(n+1)
+   for i=1:n+1
+      p=[sin(zenith),0,cos(zenith)]
+      R=getRotM(p)
+      rst=C*tensor2Voigt(R*bulk_sigma*R')
+      rss_0[i]=sqrt(0.5*(rst[4]^2+rst[5]^2))
+      zenith-=pi/(2*n)
+   end
+   plt.plot(rss_0); plt.show()
+   return rss_0
 end
+    
+
 
 sv=Array(Float64,0)
 for i=1:100
@@ -70,7 +90,6 @@ schmidtPlot(fab.p);plt.show()
 
 
 
-function obj_epsdot(epsd)
   
 
 

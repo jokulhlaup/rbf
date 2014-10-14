@@ -173,10 +173,10 @@ function thorRot!(fab,pars,k,dt,stress_fac)
   for i=1:n
     C=zeros(6,6)
     C[5,5]=1.
-    C[6,6]=0.01
-    C[1,1]=0.01
-    C[2,2]=0.01
-    C[3,3]=0.01
+    #C[6,6]=0.01
+    #C[1,1]=0.01
+    #C[2,2]=0.01
+    #C[3,3]=0.01
     C[4,4]=1.
     if i==50;print('C',C);end
     R=getRotM(fab.p[:,i,k])
