@@ -212,7 +212,8 @@ function thorRot!(fab,pars,k,dt,stress_fac)
     if(i==50);print("delta, ", vort[:,:,i]*fab.p[:,i,k]*dt);end
     #fab.p[:,i,k]-=vort[:,:,i]*fab.p[:,i,k]*dt
 
-    fab.p[:,i,k]=softness[i]*rk4(pars.f,fab.ngr,fab.p[:,i,k],vort[:,:,i],voigt2Tensor(rst[:,i]),dt);
+    #fab.p[:,i,k]=-softness[i]*rk4(pars.f,fab.ngr,fab.p[:,i,k],vort[:,:,i],voigt2Tensor(rst[:,i]),dt);
+    fab.p[:,i,k]=softness[i]*rk4(fab.ngr,fab.p[:,i,k],fab.vort[:,:,k],fab.epsdot[:,:,k],dt);
     fab.p[:,i,k]/=norm(fab.p[:,i,k])
     end
   end
@@ -438,7 +439,7 @@ type GlobalPars{T<:Number,I<:Int}
 #Modification of ODE4 from package ODE
 function nRK4(f,ntimes::Int,h::Number,m::Number,dt,p,vort,epsdot)
   for i=1:ntimes
-     p[:,i]=jefferys.rk4(f,h,m,p[:,i],vort[:,:],epsdot[:,:],dt,m)
+     p[:,i]=jefferys.rk4(h,m,p[:,i],vort[:,:],epsdot[:,:],dt,m)
      end
   return p
   end
@@ -454,12 +455,32 @@ function rk4(f::Function,n::Int64,x,vort,epsdot,dt)
    return x
    end
 
+
+function ejefferys(x,vort,epsdot,dt)
+   res=zeros(3)
+   for j=1:3
+      for i=1:3
+         res[i]-=epsdot[i,j]*x[j]
+      end
+   end
+   epsc2=-res[1]*x[1]-res[2]*x[2]-res[3]*x[3]
+   for j=1:3
+      @simd for i=1:3
+        @inbounds res+=vort[i,j]*x[j]
+      end
+   end
+   res=(res+epsc2*x)*dt
+end
+       
+
+
+
 function rk4(n::Int64,x,vort,epsdot,dt)
    for i=1:n
-      k1=f(x,vort,epsdot,dt)
-      k2=f(x+k1*dt/2,vort,epsdot,dt)
-      k3=f(x+k2*dt/2,vort,epsdot,dt)
-      k4=f(x+k3*dt/2,vort,epsdot,dt)
+      k1=ejefferys(x,vort,epsdot,dt)
+      k2=ejefferys(x+k1*dt/2,vort,epsdot,dt)
+      k3=ejefferys(x+k2*dt/2,vort,epsdot,dt)
+      k4=ejefferys(x+k3*dt/2,vort,epsdot,dt)
       x+=(1/6)*dt*(k1+2*k2+2*k3+k4)
       end
    return x

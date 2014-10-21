@@ -20,8 +20,9 @@ function normal2polar(c)
 
 function schmidtPlot(c)
   (r,theta)=normal2polar(c)
-  ax=plt.subplot(111, polar=true)
+  plt.figure(111, polar=true, rscale=[0,1])
   p=plt.scatter(theta,r)
+  p.tight_layout()
   return p
   end
 

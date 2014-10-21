@@ -1,5 +1,5 @@
 module Utils
-using Base.rand,PyCall#,Optim
+using Base.rand,PyCall,Optim
 include("lsap/Assignment.jl")
 export voigt2Tensor,tensor2Voigt,rk4!
 export halton,vdc,unifmesh,randir
