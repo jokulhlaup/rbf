@@ -45,10 +45,10 @@ By using Jeffery's equation to drive grain rotation, this model is driven by the
 \subsection{Nearest-neighbor stress-transfer}
 The softness parameter allows strain to be transferred between different grains, depending on the effective strain rate of the grain and its neighbors:
 \begin{equation}
-\zeta = \xi \left( \left( 1 - \gamma \right)  \eta_0 + \gamma \sum_{i=1}^n \frac{A_i \eta_i}{\eta_0} \right)
+\zepsilon = \xi \left( \left( 1 - \gamma \right)  \epsilon_0 + \gamma \sum_{i=1}^n \frac{A_i \epsilon_i}{\epsilon_0} \right)
 \end{equation},
 
-where $\eta_0$ and $\eta_i$ are the effective shear strain rates of the center grain and grain $i$, respectively. $A_i$ is the normalized area fraction between the center grain and grain $i$. $\xi$ is a scaling factor taken over the polycrystal to maintain self-consistency with the bulk velocity gradient. The effective strain rates of each grain depend on the homogenization procedure used. This is detailed later.
+where $\epsilon_0$ and $\epsilon_i$ are the effective shear strain rates of the center grain and grain $i$, respectively. $A_i$ is the normalized area fraction between the center grain and grain $i$. $\xi$ is a scaling factor taken over the polycrystal to maintain self-consistency with the bulk velocity gradient. The effective strain rates of each grain depend on the homogenization procedure used. This is depsiloniled later.
 
 \section{Grain radius evolution}
 To track the rheological properties of a polycrystal, it is necessary to know the volume of each grain. Grain boundaries migrate in order to minimize energy from dislocations, grain-boundary energy, and other factors. The assumptions on the interactions between grains are the following: A three-dimensional grain has a surface area proportional to $r^2_i$ and a volume proportional to $r^3_i$, where $r_i$ is the radius of a sphere with the same volume. Then, a polycrystal of grains $\{g_i\}$ with volume $V=\sum_i v_i$ where $v_i$ is the volume of grain $i$, has surface area $S=\sum s_i/2$. For any three-dimensional shape, $\frac{\alpha}{r} v_i =  s_i$, for some constant $\alpha$. Thus, $S=\beta \sum r_i^2$, for some constant $\beta$.
@@ -92,11 +92,11 @@ A common method to summarize a fabric with grain orientations $X$ is to calculat
 \subsection{Results}
 
 \begin{figure*}
-\caption{(PLACEHOLDER FOR BETTER FIG) Plot of the modeled smallest singular value of the modeled fabric versus that of the WAIS thin-section data. In the upper part of the core, there is a large girdle from extension in one horizontal axis, tending towards a single maximum as simple shear increases. Corresponding Schmidt plots to selected sites are indicated.}
+\caption{Plot of the modeled smallest singular value of the modeled fabric versus that of the WAIS thin-section data. In the upper part of the core, there is a large girdle from extension in one horizontal axis, tending towards a single maximum as simple shear increases. Corresponding Schmidt plots to selected sites are indicated.}
 %\includegraphics[width=12cm]{waisfit3}
 \end{figure*}
 \begin{figure*}
-\caption{(PLACEHOLDER) Schmidt plot of fabrics produced under different flow scenarios. (a) Simple shear without recrystallization. (b) Uniaxial extension without recrystallization. (c) Simple shear with recrystallization. (d) Combined simple shear and uniaxial extension.} 
+\caption{Schmidt plot of fabrics produced under different flow scenarios. (a) Simple shear without recrystallization. (b) Uniaxial extension without recrystallization. (c) Simple shear with recrystallization. (d) Combined simple shear and uniaxial extension.} 
 %\includegraphics[width=12cm]{girdle}
 \end{figure*}
 
@@ -118,7 +118,7 @@ We showed a fabric evolution model which includes recrystallization and grain ro
 Recent results \citep{montgomery-smith2011} show that coupled Stokes-Jefferys equations modeling fiber suspensions can induce initial perturbations in the orientation distribution function to grow significantly in short amounts of time. The case of ice fabric is extremely similar. This opens up the possibility that small perturbations of the intitial fabric could grow into persistent large perturbations. This could be a source of the sometimes chaotic flow disturbances observed in some ice cores. Future work will include coupling of the fabric model to a fully anisotropic ice flow model to examine small-scale features such as boudinage and folding. 
 
 
-\bibliographystyle{agu}
+\bibliographystyle{igs}
 \bibliography{anis}
 \appendix
 \section{Algorithm for the fabric model}
