@@ -1,0 +1,152 @@
+%\NeedsTexFormat{LaTeX2e}
+%\documentclass[TC, hvmath, online]{copernicus}
+\documentclass{igs}
+\usepackage{mathtools,natbib}
+
+\begin{document}
+
+\title{Ice fabric development with a new fabric evolution model}
+
+\author{Michael Hay}
+
+\author[Hay and Waddington]{Michael Hay$^1$, Edwin Waddington$^1$}
+
+\affiliation{%
+$^1$Department of Earth and Space Sciences, University of Washington}
+
+
+\abstract{ Ice crystal orientatation fabric has a strong influence on ice flow due to the plastic anisotropy of ice. The evolution of crystal fabric is driven by strain-induced grain rotation, as well as recrystallization. Most fabric-evolution models ignore many of the physical processes involved, or are valid only for highly parameterized fabrics. In this paper, we outline a new fabric model that treats a variety of processes affecting fabric development, and is suitable for inclusion in flow models. The model is checked  against thin-section data from the WAIS divide core. In addition, the model shows that that a large proportion of the observed variability in thin section samples is likely to be effectively stochastic in nature. }
+
+
+\maketitle 
+
+\section{Introduction}
+An individual ice crystal has an anisotropic creep response, deforming most easily in shear parallel to the crystal basal plane. Plastic deformation of an ice polycrystal depends on the orientations of its constituent grains \citep{azuma94}. A polycrystal that is initially isotropic will develop a lattice-preferred orientation in response to applied strain, thus causing it to have a bulk anisotropic response. The development of a preferred orientation is guided primarily by intracrystalline slip. Due to interference between grains, there is a tendency for the c-axes to rotate away from the directions of principal extensional. In addition to rotation, recrystallization affects both grain size and orientation distribution. Near the melting point, migration recrystallization allows the nucleation of new, strain-free grains. These new grains grow rapidly at the expense of older grains with high strain energy \citep{duval1995}. Polygonization is another recrystallization process in which dislocations in a highy strained grain arrange into a subgrain boundary, eventually producing two grains as the misalignment increases \citep{alley97}. Although the grains typically are misaligned by onlya few degrees, this does have the effect of preventing the orientation distribution function from attaining a sharp maximum.
+
+In order to model fabric development, a homogenization scheme must be used in order to relate the macroscopic stress and strain rate experienced by the polycrystal to the state experienced by individual grains. The two possible endmembers are the Taylor-Bishop-Hill (homogeneous strain) \citep{taylor} and the Sachs (homogeneous stress) \citep{sachs} assumptions. For many materials such as metals with several active slip systems, homogeneous strain turns out to be a good assumption. It has the advantage of maintaining compatibility in between grains, in assuming that hard-oriented grains receive correspondingly more stress in order to produce the same strain as soft grains. For ice, in which basal dislocation glide is by far the easiest slip system, homogeneous stress is a better assumption \citep{thorsteinsson2002nni}. The actual situation is intermediate, with softer-oriented grains receiving more strain less stress. Grain compatibility is maintained through intercrystalline slip, and shear on basal and non-basal slip systems. \citet{molinari} developed the viscoplastic self-consistent homogenization (VPSC) model. Each individual grain is represented as an inclusion in a homogeneous equivalent medium representative of the bulk polycrystal properties. This is a compromise between the homogeneous stress and homogeneous strain assumptions. The VPSC model has been used for ice by several investigators (e.g. \citet{gillet2005}, \citet{castelnau1997}). \citet{azuma96} used a conceptually similar scheme in which stress over the polycrystal is partitioned by the resolved shear stress on the basal plane of each individual crystal. \citet{thorsteinsson2002nni} took a different approach using the assumption of a polycrystal with cube-like topology, with each grain having six neighboring grains. The velocity gradient on an individual crystal was adjusted by a softness parameter,
+
+\begin{equation}
+\epsilon^c = \frac {1}{\gamma + 6 \mu} \left( \gamma T_0 + \mu \sum_{i=1}^6 \frac{T_i}{T_0} \right)
+\end{equation},
+
+where $T_i$ is the resolved shear stress of grain $i$, $T_0$ is the resolved shear stress of the central grain, and $\gamma$ and $\mu$ adjust the relative contributions of the central grain and the six nearest neighbors. This has the effect of making a soft (high resolved shear stress) grain surround by hard (low resolved shear stress) grains harder, and vice-versa.
+
+Anisotropic ice flow models usually do not have a fabric evolution component (such as \citet{pettit2007}) or else they employ a highly parameterized orientation distribution function (e.g. \citet{gillet2006}). Several grain-scale models have been developed. In this paper, we outline a more general probabilistic fabric-evolution model. Instead of examining a continous orientation distribution function, we use a sample of individual grains to represent a region within the ice sheet. Each grain possesses various physical properties such as radius, strain, etc. In addition, each grain has several neighboring grains, with which it interacts. This is somewhat similar to the approach taken by \citet{thorsteinsson2002nni} and by \citet{kennedy} to account for nearest neighbor interactions. However, the previous works assumed each grain has 6 neighbors, whereas this model allows for more or fewer neighbors. Unlike some previous models, this model maintains mass balance in the polycrystal. Grains grow only at the expense of neighboring grains, as opposed to assuming a parabolic growth-law (e.g. \citet{gow1969}. Recrystallization also obeys mass balance, with the nucleated grain removing mass from its neighbors. Increases in average grain size can occur only by the disappearance of some grains. Thus, the model has explicit connectivity to represent spatial information. It is designed to be incorporated into a small-scale anisotropic flow model, as it uses strain rate and vorticity, as opposed to stress, as the model input. While ice fabric evolution is physically deterministic, it depends highly on effectively unobservable properties such as dislocation density distributions, inclusions, impuritiy content, and other factors. Thus, it is justified to treat recrystallization as being stochastic. 
+
+\section{Grain rotation}
+Probably the most important process governing the formation of crystal fabrics is deformation-induced grain rotation. Grain rotation is described using a Jefferys-Type equation \citep{azuma94}:
+\begin{equation}
+   \dot{c_i} = \zeta \left( W_{ij}  c_j + D_{ij} c_j + c_i c_j c_k D_{jk} \right)
+\end{equation}
+where $c_i$ is the unit vector in the direction of the c-axis, $D_{ij}$ is the strain rate tensor, and $W_{ij}$ is the spin tensor. $\zeta$ is the softness parameter, which allows for nearest neighbor interaction by effectively transferring strain. This relates the macroscopic velocity gradient to the change in orientation of each crystal. \citet{gillet2005} instead modeled the evolution of the  second-order orientation tensor, $\boldsymbol{a}^{(2)} = <\boldsymbol{c} \otimes \boldsymbol{c}>$, with an equation derived from Jeffery's equation for a single grain. This has the advantage of only requiring the integration of six independent values. More generally, orientation distribution functions can be decomposed into an orthogonal expansion using orientation tensors $\boldsymbol{a}^{(n)}$ (with $\boldsymbol{a}^{(4)} = < \boldsymbol{a} \otimes \boldsymbol{a} \otimes \boldsymbol{a} \otimes \boldsymbol{a}>$ and so on.), similar to a spherical harmonic expension. In this respect, using the second-order-tensor form of Jeffery's equation is equivalent to a partial expansion of the orientation distribution function up to second order. By evolving each particle separately with Jeffery's equation, more general fabrics can be handled.
+
+By using Jeffery's equation to drive grain rotation, this model is driven by the velocity gradient rather than deviatoric stress, as is typical. If deviatoric stress rather than the velocity gradient is supplied, it is possible to calculate the vorticity, and thus the rotation rate, of each grain directly: From the bulk stress, the resolved shear stress of each slip system of individual grains is calculated. From this, shear strain along each slip system, and vorticity can be calculated. The rotation rate is then given by the dot product of the grain vorticity tensor and its c-axis normal vector. This method, however, is difficult to integrate with flow models, because it depends on stress, rather than strain. It is difficult to partition a predetermined bulk strain rate among individual grains and their slip systems.
+
+\subsection{Nearest-neighbor stress-transfer}
+The softness parameter allows strain to be transferred between different grains, depending on the effective strain rate of the grain and its neighbors:
+\begin{equation}
+\zepsilon = \xi \left( \left( 1 - \gamma \right)  \epsilon_0 + \gamma \sum_{i=1}^n \frac{A_i \epsilon_i}{\epsilon_0} \right)
+\end{equation},
+
+where $\epsilon_0$ and $\epsilon_i$ are the effective shear strain rates of the center grain and grain $i$, respectively. $A_i$ is the normalized area fraction between the center grain and grain $i$. $\xi$ is a scaling factor taken over the polycrystal to maintain self-consistency with the bulk velocity gradient. The effective strain rates of each grain depend on the homogenization procedure used. This is depsiloniled later.
+
+\section{Grain radius evolution}
+To track the rheological properties of a polycrystal, it is necessary to know the volume of each grain. Grain boundaries migrate in order to minimize energy from dislocations, grain-boundary energy, and other factors. The assumptions on the interactions between grains are the following: A three-dimensional grain has a surface area proportional to $r^2_i$ and a volume proportional to $r^3_i$, where $r_i$ is the radius of a sphere with the same volume. Then, a polycrystal of grains $\{g_i\}$ with volume $V=\sum_i v_i$ where $v_i$ is the volume of grain $i$, has surface area $S=\sum s_i/2$. For any three-dimensional shape, $\frac{\alpha}{r} v_i =  s_i$, for some constant $\alpha$. Thus, $S=\beta \sum r_i^2$, for some constant $\beta$.
+
+Let $g^{\star}$ be an arbitrary interior grain. This grain has neighbors $g_1,...,g_m$, with radii $r_i$. The grain has a surface area $T$. The surface that $g^{\star}$ shares with neighbor $n_i$ is $S_i$, with surface area $s_i$. Now, assume that $s_i$ is proportional to the surface area of grain $g_i$, or equivalently, $s_i=\alpha r_i^2$.
+
+Now, examine the interface between $g^{\star}$ and $n_i$. Due to grain growth, recrystallization, or other processes, this interface moves with velocity $u_i$ outwardly normal to the surface. Thus, taken over all neighboring grains, $\frac{dV^{\star}}{dt}=\sum_{i}s_i u_i$. Therefore, if a velocity between two grains can be determined, then this provides a means of determining grain-size evolution based on the properties of a grain and its neighbors.
+
+To implement this for a polycrystal, the less computationally intensive way is to declare that each grain has several neighbors with which to determine the growth rate. To deal with grains disappearing or nucleating, originally the polycrystal is declared to have a number of grains with zero radius. Nucleated grains simply assign a nonzero radius to a formerly zero radius grain, and consumed grains are assigned a zero radius. 
+\section{Grain Growth}
+Normal grain growth is induced by a driving force related to the local curvature at the grain surface.
+
+From \citet{durand2006} <<Ed: This is in Durand>> , the grain-boundary velocity between two grains due to normal grain growth can be given by
+
+\begin{equation}
+\frac{dr_1}{dt} = K \left( \frac{1}{r_1}-\frac{1}{r_2} \right)
+\end{equation}
+where $K$ is an Arrhenius factor dependent on temperature, and $r_1$ and $r_2$ are the mean curvatures of the two grains. The difficulty in implementing this using the procedure outlined in the previous section is to determine the mean curvature. The mean curvature of each grain at each point on the shared boundary must be the negative of the other to maintain compatibility. In addition, taken over the entire boundary, the integral of the mean curvature over the boundary of the grain must always be at least $4 \pi$. This means that, for example, the grain having negative curvature must ``make up'' that curvature elsewhere on its boundary. In a physical polycrystal, this imbalance would be accounted for by the boundaries of the polycrystal. However, as a simplification, we take the curvature of the boundary to be the harmonic mean of the curvatures of the two surfaces. This means that the smaller grain will have positive curvature on the boundary, which is a reasonable assumption. 
+
+\section{Recrystallization}
+Migration (dynamic) recrystallization is driven primarily by lower-strain-energy grains consuming higher-strain energy grains \citep{duval1995}. At least at larger scales (after the initial nucleation), this reduction in strain energy can be incorporated into the driving force of grain boundary migration. A grain neighboring a more highly strained grain will advance into the highly strained grain. This is due to the more highly strained grain having higher dislocation density. The dislocations are annihilated by the advancing boundary. 
+
+To determine plastic strain, it is necessary to partition the bulk strain rate between grains. First, the bulk polycrystal stress tensor must be determined. In the coordinate system defined by the c-axis, an individual grain possesses a fourth-order viscosity tensor which can be represented as a diagonal $6 \times 6$ matrix in Voigt notation (where multiple elements in the tensor are mapped to the same matrix element by symmetries, \citet{vnote}). The viscosity of the bulk polycrystal is then taken to be the volume-weighted average of each grain's viscosity tensor rotated into the macroscopic coordinate system. Then, the bulk stress tensor is found from the product of the viscosity tensor and the strain-rate tensor. The strain rates of individual grains are then determined from the bulk stress tensor and the anisotropic viscosity of the individual grain. Following \citet{azuma96}, the model calculates the effective stress on each grain, which depends on the bulk stress and the orientation of each grain and its neighbors.  
+
+
+\section{Model Validation}
+For a variety of flow situations, the model can reproduce characteristic fabrics such as single maxima, and large girdle fabrics. By incorporating recrystallization, double girdle fabrics and small girdles are produced. This is in qualitative agreement with typical ice-core fabric types. In <<Figure 1>>, examples are given of several fabric types produced from different flow scenarios. 
+
+We validated the model by forcing it with from the West Antarctic Ice Sheet (WAIS) divide ice core. The flow near the WAIS divide ice-core site is dominated by uniaxial extension, with horizontal shear becoming important near the base. Dynamic recrystallization also occurs near the bed. The fabric in the core is a vertical girdle, which transitions to a vertical single maximum fabric near the bottom of the core. We valided the model by forcing it with data from the WAIS divide ice core, including temperature and a thinning function derived from the WDC06 chronology. This is then compared to thin-section data collected from the core (Donald Voigt, personal communication).
+
+\subsection{Thin Section Data}
+The ice-core thin-section data consist of 54 thin sections from depths of 140 meters to 3405 meters, and a corresponding age range of 480 years to $67,800$ B.P. There are several hundred grains in each thin section. The thin-section fabrics display oscillatory behavior. In figure 2, the smallest singular value of each sample is plotted. Some excursions are too large to be explained by sampling error.  
+
+The fabric model itself is conceptually a Lagrangian model tracking a single packet of grains as they are advected through the ice sheet over time, whereas each thin section possesses different initial conditions and physical properties. Thus, a this is expected to be a significant source of mismatch between between observed fabric and modeled fabric. The thin section at 140 m already shows significant development of a preferred orientation. This is consistent with the results of \citet{diprinzio2005} at Siple Dome, where preferred orientations were observed in the firn as shallow as 22 m. In addition, at the Siple Dome site, recrystallization was found in some layers of shallow, cold ice. A similar process may contribute to the variability observed in the WAIS thin sections.
+
+ In addition to likely spatial inhomogeneities, there is sampling error due to small size of fabric samples. From modeling experiments, \citet{thorsteinsson2002nni} found that a sample size of around 5000 is needed for a small model variance, whereas the thin sections have sample sizes in the hundreds. However, sampling error is not enough to account for the large differences in fabric seen in the core (see next section)..    
+
+A common method to summarize a fabric with grain orientations $X$ is to calculate eigenvalues and eigenvectors of the matrix formed by $X X^T$, or equivalently, calculate the singular values and vectors of the sample matrix. This can capture certain general features such as the strength of a single maximum fabric or a girdle fabric. However, it is unable to capture non-linear features of orientation distributions. For our analysis, we summarize fabrics using the ``earth mover distance'' (EMD). The EMD between two point sets $P_1$ and $P_2$, with vectors of associated weights for each point $W_1$ and $W_2$, is given by the minimum work required to move the weights from points on $P_1$ to the points on $P_2$. In this case, we are transforming c-axis normal vectors from one observed fabric to another across the upper hemisphere. The work to move a weight $w$ from a point $x$ to a point $y$ on the upper hemisphere is then given by ${wd}$, where $d$ is the great-circle distance. This measure can detect changes in fabric which are not reflected in the fabric eigenvalues, such as the difference between a double girdle and a diffuse single girdle. In addition, it is a relatively robust measure, with qualitatively similar fabrics producing similar results. To model the ``girdleness'' and single-maximum strength of a fabric, we measure the EMD between the fabric and a perfect single maximum and a perfect girdle. That is, fabrics with c-axis orientations concentrated at only one point, in the case of a single maximum fabric, or along a plane, in the case of a girdle fabric. The results are shown in figure 2. 
+
+
+\subsection{Results}
+
+\begin{figure*}
+\caption{Plot of the modeled smallest singular value of the modeled fabric versus that of the WAIS thin-section data. In the upper part of the core, there is a large girdle from extension in one horizontal axis, tending towards a single maximum as simple shear increases. Corresponding Schmidt plots to selected sites are indicated.}
+%\includegraphics[width=12cm]{waisfit3}
+\end{figure*}
+\begin{figure*}
+\caption{Schmidt plot of fabrics produced under different flow scenarios. (a) Simple shear without recrystallization. (b) Uniaxial extension without recrystallization. (c) Simple shear with recrystallization. (d) Combined simple shear and uniaxial extension.} 
+%\includegraphics[width=12cm]{girdle}
+\end{figure*}
+
+\begin{figure*}
+\caption{90\% confidence interval and median of evolution of the distribution of the fabric sample at the top of the core, inferred from repeated bootstrap samples of the thin section data. Two sample realizations are also included.}
+\includegraphics[width=12cm]{ci}
+\end{figure*}
+The models can fit the WAIS divide thin-section fabric samples well. Jeffery's equation does a reasonably good job of predicting the bulk strain rate.  The transition from girdle to single maxima deeper in the core due to increased horizontal shear is captured resonably well, however the thin sections show a more diffuse single maximum developing. This is likely due to the homogeneous strain assumption of the Jeffery's equation, which overpredicts the strain rate of hard-oriented grains. Using homogeneous stress-derived grain rotation rate with nearest-neighbor interaction provides a better fit, as it is effectively intermediate between homogeneous stress and homogeneous strain assumptions. This is in line with the results of \citet{thorsteinsson2002nni} for GRIP thin sections.
+
+For these comparisons, accumulation is assumed to be constant. Varying accumulation may contribute to spurious oscillations of the thinning function used to drive the model. In addition, grain boundary mobility for the model is held constant, which causes recrystallization of Pleistocene ice to be under-predicted. More accurate data representing the past conditions at WAIS would allow for a more accurate fit. However, this does show that the model represents the main features of the core well. 
+
+
+To understand the stochasticity which we may expect, we also repeatedly resampled the c-axis angles of the top thin section at 140m, with replacement, and forced the model with the WAIS divide data with the resampled (bootstrapped) samples as initial conditions. The bootstrapped sample c-axis angles have the same distribution as the original. With 400 grains, the resampled fabrics differ by a fair amount. Variability in EMD between samples stays at roughly the same magnitude throughout the model run. The results (fig 4) show that difference between the 5\% and 95\% quantiles of girdle EMD of the ensemble stays relatively consistent over time. Thus, initial perturbations of the fabric do not disappear over time.  However, the EMDs of the resampled fabrics oscillate over time. The higher frequencey oscillations, to a large extent, do not covary between resampled fabrics. A fabric which was previously stronger than another may later become weaker, and vice-versa. This is due to both the stochastic of recrystallization, and that nearest neighbors are chosen randomly. Similar behavior can be expected in ice sheets, as the number of nearest neighbors of each grain, and the sizes of the neighbors, can differ greatly from grain to grain. Now, these are limited samples of several hundred grains. Very large fabric samples evolve much more deterministically, as the stochasticity inherent in recrystallization and nearest neighbor selection does not affect bulk properties as much. However, these results do point to significant fabric variability on the meter-scale. This may be important in the development of small-scale flow features like boudinage. In addition, it is possible that the rapidly varying oscillations could cause transient flow on the meter-scale. 
+
+
+\section{Conclusions}
+We showed a fabric evolution model which includes recrystallization and grain rotation. Grain growth and recrystallization depends on nearest-neighbor interactions. The model fits the WAIS ice core fabric data well. The models display a great deal of stochastic variability, with fabrics oscillating unpredictably over time. This suggests that random fabric variability may be important with small-scale flow. These results show that Jeffery's equation does a reasonably good job of predicting fabric orientation, despite the homogeneous strain assumption. Thus, the orientation-tensor-closure form  Jeffery's equation is an appropriate simple model for grain rotation in large-scale flow models (as in \citet{gillet2006}). However, the efficient inclusion of recrystallization and polygonization into flow models is difficult. However, more parameterized treatments may be possible. \citet{folgar1984} developed a version of Jeffery's equation for dilute fiber suspension orientations with rotary diffusion. Such an approach may provide a way forward to treat recrystallization. 
+
+Recent results \citep{montgomery-smith2011} show that coupled Stokes-Jefferys equations modeling fiber suspensions can induce initial perturbations in the orientation distribution function to grow significantly in short amounts of time. The case of ice fabric is extremely similar. This opens up the possibility that small perturbations of the intitial fabric could grow into persistent large perturbations. This could be a source of the sometimes chaotic flow disturbances observed in some ice cores. Future work will include coupling of the fabric model to a fully anisotropic ice flow model to examine small-scale features such as boudinage and folding. 
+
+
+\bibliographystyle{igs}
+\bibliography{anis}
+\appendix
+\section{Algorithm for the fabric model}
+
+\textbf{Require:} Fabric c-axis orientations $\mathbf{c_i}$, grain radii $r_i$, bulk strain rate $D$, vorticity tensor  $W$, connectivity information $C_{ij}$;
+\\
+\textbf{For} each grain $\mathbf{g_i}$:
+\\
+\intent -Find local stress on each grain;
+\\
+\indent -Find areas of each boundary between grains;
+\\
+\textbf{For} each boundary of grain $\mathbf{g_i}$
+\\
+\indent -Find grain growth rate over each boundary due grain boundary energy, dislocation density, and impurity content;
+\\
+\textbf{End For}
+\\
+\indent -Add contributions to grain growth of the boundary with each neighbor. Integrate grain growth over each boundary over the timestep;
+\\
+\indent -Polygonize grain with probability $p$, depending on strain;
+\\
+\indent -Rotate grain by integrating Jeffery's equation through the timestep;
+\\
+\textbf{End For}
+\\
+-Advance time by $\delta t$
+\\
+-Return to \textbf{Start}.
+
+\end{document}
