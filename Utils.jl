@@ -35,7 +35,7 @@ function proj2UpHem!(p)
 
 
 function getRandc(n)
-  p=rand(3,n)
+  p=(rand(3,n)-0.5)*2
   for i=1:n
     p[:,i]=p[:,i]/norm(p[:,i])
     end

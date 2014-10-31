@@ -1,6 +1,6 @@
 using Utils,jefferys,Plotting,PyCall
 @pyimport matplotlib.pyplot as plt
-ngr=300
+ngr=100
 ns=1
 coors=rand(3,ns)
 p=rand(3,ngr,ns)-0.5
@@ -20,23 +20,23 @@ h=1.0
 C=Array(Float64,6,6,ns)
 vort_ss=zeros(3,3,ns)
 vort_lg=zeros(3,3,ns)
-vort_ss[2,3]=0.8
-vort_ss[3,2]=-0.8
+vort_ss[2,3]=-0.8
+vort_ss[3,2]=0.8
 epsdot_ss=zeros(3,3,ns)
 epsdot_lg=zeros(3,3,ns)
 epsdot_lg[1,1,:]=0.1#0.5
 epsdot_lg[2,2,:]=0.1#-1
 epsdot_lg[3,3,:]=-0.2#0.5
-epsdot_ss[2,3,:]=0.8
-epsdot_ss[3,2,:]=0.8
+epsdot_ss[2,3,:]=-0.8
+epsdot_ss[3,2,:]=-0.8
 
 epsdot_lg_ss=epsdot_lg + epsdot_ss
 vort_lg_ss = vort_ss
 #fab=Fabric{Float64,Int64}(coors,p,ngr,ns,h,C,vort,epsdot)
 #fabE=fabricHelper(pars,fab,jefferysRHS)
 #fabE(pars,fab,jefferysRHS)
-epsdot = epsdot_lg
-vort = vort_lg
+epsdot = epsdot_ss
+vort = vort_ss
 
 
 dt=1e-2
@@ -58,7 +58,7 @@ function tryn(n)
    for i=1:n
       jefferys.thorRot!(fab,pars,1,dt,0.5)
    end
-end;tryn(10);schmidtPlot(fab.p);plt.show()
+end;tryn(150);schmidtPlot(fab.p);plt.show()
 
 function plotByAngle(n)
    zenith=pi/2

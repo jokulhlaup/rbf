@@ -173,10 +173,10 @@ function thorRot!(fab,pars,k,dt,stress_fac)
   for i=1:n
     C=zeros(6,6)
     C[5,5]=1.
-    #C[6,6]=0.01
-    #C[1,1]=0.01
-    #C[2,2]=0.01
-    #C[3,3]=0.01
+    C[6,6]=0.01
+    C[1,1]=0.01
+    C[2,2]=0.01
+    C[3,3]=0.01
     C[4,4]=1.
     if i==50;print('C',C);end
     R=getRotM(fab.p[:,i,k])
@@ -213,7 +213,7 @@ function thorRot!(fab,pars,k,dt,stress_fac)
     #fab.p[:,i,k]-=vort[:,:,i]*fab.p[:,i,k]*dt
 
     #fab.p[:,i,k]=-softness[i]*rk4(pars.f,fab.ngr,fab.p[:,i,k],vort[:,:,i],voigt2Tensor(rst[:,i]),dt);
-    fab.p[:,i,k]=softness[i]*rk4(fab.ngr,fab.p[:,i,k],fab.vort[:,:,k],fab.epsdot[:,:,k],dt);
+    fab.p[:,i,k]=rk4(fab.ngr,fab.p[:,i,k],fab.vort[:,:,k],fab.epsdot[:,:,k],dt,softness[i]);
     fab.p[:,i,k]/=norm(fab.p[:,i,k])
     end
   end
@@ -255,6 +255,17 @@ function advanceRadii(fab::FabricNGG,k,dt)
 
   rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
   areas=fab.areas[:,:,k];p=fab.p[:,:,k]
+  rss_0=Array(Float64,ngr)
+
+  C=0.01*eye(6);C[5,5]=1.;C[4,4]=1
+  sigma=voigt2Tensor(inv(getC(fab,k))*tensor2Voigt(fab.epsdot[:,:,k]))
+  for i=1:ngr
+    R=getRotM(fab.p[:,i,k])
+    #the resolved strain tensor (voigt)
+    rst=C*tensor2Voigt(R*sigma*R')
+    rss_0[i]=sqrt(0.5*(rst[4]^2+rst[5]^2)) 
+  end
+
   @nanch(rs)
  # fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
 #  rs_new=zeros(fab.ngr)
@@ -264,8 +275,6 @@ function advanceRadii(fab::FabricNGG,k,dt)
       p[:,i]=getRandOrient()
       end
     end
-
-  sigma=voigt2Tensor(inv(getC(fab,k))*tensor2Voigt(fab.epsdot[:,:,k]))
   if any(isnan,sigma)
       sigma=zeros(size(sigma))
   end
@@ -287,7 +296,11 @@ function advanceRadii(fab::FabricNGG,k,dt)
       @nanch2(p[:,i],"p[:,i]")
       @nanch2(sigma,"sigma")
       @nanch2(fab.str,"string")
-      dVol+=areas[i,j]*dt.*strEnVelocity(p[:,i],p[:,j],sigma[:,:,k],fab.str[i,k],fab.str[j,k]) ####!!!!!!!!!!!!!!!!!!!!!!!!
+      #########
+      ##
+      dVol+=areas[i,j]*dt.*grmob*((rss_0[i]-rss_0[j]) + 
+          strEnVelocity(p[:,i],p[:,j],sigma[:,:,k],fab.str[i,k],fab.str[j,k])) 
+      ####!!!!!!!!!!!!!!!!!!!!!!!!
       @nanch2(dVol,"dVol")
 #      dVol+=100*areas[i,j]*dt.*(fab.str[i,k]-fab.str[j,k])
       #print(dVol)
@@ -307,6 +320,7 @@ function advanceRadii(fab::FabricNGG,k,dt)
     if rs[i]<1e-4#r_crit
       if rand()<prNucleation(fab.temp,dt)#0.5#pr_nucleation
         nucleateGrain!(fab,i,k,vol)
+        println("nucleated!!!!!!!!!!")
         end
       end
     end #i
@@ -463,25 +477,41 @@ function ejefferys(x,vort,epsdot,dt)
          res[i]-=epsdot[i,j]*x[j]
       end
    end
-   epsc2=-res[1]*x[1]-res[2]*x[2]-res[3]*x[3]
+   epsc2=res[1]*x[1]+res[2]*x[2]+res[3]*x[3]
    for j=1:3
       @simd for i=1:3
-        @inbounds res+=vort[i,j]*x[j]
+        @inbounds res[i]+=vort[i,j]*x[j]
       end
    end
-   res=(res+epsc2*x)*dt
+   res=(res-epsc2*x)*dt
 end
        
+#function ejefferys(x,vort,epsdot,dt)
+#   res=zeros(3)
+#   for j=1:3
+#      for i=1:3
+#         res[i]-=epsdot[i,j]*x[j]
+#      end
+#   end
+#   epsc2=-res[1]*x[1]-res[2]*x[2]-res[3]*x[3]
+#   for j=1:3
+#      @simd for i=1:3
+#        @inbounds res+=vort[i,j]*x[j]
+#      end
+#   end
+#   res=(res+epsc2*x)*dt
+#end
+ 
 
 
+function rk4(n::Int64,x,vort,epsdot,dt,softness)
 
-function rk4(n::Int64,x,vort,epsdot,dt)
    for i=1:n
       k1=ejefferys(x,vort,epsdot,dt)
       k2=ejefferys(x+k1*dt/2,vort,epsdot,dt)
       k3=ejefferys(x+k2*dt/2,vort,epsdot,dt)
       k4=ejefferys(x+k3*dt/2,vort,epsdot,dt)
-      x+=(1/6)*dt*(k1+2*k2+2*k3+k4)
+      x+=(softness/6)*dt*(k1+2*k2+2*k3+k4)
       end
    return x
    end

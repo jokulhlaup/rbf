@@ -1,4 +1,5 @@
-using Plotting,Loess,Grid,PyCall,Utils
+using Plotting,Loess
+using Grid,PyCall,Utils
 require("lsap/Assignment.jl")
 require("Constructors.jl")
 @pyimport matplotlib.pyplot as plt
@@ -153,7 +154,7 @@ function init2svd(fab,smsvd)
     count+=1
     fabE(pars,fab,jefferysRHS)
     s=svd(fab.p[:,:,1])[2]
-    w=min(s)/norm(s)
+    w=minimum(s)/norm(s)
     print(w,"\n")
     end
   end
@@ -187,31 +188,33 @@ sv=Array(Float64,0)
 n=size(p)[2]
 
 rs=Array(Float64,n,54)
-dt=2e-5
+dt=1e-5
 smax=repmat([0. 0. 1.],n)'
 (fabE,fab,pars)=Constructors.mkFab(n)
 fab.p[:,:,1]=p;
 emdist=zeros(54)
 grmobs=ones(54)
-grmobs[21:end]=2.
+grmobs[21:end]=3.
 girdle=getGirdle(n)
 pout=zeros(3,n,54)
 fab.vort=zeros(3,3,1)
 pars.nrk=100
-  for i=1:length(ts_ages)-1
+  for i=1:53#length(ts_ages)-1
+    print("i = $i !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!")
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
     com=ts_smoothedVertStrain[i]
-    ss=-dj(dr[i],2700)
-    fab.temp=ts_temps[i] + 10
+    ss=-dj(dr[i],2700)*10
+    fab.temp=ts_temps[i] +10
     println(fab.temp, "temps")
-    fab.epsdot[3,2]=-ss
-    fab.epsdot[2,3]=-ss
-    fab.epsdot[1,1]=-2*com
-    fab.epsdot[2,2]=com
-    fab.epsdot[3,3]=com
-    fab.vort[2,3]=-ss
+    fab.epsdot[3,1]=ss
+    fab.epsdot[1,3]=ss
+    fab.epsdot[1,1]=2*com
+    fab.epsdot[2,2]=-com
+    fab.epsdot[3,3]=-com
+    fab.vort[1,3]=ss
     print(fab.epsdot)
-    fab.vort[3,2]=ss
+    fab.vort[3,1]=-ss
 #    fab.vort=zeros(size(fab.vort))
     #fab.vort=fa-fab.epsdotb.vort ##
     #fab.epsdot=-fab.epsdot ##
@@ -247,7 +250,7 @@ function trym1(m,n)
     pout=zeros(3,n,54,m)
     for i=1:m
         inds=rand(1:n,n)
-        p=pd[int(dr[1])][:,inds]
+        p=pd[int(dr[2])][:,inds]
         inds=rand(1:size(p,2),n)
 
        (pout[:,:,:,i],emdg[:,i],emdss[:,i],fab)=evThruCore(p)
@@ -297,8 +300,8 @@ function r2(mat)
 end
 emdstss=zeros(54)
 for i=1:54
-    pda=proj2UpHem!(pd[int(dr[i])])
-    p=proj2UpHem!(pout[:,:,i])
+    pda=Utils.proj2UpHem!(pd[int(dr[i])])
+    p=Utils.proj2UpHem!(pout[:,:,i])
     emdstss[i]=emdSM(pda)
     emdss[i]=emdSM(p)
     print(i)
