@@ -56,9 +56,9 @@ fabE=fabricHelper(pars,fab,jefferysRHS)
 
 function tryn(n)
    for i=1:n
-      jefferys.thorRot!(fab,pars,1,dt,0.5)
+      jefferys.thorRot!(fab,pars,1,dt,0.9)
    end
-end;tryn(150);schmidtPlot(fab.p);plt.show()
+end;tryn(300);schmidtPlot(fab.p);plt.show()
 
 function plotByAngle(n)
    zenith=pi/2

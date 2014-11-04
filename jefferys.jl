@@ -1,5 +1,5 @@
 module jefferys
-using Utils
+using Utils,Distributions
 export consFabricNGG,getRotM,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas,getC
 ##########################
 ##########Get viscosity###
@@ -221,11 +221,12 @@ function thorRot!(fab,pars,k,dt,stress_fac)
 #function viscRot!(fab,k,dt,stress_fac)
 #function rotate_vgrad(p,vgrad)
 
-  
-
-  
-
-  
+ #polygonize if certain things happen
+function polygonize!(fab,bulk_eff,rss0i,i,k)
+   fab.p[:,i,k]+=rand(Distributions.Gaussian(0,0.1),3)
+   fab.p[:,i,k]/=norm(fab.p[:,i,k])
+   return fab.p[:,i,k]
+   end
 
 #function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
 function advanceRadii(fab::FabricNGG,k,dt)
@@ -256,15 +257,17 @@ function advanceRadii(fab::FabricNGG,k,dt)
   rs=fab.r[:,k];nbrs=fab.nbrs[:,:,k];grmob=fab.grmob;ngr=fab.ngr
   areas=fab.areas[:,:,k];p=fab.p[:,:,k]
   rss_0=Array(Float64,ngr)
-
+  
   C=0.01*eye(6);C[5,5]=1.;C[4,4]=1
   sigma=voigt2Tensor(inv(getC(fab,k))*tensor2Voigt(fab.epsdot[:,:,k]))
+  eff_stress=sqrt(0.5*abs(Utils.secondInv(sigma)))
   for i=1:ngr
     R=getRotM(fab.p[:,i,k])
     #the resolved strain tensor (voigt)
     rst=C*tensor2Voigt(R*sigma*R')
     rss_0[i]=sqrt(0.5*(rst[4]^2+rst[5]^2)) 
-  end
+    fab.p[:,i,k]=polygonize!(fab,eff_stress,rss_0[i],i,k)
+    end
 
   @nanch(rs)
  # fab.r[:,i]=advanceRadii(fab.r[:,i],fab.nbrs[:,:,i],fab.grmob,pars.dt,fab.epsdot[:,:,i],fab.ngr,fab.areas,fab.p[:,:,i])
@@ -469,7 +472,9 @@ function rk4(f::Function,n::Int64,x,vort,epsdot,dt)
    return x
    end
 
+  
 
+   
 function ejefferys(x,vort,epsdot,dt)
    res=zeros(3)
    for j=1:3

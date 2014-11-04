@@ -1,4 +1,4 @@
-using Plotting,Loess
+using Plotting,Loess,Distributions
 using Grid,PyCall,Utils
 require("lsap/Assignment.jl")
 require("Constructors.jl")
@@ -179,6 +179,7 @@ for i=1:length(dr)
     n=size(pd[int(dr[i])],2)
     girdle=getGirdle(n)
     pd[int(dr[i])]=Utils.alignFabrics(girdle,pd[int(dr[i])])[3]
+
 end
 
 function evThruCore(p)
@@ -188,7 +189,7 @@ sv=Array(Float64,0)
 n=size(p)[2]
 
 rs=Array(Float64,n,54)
-dt=1e-5
+dt=1.5e-5
 smax=repmat([0. 0. 1.],n)'
 (fabE,fab,pars)=Constructors.mkFab(n)
 fab.p[:,:,1]=p;
@@ -248,13 +249,18 @@ function trym1(m,n)
     emdg=Array(Float64,54,m)
     emdss=Array(Float64,54,m)
     pout=zeros(3,n,54,m)
-    for i=1:m
-        inds=rand(1:n,n)
-        p=pd[int(dr[2])][:,inds]
-        inds=rand(1:size(p,2),n)
-
-       (pout[:,:,:,i],emdg[:,i],emdss[:,i],fab)=evThruCore(p)
-   end
+    i=1
+    while (i <= m)
+       inds=rand(1:n,n)
+       p=pd[int(dr[2])][:,inds]
+       inds=rand(1:size(p,2),n)
+       try 
+           (pout[:,:,:,i],emdg[:,i],emdss[:,i],fab)=evThruCore(p)
+           i+=1
+       catch
+           continue
+       end
+    end
    return (pout,emdg,emdss,fab)
    end
 
@@ -264,7 +270,15 @@ function plotm(m,emdg)
     end
     plt.show()
 end
-   
+
+function getsvs(pout)
+    svss=Array(Float64,size(pout,3),size(pout,4))
+    svg=deepcopy(svss)
+    for i=1:size(pout,4)
+        for j=1:size(pout,3)
+            svss[i,j]=
+
+
 function getquantile(mat, p)
     m,n=size(mat)
     q=zeros(m)
@@ -273,6 +287,9 @@ function getquantile(mat, p)
     end
     return q
 end
+
+function getpm(pd)
+
 
 function plotQuants(mat,ps,labs)
     m=["+","2",","]
@@ -299,11 +316,16 @@ function r2(mat)
     return 1 - SSE./TSS
 end
 emdstss=zeros(54)
-for i=1:54
-    pda=Utils.proj2UpHem!(pd[int(dr[i])])
-    p=Utils.proj2UpHem!(pout[:,:,i])
+emdsg=zeros(54)
+for i=1:40
+    global pda=Utils.proj2UpHem!(pd[int(dr[i])])
+    pda=Utils.rotp(pi/2,Utils.alignFabrics(girdle,pda)[3])
+    n1=size(pda,2)
+    girdle=getGirdle(n1)
     emdstss[i]=emdSM(pda)
-    emdss[i]=emdSM(p)
+    emdsg[i]=Utils.earthMoversDist(pda,girdle)[1]/n1
+   # emdgtss[i]=emdg(
+   # emdssp[i]=emdSM(p)
     print(i)
 end
 #function evDiff(m)

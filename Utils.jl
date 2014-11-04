@@ -21,8 +21,19 @@ unshift!(PyVector(pyimport("sys")["path"]), "")
 #        get_perms(u,depth+1)
         
 
-
-
+function hash2arr(hash::Dict)
+    ka=Array(Any,length(keys(hash)))
+    i=1
+    for key in keys(hash)
+        ka[i]=key
+        i+=1
+    end
+    sort!(ka)
+    arr=Array(Float64,length(ka),length(hash[ka[1]]))
+    for i=1:length(ka)
+        arr[:,i]=hash[ka[1]]
+    end
+end
 function proj2UpHem!(p)
   n=size(p)[2]
   for i=1:n
