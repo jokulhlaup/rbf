@@ -68,10 +68,13 @@ From \citet{durand2006} <<Ed: This is in Durand>> , the grain-boundary velocity 
 \end{equation}
 where $K$ is an Arrhenius factor dependent on temperature, and $r_1$ and $r_2$ are the mean curvatures of the two grains. The difficulty in implementing this using the procedure outlined in the previous section is to determine the mean curvature. The mean curvature of each grain at each point on the shared boundary must be the negative of the other to maintain compatibility. In addition, taken over the entire boundary, the integral of the mean curvature over the boundary of the grain must always be at least $4 \pi$. This means that, for example, the grain having negative curvature must ``make up'' that curvature elsewhere on its boundary. In a physical polycrystal, this imbalance would be accounted for by the boundaries of the polycrystal. However, as a simplification, we take the curvature of the boundary to be the harmonic mean of the curvatures of the two surfaces. This means that the smaller grain will have positive curvature on the boundary, which is a reasonable assumption. 
 
-\section{Recrystallization}
+\section{Recrystallization and polygonization}
 Migration (dynamic) recrystallization is driven primarily by lower-strain-energy grains consuming higher-strain energy grains \citep{duval1995}. At least at larger scales (after the initial nucleation), this reduction in strain energy can be incorporated into the driving force of grain boundary migration. A grain neighboring a more highly strained grain will advance into the highly strained grain. This is due to the more highly strained grain having higher dislocation density. The dislocations are annihilated by the advancing boundary. 
 
 To determine plastic strain, it is necessary to partition the bulk strain rate between grains. First, the bulk polycrystal stress tensor must be determined. In the coordinate system defined by the c-axis, an individual grain possesses a fourth-order viscosity tensor which can be represented as a diagonal $6 \times 6$ matrix in Voigt notation (where multiple elements in the tensor are mapped to the same matrix element by symmetries, \citet{vnote}). The viscosity of the bulk polycrystal is then taken to be the volume-weighted average of each grain's viscosity tensor rotated into the macroscopic coordinate system. Then, the bulk stress tensor is found from the product of the viscosity tensor and the strain-rate tensor. The strain rates of individual grains are then determined from the bulk stress tensor and the anisotropic viscosity of the individual grain. Following \citet{azuma96}, the model calculates the effective stress on each grain, which depends on the bulk stress and the orientation of each grain and its neighbors.  
+
+Polygonization is caused by dislocations organizing into dislocation walls in grains experiencing elastic strain \citep{duval1995}. Lattice misalignment between the two subgrains increases as more dislocations pile up, eventually splitting the grain into two separate grains misaligned by up to several degrees. We use a similar approach to \citet{thorsteinsson2002nni}. If the difference of the magnitude of the RSS on the basal plane and the applied stress exceeds a critical value, and the accumulated strain exceeds a critical value, the grain splits into two equal portions. The misorientation is proportional to the dislocation density. The new grain's orientation is between the original grain, and the closest point of preferred orientation. 
+
 
 
 \section{Model Validation}
@@ -91,13 +94,13 @@ A common method to summarize a fabric with grain orientations $X$ is to calculat
 
 \subsection{Results}
 
-%\begin{figure*}
-%\caption{Plot of the modeled smallest singular value of the modeled fabric versus that of the WAIS thin-section data. In the upper part of the core, there is a large girdle from extension in one horizontal axis, tending towards a single maximum as simple shear increases. Corresponding Schmidt plots to selected sites are indicated.}
-%\includegraphics[width=12cm]{waisfit3}
-%\end{figure*}
+\begin{figure*}
+\caption{Plot of the modeled smallest singular value of the modeled fabric versus that of the WAIS thin-section data. In the upper part of the core, there is a large girdle from extension in one horizontal axis, tending towards a single maximum as simple shear increases. Corresponding Schmidt plots to selected sites are indicated.}
+\includegraphics[width=12cm]{waisfit3}
+\end{figure*}
 \begin{figure*}
 \caption{Schmidt plot of fabrics produced under different flow scenarios. (a) Simple shear without recrystallization. (b) Uniaxial extension without recrystallization. (c) Simple shear with recrystallization. (d) Combined simple shear and uniaxial extension.} 
-\includegraphics[width=12cm]{girdle}
+\includegraphics[width=12cm]{all4}
 \end{figure*}
 
 \begin{figure*}
