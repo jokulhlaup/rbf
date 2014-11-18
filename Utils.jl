@@ -3,7 +3,7 @@ using Base.rand,PyCall,Optim
 include("lsap/Assignment.jl")
 export voigt2Tensor,tensor2Voigt,rk4!
 export halton,vdc,unifmesh,randir
-export diffrandi,secondInv,binBoolInd,earthMoversDist
+export diffrandi,secondInv,binBoolInd,earthMoversDist, rep_els
 unshift!(PyVector(pyimport("sys")["path"]), "")
 @pyimport pyutils
 
@@ -19,8 +19,14 @@ unshift!(PyVector(pyimport("sys")["path"]), "")
 #        u[depth]=v[i]
 #        u[i]=v[depth]
 #        get_perms(u,depth+1)
-        
-
+function rep_els(x, n)
+    m=length(x)
+    y=Array(Float64,n*m)
+    for i=1:m
+        y[(i-1)*n+1:i*n]=x[i]
+    end
+    return y
+end
 function hash2arr(hash::Dict)
     ka=Array(Any,length(keys(hash)))
     i=1
