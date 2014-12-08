@@ -192,6 +192,7 @@ rs=Array(Float64,n,54)
 dt=1.5e-5
 smax=repmat([0. 0. 1.],n)'
 (fabE,fab,pars)=Constructors.mkFab(n)
+map(x->rand()<0.5?x=0:nothing,fab.r)
 fab.p[:,:,1]=p;
 emdist=zeros(54)
 grmobs=ones(54)
@@ -206,7 +207,7 @@ pars.nrk=100
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
     com=ts_smoothedVertStrain[i]
     ss=-dj(dr[i],2700)*10
-    fab.temp=ts_temps[i] +10
+    fab.temp=ts_temps[i]
     println(fab.temp, "temps")
     fab.epsdot[3,1]=ss
     fab.epsdot[1,3]=ss
@@ -271,12 +272,12 @@ function plotm(m,emdg)
     plt.show()
 end
 
-function getsvs(pout)
-    svss=Array(Float64,size(pout,3),size(pout,4))
-    svg=deepcopy(svss)
-    for i=1:size(pout,4)
-        for j=1:size(pout,3)
-            svss[i,j]=
+#function getsvs(pout)
+#    svss=Array(Float64,size(pout,3),size(pout,4))
+#    svg=deepcopy(svss)
+#    for i=1:size(pout,4)
+#        for j=1:size(pout,3)
+#            svss[i,j]=
 
 
 function getquantile(mat, p)
@@ -288,19 +289,29 @@ function getquantile(mat, p)
     return q
 end
 
-function getpm(pd)
-
-
 function plotQuants(mat,ps,labs)
     m=["+","2",","]
+    delayed_plot=:(plot())
+    q=Array(Float64,size(emdg,1),length(ps))
+    pl_df=DataFrame()
     for i=1:length(ps)
-        q=getquantile(mat,ps[i])
-        plt.plot(ts_ages[1:53]/1000,q[1:53], color="k",label=labs[i],marker=m[i])
+        q[:,i]=getquantile(mat,ps[i])
+        df=DataFrame(x=ts_ages[1:53]/1000,y=q[1:53,i],label=labs[i])
+        pl_df=vcat(pl_df,df)
+#        plt.plot(ts_ages[1:53]/1000,q[1:53], color="k",label=labs[i],marker=m[i]
+#        append!(delayed_plot.args,[layer(x=ts_ages[1:53]/1000,y=q[1:53],Geom.line)])
     end
-    plt.plot(ts_ages[1:53]/1000,emdg[1:53,10],"--",color="k",label="sample a");plt.plot(ts_ages[1:53]/1000,emdg[1:53,40],"-.",color="k", label="sample b")
-    plt.xlabel("ice age (ka)")
-    plt.ylabel("Fabric earth mover distance from girdle (dimensionless)")
-    plt.legend()
+    pl_df=vcat(pl_df,DataFrame(x=ts_ages[1:53]/1000,y=mat[1:53,1],label="sample 1"))
+    pl_df=vcat(pl_df,DataFrame(x=ts_ages[1:53]/1000,y=mat[1:53,2],label="sample 2"))
+#     append!(delayed_plot.args,[layer(x=ts_ages[1:53]/1000,y=emdg[1:53,1],Geom.line)])
+#     append!(delayed_plot.args,[layer(x=ts_ages[1:53]/1000,y=emdg[1:53,2],Geom.line)])
+#    eval(delayed_plot)
+#    plt.plot(ts_ages[1:53]/1000,emdg[1:53,10],"--",color="k",label="sample a");plt.plot(ts_ages[1:53]/1000,emdg[1:53,40],"-.",color="k", label="sample b")
+#    plt.xlabel("ice age (ka)")
+#    plt.ylabel("Fabric earth mover distance from girdle (dimensionless)")
+#    plt.legend()
+   
+   plot(pl_df, x="x", y="y",color="label", Geom.line, Guide.xlabel("ice age (ka)"), Guide.ylabel("earth mover distance from girdle (dimensionless)",orientation=:vertical), Scale.discrete_color())
 end
 
 function r2(mat)
