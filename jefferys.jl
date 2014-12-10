@@ -223,7 +223,7 @@ function thorRot!(fab,pars,k,dt,stress_fac)
 
  #polygonize if certain things happen
 function polygonize!(fab,bulk_eff,rss0i,i,k)
-   fab.p[:,i,k]+=rand(Distributions.Gaussian(0,0.1),3)
+   fab.p[:,i,k]+=rand(Distributions.Gaussian(0,0.05),3)
    fab.p[:,i,k]/=norm(fab.p[:,i,k])
    return fab.p[:,i,k]
    end
