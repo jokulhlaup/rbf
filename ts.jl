@@ -128,7 +128,7 @@ function dj(x,kink_depth)
     if x< kink_depth 
         return 0
     else 
-        return (x-kink_depth)/1000
+        return (x-kink_depth)/300
     end
 end
      
