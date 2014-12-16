@@ -1,0 +1,231 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% a0poster Landscape Poster
+% LaTeX Template
+% Version 1.0 (22/06/13)
+%
+% The a0poster class was created by:
+% Gerlinde Kettl and Matthias Weiser (tex@kettl.de)
+% 
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[a0,landscape]{a0poster}
+
+\usepackage{multicol,natbib} % This is so we can have multiple columns of text side-by-side
+\columnsep=100pt % This is the amount of white space between the columns in the poster
+\columnseprule=3pt % This is the thickness of the black line between the columns in the poster
+
+\usepackage[svgnames]{xcolor} % Specify colors by their 'svgnames', for a full list of all colors available see here: http://www.latextemplates.com/svgnames-colors
+
+\usepackage{times} % Use the times font
+%\usepackage{palatino} % Uncomment to use the Palatino font
+
+\usepackage{graphicx} % Required for including images
+\graphicspath{{figures/}} % Location of the graphics files
+\usepackage{booktabs} % Top and bottom rules for table
+\usepackage[font=small,labelfont=bf]{caption} % Required for specifying captions to tables and figures
+\usepackage{amsfonts, amsmath, amsthm, amssymb} % For math fonts, symbols and environments
+\usepackage{wrapfig} % Allows wrapping text around tables and figures
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	POSTER HEADER 
+%----------------------------------------------------------------------------------------
+
+% The header is divided into three boxes:
+% The first is 55% wide and houses the title, subtitle, names and university/organization
+% The second is 25% wide and houses contact information
+% The third is 19% wide and houses a logo for your university/organization or a photo of you
+% The widths of these boxes can be easily edited to accommodate your content as you see fit
+
+\begin{minipage}[b]{0.55\linewidth}
+\veryHuge \color{NavyBlue} \textbf{Ice fabric development with a new fabric evolution model} \color{Black}\\ % Title
+%\Huge\textit{An Exploration of Complexity}\\[1cm] % Subtitle
+\huge \textbf{Michael Hay}\\ % Author(s)
+\huge Department of Earth and Space Sciences, University of Washington\\ % University/organization
+\end{minipage}
+%
+\begin{minipage}[b]{0.25\linewidth}
+\color{DarkSlateGray}\Large \textbf{Contact Information:}\\
+Department of Earth and Space Sciences\\
+University of Washington\\
+Box 351310\\\\
+4000 15th Ave. NE
+Seattle, WA 98195
+Email: \texttt{mhay@uw.edu}\\ % Email address
+\end{minipage}
+%
+\begin{minipage}[b]{0.19\linewidth}
+\includegraphics[width=20cm]{nsf1.tiff} % Logo or a photo of you, adjust its dimensions here
+\end{minipage}
+
+\vspace{1cm} % A bit of extra whitespace between the header and poster content
+
+%----------------------------------------------------------------------------------------
+
+\begin{multicols}{3} % This is how many columns your poster will be broken into, a poster with many figures may benefit from less columns whereas a text-heavy poster benefits from more
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT
+%----------------------------------------------------------------------------------------
+
+\color{Navy} % Navy color for the abstract
+
+\begin{abstract}
+Ice crystal orientatation fabric has a strong influence on ice flow due to the plastic anisotropy of ice. The evolution of crystal fabric is driven by strain-induced grain rotation, as well as recrystallization. Most fabric-evolution models ignore many of the physical processes involved, or are valid only for highly parameterized fabrics. In this paper, we outline a new fabric model that treats a variety of processes affecting fabric development. Results indicate that a large proportion of the observed variability in thin section samples is likely to be effectively stochastic in nature. 
+
+\end{abstract}
+
+%----------------------------------------------------------------------------------------
+%	INTRODUCTION
+%----------------------------------------------------------------------------------------
+
+\color{SaddleBrown} % SaddleBrown color for the introduction
+
+\section*{Introduction}
+An individual ice crystal has an anisotropic creep response, deforming most easily in shear parallel to the crystal basal plane. Plastic deformation of an ice polycrystal depends on the orientations of its constituent grains \citep{azuma94}. A polycrystal that is initially isotropic will develop a lattice-preferred orientation in response to applied strain, thus causing it to have a bulk anisotropic response. The development of a preferred orientation is guided primarily by intracrystalline slip. Due to interference between grains, there is a tendency for the c-axes to rotate away from the directions of principal extension. In addition to rotation, recrystallization affects both grain size and orientation distribution. Near the melting point, migration recrystallization allows the nucleation of new, strain-free grains. These new grains grow rapidly at the expense of older grains with high strain energy \citep{duval1995}. Polygonization is another recrystallization process in which dislocations in a highy strained grain arrange into a subgrain boundary, eventually producing two grains as the misalignment increases \citep{alley97}. Although the grains typically are misaligned by onlya few degrees, this does have the effect of preventing the orientation distribution function from attaining a sharp maximum.
+
+This model is essentially a Lagrangian model tracking the evolution of a single packet of grains. Previous work has usually used parameterized forms of grain growth. Here, we incorporate explicit conservation, with grain growth only occuring at the expense of neighboring grains. 
+%----------------------------------------------------------------------------------------
+%	OBJECTIVES
+%----------------------------------------------------------------------------------------
+
+\color{DarkSlateGray} % DarkSlateGray color for the rest of the content
+
+%\section*{Main Objectives}
+
+%\begin{enumerate}
+%\item Lorem ipsum dolor sit amet, consectetur.
+%\item Nullam at mi nisl. Vestibulum est purus, ultricies cursus volutpat sit amet, vestibulum eu.
+%\item Praesent tortor libero, vulputate quis elementum a, iaculis.
+%\item Phasellus a quam mauris, non varius mauris. Fusce tristique, enim tempor varius porta, elit purus commodo velit, pretium mattis ligula nisl nec ante.
+%\item Ut adipiscing accumsan sapien, sit amet pretium.
+%\item Estibulum est purus, ultricies cursus volutpat
+%\item Nullam at mi nisl. Vestibulum est purus, ultricies cursus volutpat sit amet, vestibulum eu.
+%\item Praesent tortor libero, vulputate quis elementum a, iaculis.
+%\end{enumerate}
+
+%----------------------------------------------------------------------------------------
+%	MATERIALS AND METHODS
+%----------------------------------------------------------------------------------------
+\section*{Model overview}
+Unlike previous work, this model posesses explicit mass conservation. The polycrystal is taken to be a 
+
+
+%------------------------------------------------
+
+\subsection*{Model formulation}
+The rate of c-axis rotation is calculated using Jeffery's equation:
+
+\begin{equation}
+   \dot{c_i} = \zeta \left( W_{ij}  c_j + D_{ij} c_j + c_i c_j c_k D_{jk} \right)
+\end{equation}
+where $c_i$ is the unit vector in the direction of the c-axis, $D_{ij}$ is the strain rate tensor, and $W_{ij}$ is the spin tensor. $\zeta$ is the softness parameter. The softness parameter allows strain to be transferred between grains, such that grains in a hard orientation under the applied stress receive additional stress, and thus strain, from their neighbors. It is calculated as
+
+\begin{equation}
+\zeta = \xi \left( \left( 1 - \gamma \right)  \epsilon_0 + \gamma \sum_{i=1}^n \frac{A_i \epsilon_i}{\epsilon_0} \right),
+\end{equation}
+
+where $\epsilon_0$ and $\epsilon_i$ are the effective shear strain rates of the center grain and grain $i$, respectively. $A_i$ is the normalized area fraction between the center grain and grain $i$. $\xi$ is a scaling factor taken over the polycrystal to maintain self-consistency with the bulk velocity gradient. 
+
+The evolution of each grain's radius due to continuous processes is found from the grain boundary velocity between it and each of its neighbors. The aggregate grain boundary velocity is the sum of grain boundary velocities from all included processes. Grain boundary velocity between two grains from normal grain growth is given by
+
+\begin{equation}
+\frac{dr_1}{dt} = K \left( \frac{1}{r_1}-\frac{1}{r_2} \right),
+\end{equation}
+
+where $r_1$ and $r_2$ are the radii, and $K$ is the grain boundarymobility. Dislocation density also drives grain boundary velocity, with grains which have higher dislocation density losing mass to those with less dislocation density.
+
+Dynamic recrytallization in ice is the nucleation of strain-free new grains, which grow by consuming older, more highly strained grains. This weakens fabrics. This model handles initial nucleation as stochastic, with potential nucleation sites nucleating new grain probabilistically depending on temperature and other factors. The new grains will then begin to consume neighboring grains if it is energetically favorable. Polygonization is a related process in which grains in a hard orientation experiencing a bending moment split into two grains. This is handled by splitting the grains into two equal portions if the ratio of resolved shear stress on the basal plane to effective applied stress exceeds a critical value. 
+
+
+%----------------------------------------------------------------------------------------
+%	RESULTS 
+%----------------------------------------------------------------------------------------
+
+\section*{Results}
+
+\begin{center}\vspace{1cm}
+\includegraphics[width=0.8\linewidth]{placeholder}
+\captionof{figure}{\color{Green} Figure caption}
+\end{center}\vspace{1cm}
+
+In hac habitasse platea dictumst. Etiam placerat, risus ac.
+
+Adipiscing lectus in magna blandit:
+
+\begin{center}\vspace{1cm}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2} \\
+\midrule
+Treatment 1 & 0.0003262 & 0.562 \\
+Treatment 2 & 0.0015681 & 0.910 \\
+Treatment 3 & 0.0009271 & 0.296 \\
+\bottomrule
+\end{tabular}
+\captionof{table}{\color{Green} Table caption}
+\end{center}\vspace{1cm}
+
+Vivamus sed nibh ac metus tristique tristique a vitae ante. Sed lobortis mi ut arcu fringilla et adipiscing ligula rutrum. Aenean turpis velit, placerat eget tincidunt nec, ornare in nisl. In placerat.
+
+\begin{center}\vspace{1cm}
+\includegraphics[width=0.8\linewidth]{placeholder}
+\captionof{figure}{\color{Green} Figure caption}
+\end{center}\vspace{1cm}
+
+%----------------------------------------------------------------------------------------
+%	CONCLUSIONS
+%----------------------------------------------------------------------------------------
+
+\color{SaddleBrown} % SaddleBrown color for the conclusions to make them stand out
+
+\section*{Conclusions}
+
+\begin{itemize}
+\item Pellentesque eget orci eros. Fusce ultricies, tellus et pellentesque fringilla, ante massa luctus libero, quis tristique purus urna nec nibh. Phasellus fermentum rutrum elementum. Nam quis justo lectus.
+\item Vestibulum sem ante, hendrerit a gravida ac, blandit quis magna.
+\item Donec sem metus, facilisis at condimentum eget, vehicula ut massa. Morbi consequat, diam sed convallis tincidunt, arcu nunc.
+\item Nunc at convallis urna. isus ante. Pellentesque condimentum dui. Etiam sagittis purus non tellus tempor volutpat. Donec et dui non massa tristique adipiscing.
+\end{itemize}
+
+\color{DarkSlateGray} % Set the color back to DarkSlateGray for the rest of the content
+
+%----------------------------------------------------------------------------------------
+%	FORTHCOMING RESEARCH
+%----------------------------------------------------------------------------------------
+
+\section*{Forthcoming Research}
+
+Vivamus molestie, risus tempor vehicula mattis, libero arcu volutpat purus, sed blandit sem nibh eget turpis. Maecenas rutrum dui blandit lorem vulputate gravida. Praesent venenatis mi vel lorem tempor at varius diam sagittis. Nam eu leo id turpis interdum luctus a sed augue. Nam tellus.
+
+ %----------------------------------------------------------------------------------------
+%	REFERENCES
+%----------------------------------------------------------------------------------------
+
+\nocite{*} % Print all references regardless of whether they were cited in the poster or not
+\bibliographystyle{agu} % Plain referencing style
+\bibliography{anis} % Use the example bibliography file sample.bib
+
+%----------------------------------------------------------------------------------------
+%	ACKNOWLEDGEMENTS
+%----------------------------------------------------------------------------------------
+
+\section*{Acknowledgements}
+
+We thank Joan Fitzpatrick and Donald Voigt for the WAIS thin section data and helpful comments, and T.J. Fudge for the WAIS temperature profile.
+
+%----------------------------------------------------------------------------------------
+
+\end{multicols}
+\end{document}

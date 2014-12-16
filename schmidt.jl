@@ -1,8 +1,9 @@
 using Compose
 
 function schmidt(p::Array{Float64,2})
-    xs=sqrt(2./(1-p'[:,3])).*p'[:,1]
-    ys=sqrt(2./(1-p'[:,3])).*p'[:,2]
+    Utils.proj2UpHem!(p)
+    xs=sqrt(2./(1+p'[:,3])).*p'[:,1]
+    ys=sqrt(2./(1+p'[:,3])).*p'[:,2]
     return sp_compose((xs/2+1)/2,(ys/2+1)/2)
 end
 
@@ -16,7 +17,13 @@ function sp_compose(xs::Array{Float64,1}, ys::Array{Float64,1})
                    (context(0,0,1,1),circle(),fill("bisque"),linewidth(0.1mm),stroke("black")))
 end
 
+function plot_compose(composition)
+    filename=string(time())
+    img = SVG("/tmp/$filename") #width inch, 4(sqrt(3)/2)inch)
+    draw(img, compose(composition,linewidth(0.1mm), fill(nothing), stroke("black")))
 
+    run(`firefox /tmp/$filename`)
+end
 
 function squarest(n)
     small=floor(sqrt(n))
