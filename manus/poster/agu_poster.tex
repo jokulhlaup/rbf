@@ -59,14 +59,14 @@
 \color{DarkSlateGray}\Large \textbf{Contact Information:}\\
 Department of Earth and Space Sciences\\
 University of Washington\\
-Box 351310\\\\
-4000 15th Ave. NE
-Seattle, WA 98195
+Box 351310\\
+4000 15th Ave. NE\\
+Seattle, WA 98195\\
 Email: \texttt{mhay@uw.edu}\\ % Email address
 \end{minipage}
 %
 \begin{minipage}[b]{0.19\linewidth}
-\includegraphics[width=20cm]{nsf1.tiff} % Logo or a photo of you, adjust its dimensions here
+\includegraphics[width=10cm]{nsf1.eps} % Logo or a photo of you, adjust its dimensions here
 \end{minipage}
 
 \vspace{1cm} % A bit of extra whitespace between the header and poster content
@@ -82,7 +82,7 @@ Email: \texttt{mhay@uw.edu}\\ % Email address
 \color{Navy} % Navy color for the abstract
 
 \begin{abstract}
-Ice crystal orientatation fabric has a strong influence on ice flow due to the plastic anisotropy of ice. The evolution of crystal fabric is driven by strain-induced grain rotation, as well as recrystallization. Most fabric-evolution models ignore many of the physical processes involved, or are valid only for highly parameterized fabrics. In this paper, we outline a new fabric model that treats a variety of processes affecting fabric development. Results indicate that a large proportion of the observed variability in thin section samples is likely to be effectively stochastic in nature. 
+Ice crystal orientatation fabric has a strong influence on ice flow due to the plastic anisotropy of ice. Ice deforms by simple shear on the basal plane around 100 times more easily than other orientations. The evolution of crystal fabric is driven by strain-induced grain rotation, as well as recrystallization. Most fabric-evolution models ignore many of the physical processes involved, or are valid only for highly parameterized fabrics. In this paper, we outline a new fabric model that treats a variety of processes affecting fabric development. Results indicate that a large proportion of the observed variability in thin section samples is likely to be effectively stochastic in nature. 
 
 \end{abstract}
 
@@ -93,9 +93,9 @@ Ice crystal orientatation fabric has a strong influence on ice flow due to the p
 \color{SaddleBrown} % SaddleBrown color for the introduction
 
 \section*{Introduction}
-An individual ice crystal has an anisotropic creep response, deforming most easily in shear parallel to the crystal basal plane. Plastic deformation of an ice polycrystal depends on the orientations of its constituent grains \citep{azuma94}. A polycrystal that is initially isotropic will develop a lattice-preferred orientation in response to applied strain, thus causing it to have a bulk anisotropic response. The development of a preferred orientation is guided primarily by intracrystalline slip. Due to interference between grains, there is a tendency for the c-axes to rotate away from the directions of principal extension. In addition to rotation, recrystallization affects both grain size and orientation distribution. Near the melting point, migration recrystallization allows the nucleation of new, strain-free grains. These new grains grow rapidly at the expense of older grains with high strain energy \citep{duval1995}. Polygonization is another recrystallization process in which dislocations in a highy strained grain arrange into a subgrain boundary, eventually producing two grains as the misalignment increases \citep{alley97}. Although the grains typically are misaligned by onlya few degrees, this does have the effect of preventing the orientation distribution function from attaining a sharp maximum.
+Ice crystals are hexagonal close packed crystals. The long axis of the hexagons is called the c-axis. An individual ice crystal has an anisotropic creep response, deforming most easily in shear parallel to the crystal basal plane, orthogonal to the c-axis. Plastic deformation of an ice polycrystal depends on the orientations of its constituent grains \citep{azuma94}. A polycrystal that is initially isotropic will develop a lattice-preferred orientation in response to applied strain, thus causing it to have a bulk anisotropic response. Due to interference between grains, there is a tendency for the c-axes to rotate away from the directions of principal extension to maintain spatial compatibility. In addition to rotation, recrystallization affects both grain size and orientation distribution. Near the melting point, dynamic recrystallization allows the nucleation of new, strain-free grains. These new grains grow rapidly at the expense of older grains with high strain energy \citep{duval1995}. Polygonization is another recrystallization process in which dislocations in a highy strained grain arrange into a subgrain boundary, eventually producing two grains as the misalignment increases \citep{alley97}. Although the grains typically are misaligned by only a few degrees, this does have the effect of preventing the orientation distribution function from attaining a sharp maximum.
 
-This model is essentially a Lagrangian model tracking the evolution of a single packet of grains. Previous work has usually used parameterized forms of grain growth. Here, we incorporate explicit conservation, with grain growth only occuring at the expense of neighboring grains. 
+This model is essentially a Lagrangian model tracking the evolution of a single packet of grains. Previous work have used parameterized, non mass-conservative forms of grain growth. Unlike previous work, we incorporate explicit mass conservation, with grain growth only occuring at the expense of neighboring grains. In addition, we allow for nearest neighbor interactions to transfer stress between grains, in a similar, but more general way to Thorsteinsson et al. 2002. 
 %----------------------------------------------------------------------------------------
 %	OBJECTIVES
 %----------------------------------------------------------------------------------------
@@ -118,8 +118,6 @@ This model is essentially a Lagrangian model tracking the evolution of a single 
 %----------------------------------------------------------------------------------------
 %	MATERIALS AND METHODS
 %----------------------------------------------------------------------------------------
-\section*{Model overview}
-Unlike previous work, this model posesses explicit mass conservation. The polycrystal is taken to be a 
 
 
 %------------------------------------------------
@@ -154,34 +152,17 @@ Dynamic recrytallization in ice is the nucleation of strain-free new grains, whi
 %----------------------------------------------------------------------------------------
 
 \section*{Results}
+The model does well at reproducing characteristic fabrics of different flow regimes, such as girdles and single maximum fabric. To validate the model, we compared an ensemble of model runs against the WAIS divide ice core. The model was forced with the contemporary temperature profile, and a current estimate of velocity. The initial condition is taken to be a resample, with replacement, of the orientation data from the thin section at the top of the core. Figure 2 shows the 95\% confidence interval of the earth mover's distance (a distance measure between distributions) from a perfect vertical single maximum. The EMDs of two samples as well as the thin section is also included.
 
 \begin{center}\vspace{1cm}
-\includegraphics[width=0.8\linewidth]{placeholder}
-\captionof{figure}{\color{Green} Figure caption}
+\includegraphics[width=0.9\linewidth]{placeholder}
+\captionof{figure}{\color{Green} Left: Fabric under a uniaxial extension regime. Right: Fabric under simple shear.}
 \end{center}\vspace{1cm}
 
-In hac habitasse platea dictumst. Etiam placerat, risus ac.
-
-Adipiscing lectus in magna blandit:
 
 \begin{center}\vspace{1cm}
-\begin{tabular}{l l l l}
-\toprule
-\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2} \\
-\midrule
-Treatment 1 & 0.0003262 & 0.562 \\
-Treatment 2 & 0.0015681 & 0.910 \\
-Treatment 3 & 0.0009271 & 0.296 \\
-\bottomrule
-\end{tabular}
-\captionof{table}{\color{Green} Table caption}
-\end{center}\vspace{1cm}
-
-Vivamus sed nibh ac metus tristique tristique a vitae ante. Sed lobortis mi ut arcu fringilla et adipiscing ligula rutrum. Aenean turpis velit, placerat eget tincidunt nec, ornare in nisl. In placerat.
-
-\begin{center}\vspace{1cm}
-\includegraphics[width=0.8\linewidth]{placeholder}
-\captionof{figure}{\color{Green} Figure caption}
+\includegraphics[width=0.9\linewidth]{placeholder}
+\captionof{figure}{\color{Green} 90\% confidence interval and median of evolution of the earth mover's distance of distribution of the fabric sample from a perfect single maxima at the top of the core, inferred from repeated bootstrap samples of the thin section data. Two sample realizations are also included.}}
 \end{center}\vspace{1cm}
 
 %----------------------------------------------------------------------------------------
@@ -193,10 +174,10 @@ Vivamus sed nibh ac metus tristique tristique a vitae ante. Sed lobortis mi ut a
 \section*{Conclusions}
 
 \begin{itemize}
-\item Pellentesque eget orci eros. Fusce ultricies, tellus et pellentesque fringilla, ante massa luctus libero, quis tristique purus urna nec nibh. Phasellus fermentum rutrum elementum. Nam quis justo lectus.
-\item Vestibulum sem ante, hendrerit a gravida ac, blandit quis magna.
-\item Donec sem metus, facilisis at condimentum eget, vehicula ut massa. Morbi consequat, diam sed convallis tincidunt, arcu nunc.
-\item Nunc at convallis urna. isus ante. Pellentesque condimentum dui. Etiam sagittis purus non tellus tempor volutpat. Donec et dui non massa tristique adipiscing.
+\item The model reproduces the main features of the WAIS divide ice core well.
+\item Magnitude of initial variability in samples of ice core fabrics does not diminish over time.
+\item Effectively random variability of recrystallization and connectivity between grains are important sources of fabric variability. 
+\item Only very large excursion of fabric are likely to be real.
 \end{itemize}
 
 \color{DarkSlateGray} % Set the color back to DarkSlateGray for the rest of the content
@@ -206,9 +187,7 @@ Vivamus sed nibh ac metus tristique tristique a vitae ante. Sed lobortis mi ut a
 %----------------------------------------------------------------------------------------
 
 \section*{Forthcoming Research}
-
-Vivamus molestie, risus tempor vehicula mattis, libero arcu volutpat purus, sed blandit sem nibh eget turpis. Maecenas rutrum dui blandit lorem vulputate gravida. Praesent venenatis mi vel lorem tempor at varius diam sagittis. Nam eu leo id turpis interdum luctus a sed augue. Nam tellus.
-
+Plastic anisotropy is likely the cause behind much observed smaller-scale flow disturbances in ice cores, such as boudinage and shear bands. In addition, recent results show that coupled Stokes-Jefferys equations are unstable, in that initial variations in the orientation distribution function can grow significantly in short amounts of time. This may also be the case for ice fabric. Future work will couple a fabric evolution model to a a fully anisotropic ice flow model to study these effects.
  %----------------------------------------------------------------------------------------
 %	REFERENCES
 %----------------------------------------------------------------------------------------

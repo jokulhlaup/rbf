@@ -1,8 +1,16 @@
-using Plotting,Loess,Distributions
-using Grid,PyCall,Utils
 require("lsap/Assignment.jl")
 require("Constructors.jl")
 @pyimport matplotlib.pyplot as plt
+
+function emdSM(p)
+    Utils.proj2UpHem!(p)
+    n=size(p,2)
+    a=p'*[0,0,1]
+    a[abs(a) .> 1.]=0.99999
+    return sum(abs(acos(a)))/n 
+    end
+
+
 
 function wrapper(ages,par,ts_svs,fab,pars,jefferysRHS)
   t_c=p[1]
@@ -47,6 +55,7 @@ dr=readdir()
 c=Dict()
 pd=Dict()
 svs=Array(Float64,length(dr))
+emdss_core=Array(Float64,length(dr))
 x=Array(Float64,3,length(dr))
 for d=1:length(dr)
   cd(dr[d])
@@ -71,6 +80,7 @@ for d=1:length(dr)
     end
   x[:,d]=svd(pd[i])[2]
   svs[d]=minimum(x[:,d])/norm(x[:,d])
+  emdss_core[d]=emdSM(pd[i])
   cd("..")
   x[:,d]=sort(x[:,d])/norm(x[:,d])
   end
@@ -182,7 +192,7 @@ for i=1:length(dr)
 
 end
 
-function evThruCore(p)
+function evThruCore(p,get_r)
 emdss=Array(Float64,54)
 emdg=Array(Float64,54)
 sv=Array(Float64,0)
@@ -192,7 +202,7 @@ rs=Array(Float64,n,54)
 dt=1.5e-5
 smax=repmat([0. 0. 1.],n)'
 (fabE,fab,pars)=Constructors.mkFab(n)
-map(x->rand()<0.5?x=0:nothing,fab.r)
+fab.r=map(x->rand()<0.75?x=0:x,fab.r)
 fab.p[:,:,1]=p;
 emdist=zeros(54)
 grmobs=ones(54)
@@ -242,29 +252,34 @@ pars.nrk=100
 #    sv[:,i]=sv[:,i]/norm(sv[:,i])
 #    end
   println(typeof(pout),typeof(emdss),typeof(emdg),typeof(fab))
-  return (pout,emdss,emdg,fab)
+  return (pout,emdss,emdg,fab,rs)
 end
 
-function trym1(m,n)
+evThruCore(p)=evThruCore(p,true)[1:4]
+function trym1(m,n,get_r)
     
     emdg=Array(Float64,54,m)
     emdss=Array(Float64,54,m)
     pout=zeros(3,n,54,m)
+    r=Array(Float64,n,54,m)
     i=1
     while (i <= m)
        inds=rand(1:n,n)
        p=pd[int(dr[2])][:,inds]
        inds=rand(1:size(p,2),n)
        try 
-           (pout[:,:,:,i],emdg[:,i],emdss[:,i],fab)=evThruCore(p)
+           (pout[:,:,:,i],emdg[:,i],emdss[:,i],fab,r[:,:,i])=evThruCore(p,true)
            i+=1
        catch
+           print("THERE WAS AN ERROR")
+           sleep(5)
            continue
        end
     end
-   return (pout,emdg,emdss,fab)
+   return (pout,emdg,emdss,fab,r)
    end
 
+trym1(m,n)=trym1(m,n,true)[1:4]
 function plotm(m,emdg)
     for i=1:m-1
         plt.plot(emdg[1:53,i])
@@ -302,7 +317,7 @@ function plotQuants(mat,ps,labs)
 #        append!(delayed_plot.args,[layer(x=ts_ages[1:53]/1000,y=q[1:53],Geom.line)])
     end
     pl_df=vcat(pl_df,DataFrame(x=ts_ages[1:53]/1000,y=mat[1:53,1],label="sample 1"))
-    pl_df=vcat(pl_df,DataFrame(x=ts_ages[1:53]/1000,y=mat[1:53,2],label="sample 2"))
+    pl_df=vcat(pl_df,DataFrame(x=ts_ages[1:53]/1000,y=emdss_core[1:53],label="WAIS divide thin-section profile"))
 #     append!(delayed_plot.args,[layer(x=ts_ages[1:53]/1000,y=emdg[1:53,1],Geom.line)])
 #     append!(delayed_plot.args,[layer(x=ts_ages[1:53]/1000,y=emdg[1:53,2],Geom.line)])
 #    eval(delayed_plot)
