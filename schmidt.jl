@@ -13,13 +13,13 @@ end
 #end
 
 function sp_compose(xs::Array{Float64,1}, ys::Array{Float64,1})
-    return compose(context(),(context(0,0,1,1),circle(xs,ys,0.005*ones(length(xs)))),
-                   (context(0,0,1,1),circle(),fill("bisque"),linewidth(0.1mm),stroke("black")))
+    return compose(context(),(context(0,0,1,1),circle(xs,ys,0.005*ones(length(xs))),fill("black")),
+                   (context(0,0,1,1),circle(0.5w,0.5w,0.36),fill("bisque"),linewidth(0.1mm),stroke("black")))
 end
 
 function plot_compose(composition)
     filename=string(time())
-    img = SVG("/tmp/$filename") #width inch, 4(sqrt(3)/2)inch)
+    img = SVG("/tmp/$filename",6inch,6inch) #width inch, 4(sqrt(3)/2)inch)
     draw(img, compose(composition,linewidth(0.1mm), fill(nothing), stroke("black")))
 
     run(`firefox /tmp/$filename`)
