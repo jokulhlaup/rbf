@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Arch Linux) (preloaded format=pdflatex 2014.9.20)  4 NOV 2014 14:19
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Arch Linux) (preloaded format=pdflatex 2014.12.12)  4 JAN 2015 22:17
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -322,11 +322,6 @@ LaTeX Font Warning: Font shape `OML/cmm/b/it' in size <9.5> not available
 LaTeX Font Warning: Font shape `OMS/cmsy/b/n' in size <9.5> not available
 (Font)              size <9> substituted on input line 41.
 
-! Undefined control sequence.
-l.48 \zepsilon
-               = \xi \left( \left( 1 - \gamma \right)  \epsilon_0 + \gamma \...
-
-? 
 
 Overfull \vbox (5.55556pt too high) has occurred while \output is active []
 
@@ -338,28 +333,28 @@ Overfull \vbox (5.55556pt too high) has occurred while \output is active []
 [3]
 
 LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <8.5> not available
-(Font)              size <8> substituted on input line 98.
+(Font)              size <8> substituted on input line 100.
 
 
 LaTeX Font Warning: Font shape `OT1/cmr/bx/n' in size <8.5> not available
-(Font)              size <8> substituted on input line 98.
+(Font)              size <8> substituted on input line 100.
 
 <waisfit.png, id=28, 648.2619pt x 749.4399pt>
 File: waisfit.png Graphic file (type png)
  <use waisfit.png>
-Package pdftex.def Info: waisfit.png used on input line 99.
+Package pdftex.def Info: waisfit.png used on input line 101.
 (pdftex.def)             Requested size: 341.43306pt x 394.71974pt.
 
 <all4.png, id=30, 778.3479pt x 749.4399pt>
 File: all4.png Graphic file (type png)
  <use all4.png>
-Package pdftex.def Info: all4.png used on input line 105.
+Package pdftex.def Info: all4.png used on input line 107.
 (pdftex.def)             Requested size: 341.43306pt x 328.74825pt.
 
 <ci.png, id=31, 578.16pt x 433.62pt>
 File: ci.png Graphic file (type png)
  <use ci.png>
-Package pdftex.def Info: ci.png used on input line 110.
+Package pdftex.def Info: ci.png used on input line 112.
 (pdftex.def)             Requested size: 341.43306pt x 256.07178pt.
 
 Overfull \vbox (5.55556pt too high) has occurred while \output is active []
@@ -377,7 +372,7 @@ Overfull \vbox (5.55556pt too high) has occurred while \output is active []
 ! Undefined control sequence.
 <recently read> \intent 
                         
-l.135 \intent
+l.137 \intent
               -Find local stress on each grain;
 ? 
 
@@ -392,12 +387,12 @@ LaTeX Font Warning: Size substitutions with differences
  ) 
 Here is how much of TeX's memory you used:
  3508 strings out of 493108
- 46195 string characters out of 6140725
- 118066 words of memory out of 5000000
+ 46195 string characters out of 6140724
+ 117066 words of memory out of 5000000
  6914 multiletter control sequences out of 15000+600000
  13988 words of font info for 52 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 51i,6n,27p,1930b,264s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 51i,6n,27p,1931b,262s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/
 texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texmf-dist/fonts/type1/public
@@ -413,7 +408,7 @@ fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/amsfonts/cm/cmr9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/c
 msy9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/
 share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
-Output written on a.pdf (7 pages, 526907 bytes).
+Output written on a.pdf (7 pages, 527144 bytes).
 PDF statistics:
  107 PDF objects out of 1000 (max. 8388607)
  73 compressed objects within 1 object stream
