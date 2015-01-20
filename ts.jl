@@ -1,5 +1,6 @@
 require("lsap/Assignment.jl")
 require("Constructors.jl")
+using Loess,Grid
 @pyimport matplotlib.pyplot as plt
 
 function emdSM(p)
@@ -199,10 +200,10 @@ sv=Array(Float64,0)
 n=size(p)[2]
 
 rs=Array(Float64,n,54)
-dt=1.5e-5
-smax=repmat([0. 0. 1.],n)'
+dt=2e-5
+sma=repmat([0. 0. 1.],n)'
 (fabE,fab,pars)=Constructors.mkFab(n)
-fab.r=map(x->rand()<0.75?x=0:x,fab.r)
+fab.r=map(x->rand()<0.9?x=0:x,fab.r)
 fab.p[:,:,1]=p;
 emdist=zeros(54)
 grmobs=ones(54)
@@ -216,8 +217,8 @@ pars.nrk=100
     !!!!!!!!!!!!!!!!!")
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
     com=ts_smoothedVertStrain[i]
-    ss=-dj(dr[i],2700)*10
-    fab.temp=ts_temps[i]
+    ss=-dj(dr[i],2700)*5
+    fab.temp=ts_temps[i] - 5
     println(fab.temp, "temps")
     fab.epsdot[3,1]=ss
     fab.epsdot[1,3]=ss
@@ -251,7 +252,7 @@ pars.nrk=100
 #  for i=1:size(ddsv)[2]
 #    sv[:,i]=sv[:,i]/norm(sv[:,i])
 #    end
-  println(typeof(pout),typeof(emdss),typeof(emdg),typeof(fab))
+ println(typeof(pout),typeof(emdss),typeof(emdg),typeof(fab))
   return (pout,emdss,emdg,fab,rs)
 end
 

@@ -1,5 +1,5 @@
 module Utils
-using Base.rand,PyCall,Optim
+using Base.rand,PyCall,Optim,Distributions
 include("lsap/Assignment.jl")
 export voigt2Tensor,tensor2Voigt,rk4!
 export halton,vdc,unifmesh,randir
@@ -27,6 +27,33 @@ function rep_els(x, n)
     end
     return y
 end
+#rotate v
+
+function fisher_rot_mat(k)
+    axis=rand(Distributions.Gaussian(0,1),3)
+    axis/=norm(axis)
+    theta=rand(Distributions.VonMises(0,k),1)
+    c=cos(theta)
+    s=sin(theta)
+    x=axis[1];y=axis[2];z=axis[3]
+    C=1-c
+    R = [ x*x*C+c   x*y*C-z*s  x*z*C+y*s;
+          y*x*C+z*s  y*y*C+c    y*z*C-x*s;
+          z*x*C-y*s  z*y*C+x*s  z*z*C+c]
+    return R
+end
+
+function rodriguez_rotate!(v,axis,theta)
+   v=cos(theta)*v+sin(theta)*cross(v,axis)+(1-cos(theta))*dot(v,axis)*axis
+   return v;
+end
+#rotate v towards w by angle
+function rotate_towards!(v,w,theta)
+    axis=cross(v,w)
+    axis/=norm(axis)
+    v=rodriguez_rotate!(v,axis,theta)
+    return v
+end
 function hash2arr(hash::Dict)
     ka=Array(Any,length(keys(hash)))
     i=1
@@ -52,7 +79,7 @@ function proj2UpHem!(p)
 
 
 function getRandc(n)
-  p=(rand(3,n)-0.5)*2
+  p=rand(Distributions.Normal(),(3,n))
   for i=1:n
     p[:,i]=p[:,i]/norm(p[:,i])
     end
@@ -261,8 +288,5 @@ function diffrandi(this,lo,hi)
     end
   return x
   end
-  
- 
-
 
 end #module

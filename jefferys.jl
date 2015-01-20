@@ -1,6 +1,6 @@
 module jefferys
 using Utils,Distributions
-export consFabricNGG,getRotM,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas,getC
+export consFabricNGG,getRotM,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas,getC,polygonize!
 ##########################
 ##########Get viscosity###
 ##########################
@@ -133,6 +133,7 @@ function consFabricNGG(coors,p,ngr,ns,h,C,vort,epsdot,nn,av_radius,temp)
 macro nanch(test_var)
   quote
   if any(isnan,$test_var)
+    global ERR_VAR=$test_var
     error("NaN in ", $test_var)
   end
   end
@@ -169,19 +170,21 @@ function thorRot!(fab,pars,k,dt,stress_fac)
   S0=Array(Float64,3,3,n);S1=Array(Float64,3,3,n)
   vort=zeros(3,3,n)
   rst=Array(Float64,6,n);
-  rss_0=Array(Float64,n);
+  sigma=voigt2Tensor(inv(getC(fab,k))*tensor2Voigt(fab.epsdot[:,:,k]))
+  eff_stress=sqrt(0.5*abs(Utils.secondInv(sigma)))
+  C=zeros(6,6)
+  C[5,5]=1.
+  C[6,6]=0.01
+  C[1,1]=0.01
+  C[2,2]=0.01
+  C[3,3]=0.01
+  C[4,4]=1.
+
   for i=1:n
-    C=zeros(6,6)
-    C[5,5]=1.
-    C[6,6]=0.01
-    C[1,1]=0.01
-    C[2,2]=0.01
-    C[3,3]=0.01
-    C[4,4]=1.
     if i==50;print('C',C);end
     R=getRotM(fab.p[:,i,k])
     #the resolved strain tensor (voigt)
-    rst[:,i]=C*tensor2Voigt(R*bulk_sigma*R')
+    rst[:,i]=C*tensor2Voigt(R*sigma*R')
     rss_0[i]=sqrt(0.5*(rst[4,i]^2+rst[5,i]^2)) 
     vort[1,3,i]=rst[5,i]
     vort[1,2,i]=rst[6,i]
@@ -213,20 +216,37 @@ function thorRot!(fab,pars,k,dt,stress_fac)
     #fab.p[:,i,k]-=vort[:,:,i]*fab.p[:,i,k]*dt
 
     #fab.p[:,i,k]=-softness[i]*rk4(pars.f,fab.ngr,fab.p[:,i,k],vort[:,:,i],voigt2Tensor(rst[:,i]),dt);
-    fab.p[:,i,k]=rk4(fab.ngr,fab.p[:,i,k],fab.vort[:,:,k],fab.epsdot[:,:,k],dt,softness[i]);
-    fab.p[:,i,k]/=norm(fab.p[:,i,k])
+    rotf=Utils.fisher_rot_mat(50.)
+    rvort=rotf'*fab.vort[:,:,k]*rotf
+    repsdot=rotf'*fab.epsdot[:,:,k]*rotf
+    dx=rk4(fab.ngr,fab.p[:,i,k],rvort,repsdot,dt,softness[i]);
+    fab.p[:,i,k]+=dx
+    poly_stress_ratio=0.09;#0.065;
+    poly_angle_diff=0.087266
+    if abs((rss_0[i]/eff_stress)<poly_stress_ratio)
+        polygonize!(fab,dx,i,k,poly_angle_diff)
     end
+
+#    fab.p[:,i,k]+=rand(Distributions.Gaussian(0,0.05),3)
+    fab.p[:,i,k]/=norm(fab.p[:,i,k])
   end
-
+end
 #function viscRot!(fab,k,dt,stress_fac)
-#function rotate_vgrad(p,vgrad)
-
- #polygonize if certain things happen
-function polygonize!(fab,bulk_eff,rss0i,i,k)
-   fab.p[:,i,k]+=rand(Distributions.Gaussian(0,0.05),3)
-   fab.p[:,i,k]/=norm(fab.p[:,i,k])
-   return fab.p[:,i,k]
+function polygonize!(fab,dx,i,k,poly_angle_diff)
+   for l=1:length(fab.r)
+       if fab.r[l,k]<1e-8
+          dxn=-dx/norm(dx)
+          fab.p[:,l,k]=Utils.rotate_towards!(fab.p[:,i,k],dxn,-poly_angle_diff)
+          fab.p[:,l,k]+=rand(Distributions.Gaussian(0,0.15),3)
+          fab.p[:,l,k]/=norm(fab.p[:,l,k])
+          fab.r[l,k]=(fab.r[i,k]^3*0.5)^(1/3)
+          fab.r[i,k]=fab.r[l,k]
+          print("polygon!")
+          return true;
+       end
    end
+   return false
+end
 
 #function advanceRadii(rs,nbrs,grmob,dt,sigma,ngr,areas,p,pr_nucleation,nuc_vol)
 function advanceRadii(fab::FabricNGG,k,dt)
@@ -261,12 +281,13 @@ function advanceRadii(fab::FabricNGG,k,dt)
   C=0.01*eye(6);C[5,5]=1.;C[4,4]=1
   sigma=voigt2Tensor(inv(getC(fab,k))*tensor2Voigt(fab.epsdot[:,:,k]))
   eff_stress=sqrt(0.5*abs(Utils.secondInv(sigma)))
+  
   for i=1:ngr
     R=getRotM(fab.p[:,i,k])
     #the resolved strain tensor (voigt)
     rst=C*tensor2Voigt(R*sigma*R')
     rss_0[i]=sqrt(0.5*(rst[4]^2+rst[5]^2)) 
-    fab.p[:,i,k]=polygonize!(fab,eff_stress,rss_0[i],i,k)
+#    fab.p[:,i,k]=polygonize!(fab,indmax_eigval,eigenstoff,eff_stress,rss_0[i],i,k)
     end
 
   @nanch(rs)
@@ -510,15 +531,16 @@ end
 
 
 function rk4(n::Int64,x,vort,epsdot,dt,softness)
-
+   a=(softness/6)*dt
+   dx=0.
    for i=1:n
       k1=ejefferys(x,vort,epsdot,dt)
       k2=ejefferys(x+k1*dt/2,vort,epsdot,dt)
       k3=ejefferys(x+k2*dt/2,vort,epsdot,dt)
       k4=ejefferys(x+k3*dt/2,vort,epsdot,dt)
-      x+=(softness/6)*dt*(k1+2*k2+2*k3+k4)
+      dx+=(softness/6)*dt*(k1+2*k2+2*k3+k4)
       end
-   return x
+   return dx
    end
 
 
@@ -575,8 +597,10 @@ function fabricHelper(pars::GlobalPars,fab::FabricNGG,f::Function) #changed fab:
   #this is the function that actually does the rotation.  
   function fabEvolve!(pars::GlobalPars,fab::Fabric,f) #jefferys equation
     for i=1:fab.ns*fab.ngr
-      fab.p[:,i]=rk4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,i,:],
+      if (fab.r[i] > 0)
+        fab.p[:,i]=rk4(f,fab.ngr,fab.h,pars.nrk,pars.dt,fab.p[:,i,:],
           fab.vort[:,:,i],fab.epsdot[:,:,i])
+        end
       end
       return fab.p
     end
