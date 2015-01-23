@@ -7,7 +7,6 @@
 \begin{document}
 
 \title{Ph.D. proposal: Mesoscale stratigraphic disturbances in ice sheets relating to plastic anisotropy}
-<<<<<<< HEAD
 
 \author{Michael Hay,
 Department of Earth and Space Sciences}
@@ -16,7 +15,6 @@ Department of Earth and Space Sciences}
 
 =======
 \maketitle
->>>>>>> a5e30a945b4ac3e1c2d87046e73c2a33a8c3815b
 \section{Introduction}
 Ice cores from ice sheets provide an important record of past climate.  For accurate interpretation, a ice depth-age relationship is needed. The ice-sheet stratigraphic record is an important tool in constructing this relationship. However, ice-sheet stratigraphy can be disturbed, which can make paleoclimate interpretation difficult. Layers can be overturned, resulting in older ice lying above younger ice. As well, boudinage can occur, potentially removing layers from an ice core record. Especially on the meter or smaller scale, it is likely that a large portion of stratigraphic disruptions are due to the plastic anisotropy of ice.
 
@@ -45,10 +43,50 @@ As an aside to the numerical model, we may also adapt the work of \citet{montgom
 \includegraphics[width=12cm]{ci}
 \end{figure*}
 
-<<<<<<< HEAD
-As an aside to the numerical model, we may also adapt the work of \citet{montgomery-smith2011} for ice with nonlinear viscosity. It is very likely that the same instabilities occur, but the nonlinearity of viscosity may enhance the dynamic instabilities.
-=======
->>>>>>> a5e30a945b4ac3e1c2d87046e73c2a33a8c3815b
+
+\subsection{Stability of anisotropic flow}
+
+The General Orthotropic Linear Flow law (GOLF) of \citet{gillet-chaulet2005} is an analytically more tractable model for orthotropic flow. The fabric is assumed to possess three axes of symmetry, and can be described completely by its second-order orienation tensor. In a similar manner to \citet{montgomery-smith2011}, I plan to investigate the stability of a me...
+
+The consitutive relation in tensor form is given by,
+
+\begin{equation}
+S_{ij} = \eta_0 \left[ \eta_r M_{rkl} \dot{D}_{kl} \left( M_{rij}^D \right)  + \eta_{r+3} \left( \dot{D}_{ik} M_{rkj} + \dot{D}_{kj} M_{rik} \right)^D \right],
+\end{equation}
+
+where $S_{ij}$ is the deviatoric stress tensor, and $\dot{D{ij}}$ is the strain rate tensor. $M_{rij} = v_{ri} v_{rj}$ (no sum in $r$), where $v_{ri}$ is the $r^{th}$ eigenvector of the second order orientation tensor $A_{ij}$. $\eta_i$ are six independent flow parameters, which depend linearly on the three eigenvalues of $A_{ij}$. Fabric evolution is modeled using a form of the Jeffery's equation for orthotropic orientation distribution functions \citep{gillet-chaulet2006},
+
+\begin{equation}
+   \frac{\partial A_{ij}}{\partial t} = -\frac{\partial}{\partial x_k} A_{ij} u_k + W_{ik} A_{kj} - A_{ik} W_{kj} - (D_{ik}W_{kj} + D_{kj}W_{ik}) + 2 \mathbb{A}_{ijkl}C_{kl}
+\end{equation}
+
+Now, we introduce perturbations of a specific wavenumber $\kappa$:
+
+\begin{enumerate}
+   \item $\phi \rightarrow \bar{phi} + \epsilon \hat{phi} e^{i \kappa_k x_k}$
+   \item $u_j \rightarrow \bar{u}_j +  \epsilon \hat{u}_j e^{i \kappa_k x_k}$
+   \item $A_{ij} \rightarrow \bar{A}_{ij} +  \epsilon \hat{A}_{ij} e^{i \kappa_k x_k}$
+   \item $S_{ij} \rightarrow \bar{S}_{ij} +  \epsilon \hat{S}_{ij} e^{i \kappa_k x_k}$
+   \item $u_j \rightarrow \bar{U}_{ij}x_j +  \epsilon \hat{u}_j e^{i \kappa_k x_k}$
+\end{enumerate}
+
+First, to satisfy Jeffery's equation, it can be shown that at time $t$, $\kappa_j(t)=e^{-t U_{kj}} \kappa^0_k$, where $kapp^0_k$ is the initial wavenumber at $t=0$ \citep{montgomery-smith2011}. Incompressibility and force balance require that the perturbations satisfy,
+
+\begin{equation}
+   \frac{\partial}{\partial x_j} (\hat{u}_j e^{i \kappa_k x_k}) = 0 
+   \hat{S}_{jk,k} e^{i \kappa_k x_k} = 0
+\end{equation}
+
+Since $\hat{S_{ij}}$ and $\hat{u_i}$ are spatially homogeneous, these reduce to $\kappa_k u_k = 0$ and $\kappa_k \sigma_{jk} = 0$, respectively. Thus, using incompressibility, there are two independent velocity components. The expression for $\hat{S_{ij}}$ is found by substituting substituting in the perturbed quantities into equation !!!!!Equation Number!!!!, and discarding terms of $\epsilon^2$ and higher. Zero order terms vanish, as they satisfy the original equaitons. $M_{rij}$ and $\eta_i$ are functions of the eigenvectors and eigenvalues, respectively, of the perturbed $A_{ij}$. The perturbed eigenvalues and eigenvectors themselves can be assumed to be linear perturbations depending on the perturbed $A_{ij}$. 
+
+A perturbed evolution equation for $A_{ij}$ is also needed. This is done by putting the perturbed $W_{ij}$, $D_{ij}$, $A_{ij}$, $\mathbb{A}_{ijkl}$, dividing out the exponential, and discarding higher-order terms. This yields,
+\begin{equation}
+   \frac{\partial \hat{A}_{ij}}{\partial t} = -\frac{\partial}{\partial x_k} \left( \hat{A}_{ij} \bar{U_k} + \bar{A}_{ij} \hat{u}_k \right)  + \bar{W}_{ik} \hat{A}_{kj} + \hat{W}_{ik} \bar{A}_{kj}  - A_{ik} W_{kj} - (D_{ik}W_{kj} + D_{kj}W_{ik}) + 2 \mathbb{A}_{ijkl}D_{kl}
+
+\end{equation}
+
+Therefore, the first order perturbation can be written as a homogeneous linear system for two independent components of velocity, and six indpendent components of $A_{ij}$. The algebra to determine the system matrix is quite tedious, but is tractable with a computer algebra system. From this, I will be able to examine the stability of the linearized system in response to perturbations of the orientation distrbution functions.
+
 
 \subsection{Funding}
 This research is currently funded by NSF Grant 0636996 for the study of anisotropic ice flow. This will continue until June 2016, although an extension is likely. If funding is needed beyond then, we will seek another grant or rely on TA funding. 
