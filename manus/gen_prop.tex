@@ -1,5 +1,5 @@
 \documentclass{report}
-\usepackage{mathtools,natbib}
+\usepackage{mathtools,natbib,amsmath,amsfonts}
 
 \author{Michael Hay, Department of Earth and Space Sciences}
 
@@ -46,7 +46,18 @@ As an aside to the numerical model, we may also adapt the work of \citet{montgom
 
 \subsection{Stability of anisotropic flow}
 
-The General Orthotropic Linear Flow law (GOLF) of \citet{gillet-chaulet2005} is an analytically more tractable model for orthotropic flow. The fabric is assumed to possess three axes of symmetry, and can be described completely by its second-order orienation tensor. In a similar manner to \citet{montgomery-smith2011}, I plan to investigate the stability of a me...
+The General Orthotropic Linear Flow law (GOLF) of \citet{gillet-chaulet2005} is an analytically more tractable model for orthotropic flow. The fabric is assumed to possess three axes of symmetry, and can be described completely by its second-order orienation tensor. In a similar manner to \citet{montgomery-smith2011}, I plan to investigate the stability of orthotropic flow coupled to a fabric evolution model using linear stability analysis.
+
+Fabric evolution is modeled using a form of the Jeffery's equation for orthotropic orientation distribution functions \citep{gillet-chaulet2006},
+
+\begin{equation}
+   \frac{\partial A_{ij}}{\partial t} = -\frac{\partial}{\partial x_k} A_{ij} u_k + W_{ik} A_{kj} - A_{ik} W_{kj} - (D_{ik}W_{kj} + D_{kj}W_{ik}) + 2 \mathbb{A}_{ijkl} C_{kl}
+\end{equation}
+
+Jeffery's equation for an orientation tensor of order $n$ depends on the orientation tensor of order $n+2$, here the fourth-order orientation tensor $\mathbb{A}_{ijkl}$. Therefore, a closure approximation for $\mathbb{A}_{ijkl}$ is required. In the literature, various approxmations are used. \citet{gillet-chaulet2006} used the "invariant-based optimal fitting closure approximation" which is is fitted based on 63 parameters. Instead, we use the quadratic closure, in which $\mathbb{A}_{ijkl} = A_{ij} A_{kl}$. This is simple, and is exact for fabrics whose c-axes are concentrated in a single orientation. 
+%While this allows for a great deal of freedom to accurately fit fabrics, it would make mathematical interpretation of the results difficult. In industry, the ``hybrid closure'' is the most widely used. The hybrid closure \citep{advani90} is a weighted average between the quadratic closure ( $\mathbb{A}_{ijkl} = A_{ij} A_{kl}$ ) and the linear closure, where $\mathbb{A}_{ijkl}$ is a linear function of $A_{ij}$. This has the advantage of being mathematically simple, while being a well-attested approximation.
+
+
 
 The consitutive relation in tensor form is given by,
 
@@ -54,38 +65,84 @@ The consitutive relation in tensor form is given by,
 S_{ij} = \eta_0 \left[ \eta_r M_{rkl} \dot{D}_{kl} \left( M_{rij}^D \right)  + \eta_{r+3} \left( \dot{D}_{ik} M_{rkj} + \dot{D}_{kj} M_{rik} \right)^D \right],
 \end{equation}
 
-where $S_{ij}$ is the deviatoric stress tensor, and $\dot{D{ij}}$ is the strain rate tensor. $M_{rij} = v_{ri} v_{rj}$ (no sum in $r$), where $v_{ri}$ is the $r^{th}$ eigenvector of the second order orientation tensor $A_{ij}$. $\eta_i$ are six independent flow parameters, which depend linearly on the three eigenvalues of $A_{ij}$. Fabric evolution is modeled using a form of the Jeffery's equation for orthotropic orientation distribution functions \citep{gillet-chaulet2006},
+where $S_{ij}$ is the deviatoric stress tensor, and $\dot{D{ij}}$ is the strain rate tensor. $M_{rij} = v_{ri} v_{rj}$ (no sum in $r$), where $v_{ri}$ is the $r^{th}$ eigenvector of the second order orientation tensor $A_{ij}$. $\eta_r$ are six independent flow parameters, depending on $A_{ij}$ and the chosen homogenization model to transfer between the stress and strain experienced by an individual grain to that experienced by the polycrystal. Here, I assume homogeneous strain. Then, we can assume that basal glide is solely responsible for deformation, leading to the following relation between macroscopic stress and macroscopic strain rate. This leads to the inverse form of GOLF, which is a linear relationship given by,
 
 \begin{equation}
-   \frac{\partial A_{ij}}{\partial t} = -\frac{\partial}{\partial x_k} A_{ij} u_k + W_{ik} A_{kj} - A_{ik} W_{kj} - (D_{ik}W_{kj} + D_{kj}W_{ik}) + 2 \mathbb{A}_{ijkl}C_{kl}
+   D_{ij} = \frac{1}{2 \eta} \left[ -2 \mathbb{A}_{ijkl}S_{kl}  S_{ik}A_{kj} + A_{ik}S{kj} \right] = H_{ijkl} S_{kl},
 \end{equation}
 
-Now, we introduce perturbations of a specific wavenumber $\kappa$:
+We assume, for the unperturbed equations, that we are working in the orthotropic reference frame. Then, $A_{ij}$ become diagonal tensors of the fabric eigenvalues. Also, $M_{ij}$ reduces to $\delta_{ij}$. This simplifies EQUATION to 
+
+\begin{equation}
+   S_{ij} =\eta_0 \left[\eta_r D_{ik} \delta_{ij} +  2* \eta D_{ij} + \lambda_r D_{kk} \delta_{ij}  = L_{ijkl} D_{kl}
+   \end{equation}
+   
+We can then substitute EQUATION into EQUATION. Due to the linearity, this can be written by composing the linear operators to get,
+
+\begin{equation}
+   D_{ij} = H_{ijkl} L_{klmn} D_{mn}
+\end{equation}
+The $eta_i$ are properly fitted if the equation is satisfied for arbitary $D_{ij}$. Therefore, the composition has to yield the identity fourth order tensor. Note that both $L_{ijkl}$ and $H_{ijkl}$ are symmetric. Therefore, we can write this system in Voigt notation as,
+
+\begin{equation}
+   \underline{\mathbf{d}} = \underline{\underline{\mathbf{H}}} \cdot \underline{\underline{\mathbf{L}}} \cdot \underline{\mathbf{d}}
+\end{equation},
+
+where $\underline{\underline{\mathbb{H}}}$ and  $\underline{\underline{\mathbb{L}}}$  are $6 \times 6$ matrices, and $d = [D_{11},D_{22},D_{33},D_{32},D_{23},D_{21}]$. Now, in the orthotropic reference frame, it can be seen that both $H$ and $L$ are ``kite'' matrices. They have possible nonzero entries in the $3 \times 3$ submatrix in the upper left, and nonzeros on the diagonal. $\underline{\underline{\mathbb{L}}}$ is derived in \citet{golf}. They are nonunique because both $S_{ij}$ and $D_{ij}$ have zero trace. This allows us to select $\lambda_i$ in EQUATION to make $\underline{\underline{\mathbb{L}}}$ symmetric.  
+
+$\underline{\underline{\mathbb{H}}}$ is determined by the fabric eigenvalues, while $\underline{\underline{\mathbb{H}}}$ is a function of the $\eta_r$. Thus, we need to choose $\eta_r$ such that tensors with zero trace are unchanged by the transformation. $\underline{\underline{\mathbb{H}}}$ has three linearly independent components, and twelve nonzero components. It turns out that $\underline{\underline{\mathbb{H}}}^{-1}$ has 6 unique components. In the ``kite'' portion, the three nonzero components of each row are identical. The ``tail'' of the kite is trivial to invert, and it turns out that 
+\begin{equation}
+   \eta_{3 + i} = \frac{1}{a_j + a_k}, \text{for}  $i=1,2,3$ \text{and} $i \neq $j,k$.
+\end{equation}
+
+Then, the remaining three $\eta_i$ can be found by,
+\begin{equation}
+   \eta_1 + 4 \eta_4 = -\eta_2 + 2 \eta_5 = -\eta_3 + 2 eta_6 = const.
+\end{equation}
+%  Since both To do this, note that EQUATION d is a linear relationship between $D_{ij}$ and $S_{ij}$.  
+%   This expression for $S_{ij}$ can then be substituted into a linear equation $D_{ij} = C_{ijkl} S_{kl}$. The $C_{ijkl}$ tensor has six independent parameters, as a function of the non-null components of $A_{ij}$ and $\mathbb{A}_{ijkl}$ in the orthotropic frame. Written in Voigt notation, $m\mathbf{C}$ is a $6 \times 6$ kite matrix, and $m\mathbf{S}$ and $m\mathbf{D}$ are $6$-vectors. $m\mathbf{S}$ is linear function of the fabric parameters, thus  
+%  Now, if we write out this equation in Voigt notation, $L_{ijkl}$ becomes a  $6 \times 6$ ``kite'' matrix. It has possible nonzero entries in the $3 \times 3$ submatrix in the upper left, and nonzeros on the diagonal.  W
+
+To study the stability of GOLF flow in response to perturbations, I plan to do stability analysis in response to perturbations of the ODF. We assume that there is fluid obeying the GOLF flow law filling all of $\mathbb{R}^3$ with an unperturbed velocity gradient $U_{ij}$. Now, we introduce a perturbation at time $t=0$ of a specific wavenumber $\kappa$ to $A_{ij}$:
+
+\begin{equation}
+   A_{ij} \rightarrow \bar{A}_{ij} +  \epsilon \hat{A}_{ij} e^{i \kappa_k x_k}
+\end{equation}
+
+Now, in  response to this initial perturbation, we assume that the quantities depending on $A_{ij}$ are perturbed by the same wavenumber:
 
 \begin{enumerate}
-   \item $\phi \rightarrow \bar{phi} + \epsilon \hat{phi} e^{i \kappa_k x_k}$
-   \item $u_j \rightarrow \bar{u}_j +  \epsilon \hat{u}_j e^{i \kappa_k x_k}$
-   \item $A_{ij} \rightarrow \bar{A}_{ij} +  \epsilon \hat{A}_{ij} e^{i \kappa_k x_k}$
-   \item $S_{ij} \rightarrow \bar{S}_{ij} +  \epsilon \hat{S}_{ij} e^{i \kappa_k x_k}$
    \item $u_j \rightarrow \bar{U}_{ij}x_j +  \epsilon \hat{u}_j e^{i \kappa_k x_k}$
+   \item $p \rightarrow \bar{p} + \epsilon \hat{p} e^{i \kappa_k x_k}$
+   \item $S_{ij} \rightarrow \bar{S}_{ij} +  \epsilon \hat{S}_{ij} e^{i \kappa_k x_k}$
+   \item $\phi \rightarrow \bar{\phi} + \epsilon \hat{\phi} e^{i \kappa_k x_k}$
+   \item $\mathbb{A}_{ijkl} \rightarrow \bar{\mathbb{A}}_{ijkl} + \hat{\mathbb{A}}_{ijk}$
 \end{enumerate}
 
-First, to satisfy Jeffery's equation, it can be shown that at time $t$, $\kappa_j(t)=e^{-t U_{kj}} \kappa^0_k$, where $kapp^0_k$ is the initial wavenumber at $t=0$ \citep{montgomery-smith2011}. Incompressibility and force balance require that the perturbations satisfy,
+The ``hat'' quantities are assumed to be constant over space, but may vary with time. First, to satisfy Jeffery's equation, it can be shown that at time $t$, $\kappa_j(t)=e^{-t U_{kj}} \kappa^0_k$, where $\kappa^0_k$ is the initial wavenumber at $t=0$ \citep{montgomery-smith2011}. Compressibility and force balance require
 
 \begin{equation}
-   \frac{\partial}{\partial x_j} (\hat{u}_j e^{i \kappa_k x_k}) = 0 
-   \hat{S}_{jk,k} e^{i \kappa_k x_k} = 0
+   \frac{\partial}{\partial x_j} (\hat{u}_j e^{i \kappa_k x_k}) = 0 \\ 
 \end{equation}
-
-Since $\hat{S_{ij}}$ and $\hat{u_i}$ are spatially homogeneous, these reduce to $\kappa_k u_k = 0$ and $\kappa_k \sigma_{jk} = 0$, respectively. Thus, using incompressibility, there are two independent velocity components. The expression for $\hat{S_{ij}}$ is found by substituting substituting in the perturbed quantities into equation !!!!!Equation Number!!!!, and discarding terms of $\epsilon^2$ and higher. Zero order terms vanish, as they satisfy the original equaitons. $M_{rij}$ and $\eta_i$ are functions of the eigenvectors and eigenvalues, respectively, of the perturbed $A_{ij}$. The perturbed eigenvalues and eigenvectors themselves can be assumed to be linear perturbations depending on the perturbed $A_{ij}$. 
-
-A perturbed evolution equation for $A_{ij}$ is also needed. This is done by putting the perturbed $W_{ij}$, $D_{ij}$, $A_{ij}$, $\mathbb{A}_{ijkl}$, dividing out the exponential, and discarding higher-order terms. This yields,
 \begin{equation}
-   \frac{\partial \hat{A}_{ij}}{\partial t} = -\frac{\partial}{\partial x_k} \left( \hat{A}_{ij} \bar{U_k} + \bar{A}_{ij} \hat{u}_k \right)  + \bar{W}_{ik} \hat{A}_{kj} + \hat{W}_{ik} \bar{A}_{kj}  - A_{ik} W_{kj} - (D_{ik}W_{kj} + D_{kj}W_{ik}) + 2 \mathbb{A}_{ijkl}D_{kl}
-
+   \frac{\partial}{\partial x_j}  (\hat{S}_{ij} - \hat{p}) e^{i \kappa_k x_k} = 0
 \end{equation}
 
-Therefore, the first order perturbation can be written as a homogeneous linear system for two independent components of velocity, and six indpendent components of $A_{ij}$. The algebra to determine the system matrix is quite tedious, but is tractable with a computer algebra system. From this, I will be able to examine the stability of the linearized system in response to perturbations of the orientation distrbution functions.
+Since $\hat{S}_{ij}}$, $\hat{p}$, and $\hat{u_i}$ are spatially homogeneous, these reduce to $\kappa_k u_k = 0$ and $\kappa_k \hat{\sigma_{jk}} -\kappa_j \hat{p} = 0$, respectively. The expression for $\hat{S}_{ij}$ is found by substituting substituting in the perturbed quantities into equation  and discarding terms of $\epsilon^2$ and higher. Zero order terms vanish, as they satisfy the original equaitons. $M_{rij}$ is the product $v_{ri}v{rj}$, where , respectively, of the perturbed $A_{ij}$. The perturbed eigenvalues and eigenvectors themselves can be assumed to be linear perturbations depending on the perturbed $A_{ij}$. Therefore, the first-order perturbed Stokes equations reduce to a set of four homogeneous linear ordinary differential equations depending on $\hat{A}_{ij}$ and $\hat{u_k}$.
+
+Now we look for the equation for the time evolution of the perturbation $\hat{A}_{ij}$. This is done by putting the perturbed quantities $W_{ij}$, $\D_{ij}$, $A_{ij}$, $\mathbb{A}_{ijkl}$, dividing out the exponential, and discarding higher-order terms. This yields,
+\begin{equation}
+\begin{align*}
+   \frac{\partial \hat{A}_{ij}}{\partial t} &= -\frac{\partial}{\partial x_k} \left( \hat{A}_{ij} \bar{U_k} + \bar{A}_{ij} \hat{u}_k \right) + \bar{W}_{ik} \hat{A}_{kj} + \hat{W}_{ik} \bar{A}_{kj}  - \bar{A}_{ik} \hat{W}_{kj} 
+  \\ 
+   &- \hat{A}_{ik} \bar{W}_{kj} - \hat{D}_{ik}\bar{W}_{kj} - \bar{D}_{ik}\hat{W}_{kj} 
+   \\ 
+   & - \hat{D}_{kj}\bar{W}_{ik} - \bar{D}_{kj} \hat{W}_{ik} + 2 (\bar{\mathbb{A}}_{ijkl} \hat{D}_{kl} + \hat{\mathbb{A}}_{ijkl} \bar{D}_{kl})
+\end{equation}.
+
+Note that the exponential term divides out of each term of the Stokes equations and Jefferys equation, and the exponential is the only spatially nonhomogeneous component of each equation.  Therefore, the first order perturbed Stokes equations reduce to a homogeneous algebraic linear system for velocity and pressure. The perturbed Jefferys equation becomes an ordinary differential equation for six independent components of $\hat{A}_{ij}$.
+
+
 
 
 \subsection{Funding}
