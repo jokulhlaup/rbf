@@ -216,7 +216,7 @@ function thorRot!(fab,pars,k,dt,stress_fac)
     #fab.p[:,i,k]-=vort[:,:,i]*fab.p[:,i,k]*dt
 
     #fab.p[:,i,k]=-softness[i]*rk4(pars.f,fab.ngr,fab.p[:,i,k],vort[:,:,i],voigt2Tensor(rst[:,i]),dt);
-    rotf=Utils.fisher_rot_mat(50.)
+    rotf=Utils.fisher_rot_mat(10.)
     rvort=rotf'*fab.vort[:,:,k]*rotf
     repsdot=rotf'*fab.epsdot[:,:,k]*rotf
     dx=rk4(fab.ngr,fab.p[:,i,k],rvort,repsdot,dt,softness[i]);
@@ -482,7 +482,9 @@ function nRK4(f,ntimes::Int,h::Number,m::Number,dt,p,vort,epsdot)
   return p
   end
 
-function rk4(f::Function,n::Int64,x,vort,epsdot,dt)
+function rk4(f::Function,n::Int64,x,vort_b,epsdot_b,dt)
+   #vort=deepcopy(epsdot); vort[3,1:2]=0
+   #vort[2,1]=0; vort=vort-vort'
    for i=1:n
       k1=f(x,vort,epsdot,dt)
       k2=f(x+k1*dt/2,vort,epsdot,dt)
@@ -493,24 +495,49 @@ function rk4(f::Function,n::Int64,x,vort,epsdot,dt)
    return x
    end
 
-  
 
-   
 function ejefferys(x,vort,epsdot,dt)
-   res=zeros(3)
-   for j=1:3
-      for i=1:3
-         res[i]-=epsdot[i,j]*x[j]
+  res=zeros(3)
+  for j=1:3
+    for i=1:3
+      res[i]-=epsdot[i,j]*x[j]
       end
-   end
-   epsc2=res[1]*x[1]+res[2]*x[2]+res[3]*x[3]
-   for j=1:3
-      @simd for i=1:3
-        @inbounds res[i]+=vort[i,j]*x[j]
-      end
-   end
-   res=(res-epsc2*x)*dt
-end
+    end
+  epsc2=res[1]*x[1]+res[2]*x[2]+res[3]*x[3]
+  for j=1:3
+    @simd for i=1:3
+      @inbounds res[i]+=vort[i,j]*x[j]
+     end
+    end
+  res=(res-epsc2*x)*dt
+  end
+   
+#function ejefferys(x,vort,epsdot,dt)
+#   res=zeros(3)
+#   for j=1:3
+#       @simd for i=1:3
+#         @inbounds res[i]=-epsdot[i,j]*x[j]
+#      end
+#   end
+#   epsc2=res[1]*x[1]+res[2]*x[2]+res[3]*x[3]
+#   for j=1:3
+#      @simd for i=1:3
+#        @inbounds res[i]+=vort[i,j]*x[j]
+#      end
+#   end
+   
+   #res2=zeros(3)
+   #res2[1]=epsdot[1,3]*x[3]
+   #res2[2]=epsdot[2,3]*x[3]
+   #res2[
+   ##res[3]-=epsdot[2,3]*x[2]
+   #res[3]-=epsdot[1,3]*x[1]
+   #res=(res-epsc2*x)*dt
+   #vt=zeros(3,3); vt[1,2:3]=epsdot[1,2:3]
+   #vt[2,3]=epsdot[2,3];vt-=vt'
+   #res=0.8*res+0.2*(vt*x-epsdot*x+
+#   return res - epsc2*x
+#end
        
 #function ejefferys(x,vort,epsdot,dt)
 #   res=zeros(3)
@@ -528,20 +555,50 @@ end
 #   res=(res+epsc2*x)*dt
 #end
  
+function rk4(n::Int64,x,vort,epsdot_b,dt,softness)
+  a=(softness/6)*dt
+  dx=0.
+  rot_mat=Utils.rotate_mat_rodriguez(x)
+  epsdot=epsdot_b
+  epsdot=rot_mat*epsdot_b*rot_mat'
+  epsdot13=epsdot[1,3];epsdot23=epsdot[2,3]
+  epsdot=zeros(3,3);epsdot[1,3]=epsdot13
+  epsdot[2,3]=epsdot23
+  epsdot+=epsdot'
+  epsdot=rot_mat'*epsdot*rot_mat
+#
+  for i=1:n
+    k1=ejefferys(x,vort,epsdot,dt)
+    k2=ejefferys(x+k1*dt/2,vort,epsdot,dt)
+    k3=ejefferys(x+k2*dt/2,vort,epsdot,dt)
+    k4=ejefferys(x+k3*dt/2,vort,epsdot,dt)
+    dx+=(softness/6)*dt*(k1+2*k2+2*k3+k4)
+    end
+  return dx
+  end
 
-
-function rk4(n::Int64,x,vort,epsdot,dt,softness)
-   a=(softness/6)*dt
-   dx=0.
-   for i=1:n
-      k1=ejefferys(x,vort,epsdot,dt)
-      k2=ejefferys(x+k1*dt/2,vort,epsdot,dt)
-      k3=ejefferys(x+k2*dt/2,vort,epsdot,dt)
-      k4=ejefferys(x+k3*dt/2,vort,epsdot,dt)
-      dx+=(softness/6)*dt*(k1+2*k2+2*k3+k4)
-      end
-   return dx
-   end
+#2function rk4(n::Int64,x,vort,epsdot_b,dt,softness)
+#   a=(softness/6)*dt
+#   dx=zeros(3)
+#   #xr=[0,0,1]
+##   rot_mat=Utils.rotate_mat_rodriguez(x)
+#   epsdot=epsdot_b
+##   epsdot=rot_mat*epsdot_b*rot_mat'
+##   epsdot13=epsdot[1,3];epsdot23=epsdot[2,3]
+##   epsdot=zeros(3,3);epsdot[1,3]=epsdot13
+##   epsdot[2,3]=epsdot23
+##   epsdot+=epsdot'
+##   epsdot=rot_mat'*epsdot*rot_mat
+#   for i=1:n
+#      k1=ejefferys(x,vort,epsdot,dt)
+#      k2=ejefferys(x+k1*dt/2,vort,epsdot,dt)
+#      k3=ejefferys(x+k2*dt/2,vort,epsdot,dt)
+#      k4=ejefferys(x+k3*dt/2,vort,epsdot,dt)
+#      dx+=(softness/6)*dt*(k1+2*k2+2*k3+k4)
+#      end
+##   dx=rot_mat*dx   
+#   return dx
+#   end
 
 
 function jefferysRHS(c,vort,epsdot,dt)

@@ -153,7 +153,7 @@ function init2svd(fab,smsvd)
   let(i=1)
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])*10
     com=ts_smoothedVertStrain[i]
-    ss=dj(dr[i],2000)*100
+    ss=dj(dr[i],2000)*1000
     fab.temp=ts_temps[i]+10
     fab.epsdot[1,1]=2.0*com
     fab.epsdot[2,2]=0.0

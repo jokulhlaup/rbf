@@ -29,6 +29,22 @@ function rep_els(x, n)
 end
 #rotate v
 
+function rotate_mat_rodriguez(v)
+    if v[3]>.99999
+        return eye(3)
+    end
+    axis=cross(v,[0,0,1])
+    axis/=norm(axis)
+    theta=acos(v[3])
+    K=zeros(3,3)
+    K[1,2]=-axis[3];K[1,3]=axis[2];K[2,3]=-axis[1]
+    K[2,1]=axis[3];K[3,1]=-axis[2];K[3,2]=axis[1]
+    R=eye(3)
+    R+=sin(theta)*K
+    R+=(1-cos(theta))*K*K
+    return R
+end
+
 function fisher_rot_mat(k)
     axis=rand(Distributions.Gaussian(0,1),3)
     axis/=norm(axis)
