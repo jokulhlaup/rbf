@@ -1,51 +1,51 @@
-This is BibTeX, Version 0.99d (TeX Live 2013/Arch Linux)
+This is BibTeX, Version 0.99d (TeX Live 2014/Arch Linux)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: a.aux
-The style file: agu.bst
+The style file: igs.bst
 Database file #1: anis.bib
-I was expecting an "="---line 425 of file anis.bib
+I was expecting an "="---line 457 of file anis.bib
  : Web 
  :     of Science-Category = {{Geography, Physical; Geosciences, Multidisciplinary}},
 I'm skipping whatever remains of this entry
-You've used 16 entries,
-            2789 wiz_defined-function locations,
-            1094 strings with 11022 characters,
-and the built_in function-call counts, 15421 in all, are:
-= -- 2030
-> -- 562
-< -- 9
-+ -- 324
-- -- 135
-* -- 971
-:= -- 1454
-add.period$ -- 16
-call.type$ -- 16
-change.case$ -- 92
-chr.to.int$ -- 16
-cite$ -- 48
-duplicate$ -- 1411
-empty$ -- 681
-format.name$ -- 179
-if$ -- 3102
+You've used 19 entries,
+            2276 wiz_defined-function locations,
+            686 strings with 7442 characters,
+and the built_in function-call counts, 8632 in all, are:
+= -- 777
+> -- 398
+< -- 10
++ -- 151
+- -- 120
+* -- 839
+:= -- 1480
+add.period$ -- 38
+call.type$ -- 19
+change.case$ -- 135
+chr.to.int$ -- 19
+cite$ -- 19
+duplicate$ -- 372
+empty$ -- 674
+format.name$ -- 157
+if$ -- 1690
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 16
-newline$ -- 52
-num.names$ -- 64
-pop$ -- 575
+missing$ -- 19
+newline$ -- 63
+num.names$ -- 57
+pop$ -- 101
 preamble$ -- 1
-purify$ -- 76
+purify$ -- 135
 quote$ -- 0
-skip$ -- 1131
+skip$ -- 237
 stack$ -- 0
-substring$ -- 775
-swap$ -- 1267
-text.length$ -- 1
+substring$ -- 669
+swap$ -- 51
+text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 144
+type$ -- 114
 warning$ -- 0
-while$ -- 92
+while$ -- 72
 width$ -- 0
-write$ -- 179
+write$ -- 213
 (There was 1 error message)

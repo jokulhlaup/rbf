@@ -1,6 +1,6 @@
 module Constructors
-
-using Utils,Plotting,PyCall,jefferys
+using Utils,Plotting
+using PyCall,jefferys
 export jefferysRHS,mkFab
 @pyimport matplotlib.pyplot as plt
 

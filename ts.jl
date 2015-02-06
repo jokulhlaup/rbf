@@ -76,7 +76,7 @@ for d=1:length(dr)
     if pd[i][3,j] < 0
     pd[i][1,j] = - pd[i][1,j]  ;
     pd[i][2,j] = -pd[i][2,j];
-    pd[i][3,j] = -pd[i][2,j] ;
+    pd[i][3,j] = -pd[i][3,j] ;
       end
     end
   x[:,d]=svd(pd[i])[2]
@@ -196,7 +196,7 @@ end
 function evThruCore(p,get_r)
 emdss=Array(Float64,54)
 emdg=Array(Float64,54)
-sv=Array(Float64,0)
+svm=Array(Float64,3,54)
 n=size(p)[2]
 
 rs=Array(Float64,n,54)
@@ -207,7 +207,7 @@ fab.r=map(x->rand()<0.9?x=0:x,fab.r)
 fab.p[:,:,1]=p;
 emdist=zeros(54)
 grmobs=ones(54)
-grmobs[21:end]=3.
+#grmobs[21:end]=3.
 girdle=getGirdle(n)
 pout=zeros(3,n,54)
 fab.vort=zeros(3,3,1)
@@ -244,6 +244,10 @@ pars.nrk=100
     global rad=fab.r
     global strain=fab.str
     emdg[i]=Utils.earthMoversDist(fab.p[:,:,1],girdle)[1]/n
+    foo=svd(fab.p[:,:,1])[2]
+    print(typeof(foo))
+    svm[:,i]=sort(foo)
+    #svm[i]=minimum(foo)/norm(foo)
     println(emdss[i])
 #    append!(sv,sort(svd(fab.p[:,:,1])[2]))
     println("\n step",i)
@@ -253,12 +257,12 @@ pars.nrk=100
 #    sv[:,i]=sv[:,i]/norm(sv[:,i])
 #    end
  println(typeof(pout),typeof(emdss),typeof(emdg),typeof(fab))
-  return (pout,emdss,emdg,fab,rs)
+  return (pout,emdss,emdg,fab,rs,svm)
 end
 
 evThruCore(p)=evThruCore(p,true)[1:4]
 function trym1(m,n,get_r)
-    
+    svm=Array(Float64,3,54,m) 
     emdg=Array(Float64,54,m)
     emdss=Array(Float64,54,m)
     pout=zeros(3,n,54,m)
@@ -266,10 +270,10 @@ function trym1(m,n,get_r)
     i=1
     while (i <= m)
        inds=rand(1:n,n)
-       p=pd[int(dr[2])][:,inds]
+       p=pd[int(dr[1])][:,inds]
        inds=rand(1:size(p,2),n)
        try 
-           (pout[:,:,:,i],emdg[:,i],emdss[:,i],fab,r[:,:,i])=evThruCore(p,true)
+           (pout[:,:,:,i],emdg[:,i],emdss[:,i],fab,r[:,:,i],svm[:,:,i])=evThruCore(p,true)
            i+=1
        catch
            print("THERE WAS AN ERROR")
@@ -277,8 +281,10 @@ function trym1(m,n,get_r)
            continue
        end
     end
-   return (pout,emdg,emdss,fab,r)
+   return (pout,emdg,emdss,fab,r,svm)
    end
+
+   
 
 trym1(m,n)=trym1(m,n,true)[1:4]
 function plotm(m,emdg)
@@ -305,21 +311,39 @@ function getquantile(mat, p)
     return q
 end
 
+function pyQuants(mat,ps,labs)
+    fig,ax=plt.subplots(1)
+    q=Array(Float64,53,length(ps))
+    for i=1:3
+       q[:,i]=getquantile(mat,ps[i])
+    end
+    ax[:plot](ts_ages[1:53]/1000,q[:,2],label=labs[2])
+    ax[:fill_between](ts_ages[1:53]/1000,q[:,1],q[:,3],facecolor="yellow",alpha=0.5,label="95% empirical quantile range")
+    ax[:plot](ts_ages[1:53]/1000,mat[:,1],label="sample a")
+    ax[:plot](ts_ages[1:53]/1000,mat[:,2],label="sample b")
+    ax[:legend](loc="upper_left")
+        #x=ts_ages[1:53]/1000,y=q[1:53,i],label=labs[i])
+        #pl_df=vcat(pl_df,df)
+#        plt.plot(ts_ages[1:53]/1000,q[1:53], color="k",label=labs[i],marker=m[i]
+#        append!(delayed_plot.args,[layer(x=ts_ages[1:53]/1000,y=q[1:53],Geom.line)])
+   return (fig,ax)
+    end
+ 
 function plotQuants(mat,ps,labs)
     m=["+","2",","]
     delayed_plot=:(plot())
-    q=Array(Float64,size(emdg,1),length(ps))
-    pl_df=DataFrame()
+    q=Array(Float64,53,length(ps))
+    pl_df=DataFrames.DataFrame()
     for i=1:length(ps)
         q[:,i]=getquantile(mat,ps[i])
-        df=DataFrame(x=ts_ages[1:53]/1000,y=q[1:53,i],label=labs[i])
+        df=DataFrames.DataFrame(x=ts_ages[1:53]/1000,y=q[1:53,i],label=labs[i])
         pl_df=vcat(pl_df,df)
 #        plt.plot(ts_ages[1:53]/1000,q[1:53], color="k",label=labs[i],marker=m[i]
 #        append!(delayed_plot.args,[layer(x=ts_ages[1:53]/1000,y=q[1:53],Geom.line)])
     end
-    pl_df=vcat(pl_df,DataFrame(x=ts_ages[1:53]/1000,y=mat[1:53,1],label="sample 1"))
-    pl_df=vcat(pl_df,DataFrame(x=ts_ages[1:53]/1000,y=mat[1:53,2],label="sample 2"))
-    pl_df=vcat(pl_df,DataFrame(x=ts_ages[1:53]/1000,y=emdss_core[1:53],label="WAIS"))
+    pl_df=vcat(pl_df,DataFrames.DataFrame(x=ts_ages[1:53]/1000,y=mat[1:53,1],label="sample 1"))
+  #  pl_df=vcat(pl_df,DataFrame(x=ts_ages[1:53]/1000,y=mat[1:53,2],label="sample 2"))
+  #  pl_df=vcat(pl_df,DataFrame(x=ts_ages[1:53]/1000,y=emdss_core[1:53],label="WAIS"))
 #     append!(delayed_plot.args,[layer(x=ts_ages[1:53]/1000,y=emdg[1:53,1],Geom.line)])
 #     append!(delayed_plot.args,[layer(x=ts_ages[1:53]/1000,y=emdg[1:53,2],Geom.line)])
 #    eval(delayed_plot)

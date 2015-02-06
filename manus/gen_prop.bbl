@@ -1,0 +1,30 @@
+\begin{thebibliography}{5}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname selectlanguage\endcsname\relax
+  \def\selectlanguage#1{\relax}\fi
+
+\bibitem[Alley and others, 1997]{alley97}
+Alley, RB, AJ~Gow, DA~Meese, JJ~Fitzpatrick, ED~Waddington and JF~Bolzan, 1997.
+  Grain-scale processes, folding, and stratigraphic disturbance in the GISP2
+  ice core, {\em Journal of Geophysical Research\/}, {\bf 102}(C12), 26819--26.
+
+\bibitem[Gillet-Chaulet and others, 2005]{gillet2005}
+Gillet-Chaulet, Fabien, Olivier Gagliardini, Jacques Meyssonnier, Maurine
+  Montagnat and Olivier Castelnau, 2005. A user-friendly anisotropic flow law
+  for ice-sheet modelling, {\em Journal of glaciology\/}, {\bf 51}(172), 3--14.
+
+\bibitem[Jeffery, 1922]{jeffery1922}
+Jeffery, George~B, 1922. The motion of ellipsoidal particles immersed in a
+  viscous fluid, {\em Proceedings of the Royal Society of London. Series A,
+  Containing papers of a mathematical and physical character\/}, 161--179.
+
+\bibitem[Montgomery-Smith, 2011]{montgomery-smith2011}
+Montgomery-Smith, Stephen, 2011. Perturbations of the coupled Jeffery-Stokes
+  equations, {\em Journal of Fluid Mechanics\/}, {\bf 681}, 622--638.
+
+\bibitem[Thorsteinsson and Waddington, 2002]{throstur2002}
+Thorsteinsson, T. and E.D. Waddington, 2002. Folding in strongly anisotropic
+  layers near ice-sheet centers, {\em Annals of Glaciology\/}, {\bf 35}(1),
+  480--486.
+
+\end{thebibliography}

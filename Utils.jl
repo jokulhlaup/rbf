@@ -29,6 +29,67 @@ function rep_els(x, n)
 end
 #rotate v
 
+function res_ss(sigma,p,n=3)
+    tr=sigma*p
+    return dot(tr,tr) - dot(tr,p)^2
+end
+
+function rss_vert_2d(p::Array{Float64,2})
+    n=size(p,2)
+    res=zeros(n)
+    sigma=zeros(3,3)
+    sigma[1,3]=1;sigma[3,1]=1
+    for i=1:n
+        res[i]=res_ss(sigma,p[:,i])
+    end
+    return res
+end
+
+function rss__mean_vert(p)
+    #size(p)=(3,n,54,m)
+    n=size(p)[2]
+    m=size(p)[1]
+    for i=1:m
+        for j=1:53
+            rssm[j,i]=mean(rss_vert_2d(p[:,:,j,i]))
+        end
+    end
+    return rssm
+end
+
+function rss_core(p::Array{Float64,3})
+    n,m=size(p)[2:3]
+    rss=Array(Float64,n,m)
+    for i=1:m
+        rss[i]=rss_vert_2d(p[:,:,i])
+    end
+    return rss
+end
+
+function res_stress_tensor(p,sigma)
+    rot_mat=rotate_mat_rodriguez(p)
+    sr=rot_mat*sigma*rot_mat
+    sr13=sr[1,3];sr23=sr[2,3]
+    sr=zeros(3,3);sr[1,3]=sr13;
+    sr[2,3]=sr23;sr+=sr'
+    return rot_mat'*sr*rot_mat
+end
+
+function poly_rss_comp(ps,i,j)
+    sigma=zeros(3,3)
+    sigma[1,3]=1;sigma[2,3]=1;
+    sigma+=sigma'
+    n=size(ps)[2]
+    res=0
+    for j=1:n
+        res+=res_stress_tensor(ps[:,k],sigma)[1,3]
+    end
+    return res
+end
+
+#function rss_girdle(p)
+#    n=size
+
 function rotate_mat_rodriguez(v)
     if v[3]>.99999
         return eye(3)
@@ -186,8 +247,17 @@ function assignDiffN(srtwts1,srtwts2)
   wts=[srtwts1,srtwts1[1:m-n+1]]/sw1*sw2
   end
 
-
-  
+#stuff for bootstrapping
+function bootstrap_ps(ps,n=1000)
+    m=length(ps)
+    variance=0;bmean=0.
+    for i=1:n
+        inds=rand(1:m,m)
+        stdev+=std(ps[inds])
+        bmean+=mean(ps[inds])
+    end
+    return stdev/n,bmean/n
+end
   
 function filterZeros(x::Array{Float64,2},y::Array{Float64,1},ind::Int64)
   m,n=size(x)

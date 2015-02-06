@@ -216,7 +216,7 @@ function thorRot!(fab,pars,k,dt,stress_fac)
     #fab.p[:,i,k]-=vort[:,:,i]*fab.p[:,i,k]*dt
 
     #fab.p[:,i,k]=-softness[i]*rk4(pars.f,fab.ngr,fab.p[:,i,k],vort[:,:,i],voigt2Tensor(rst[:,i]),dt);
-    rotf=Utils.fisher_rot_mat(10.)
+    rotf=Utils.fisher_rot_mat(50.)
     rvort=rotf'*fab.vort[:,:,k]*rotf
     repsdot=rotf'*fab.epsdot[:,:,k]*rotf
     dx=rk4(fab.ngr,fab.p[:,i,k],rvort,repsdot,dt,softness[i]);
