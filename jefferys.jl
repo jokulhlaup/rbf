@@ -1,6 +1,6 @@
 module jefferys
 using Utils,Distributions
-export consFabricNGG,getRotM,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas,getC,polygonize!
+export consFabricNGG,getRotM,Fabric,Fabric2,FabricNGG,genrFT,makeRandomNbrs!,fabEv!,advanceRadius,GlobalPars,AbstractFabric,solveJefferys,rk4,nRK4,rotC,jefferysRHS,fabricHelper,propAreas,getC,polygonize!,fp_soft_C
 ##########################
 ##########Get viscosity###
 ##########################
@@ -150,6 +150,36 @@ macro nanch2(test_var,name)
 velgrad(sigma,Sx,Sy)=Sx*ddot(Sx,sigma)+Sy*ddot(Sy,sigma)#+Sz*ddot(Sz,sigma)
 ddot(A,B)=trace(A*B')
 
+function get_rss_softness(fab,k,stress_fac)
+  n=size(fab.p,2)
+  #the resolved strain tensor (voigt)
+  for i=1:n
+    R=getRotM(fab.p[:,i,k])
+    rst[:,i]=C*tensor2Voigt(R*sigma*R')
+    rss_0[i]=sqrt(0.5*(rst[4,i]^2+rst[5,i]^2)) 
+    end
+  for i=1:n
+    softness[i]=((1-stress_fac) + dot(stress_fac*fab.areas[:,i],rss_0)/rss_0[i]) 
+    end
+  return (rst,rss_0,softness)
+  end
+
+#get the compatible bulk sigma and softness
+function fp_soft_C(fab,stress_fac,k)
+  n=size(fab.p,2)
+  C=getC(fab,k)
+  sigma=voigt2Tensor(getC(fab,1)*tensor2Voigt(fab.epsdot[:,:,k]))
+  (rst,rss_0,softness)=get_rss_softness(fab,k,sigma,stress_fac)
+  misfit=1.
+  while (misfit > 1e-6)
+    sigma_old=sigma
+    (rst,rss_0,softness)=get_rss_softness(fab,k,sigma,stress_fac)      
+    sigma=voigt2Tensor(getC(fab,1)*tensor2Voigt(fab.epsdot[:,:,k]))
+    misfit=sum(abs((sigma-sigma_old)/Utils.secondInv(sigma)))
+    end
+  return (rst,rss_0,softness,sigma)
+  end
+
 function thorRot!(fab,pars,k,dt,stress_fac)
   #get bulk sigma
   #bulk sigma in voigt; 
@@ -186,14 +216,13 @@ function thorRot!(fab,pars,k,dt,stress_fac)
     #the resolved strain tensor (voigt)
     rst[:,i]=C*tensor2Voigt(R*sigma*R')
     rss_0[i]=sqrt(0.5*(rst[4,i]^2+rst[5,i]^2)) 
-    vort[1,3,i]=rst[5,i]
-    vort[1,2,i]=rst[6,i]
-    vort[2,1,i]=-rst[6,i]
-    vort[2,3,i]=rst[4,i]
-    vort[3,1,i]=-rst[5,i]
-    vort[3,2,i]=-rst[4,i]
+#    vort[1,3,i]=rst[5,i]
+#    vort[1,2,i]=rst[6,i]
+#    vort[2,1,i]=-rst[6,i]
+#    vort[2,3,i]=rst[4,i]
+#    vort[3,1,i]=-rst[5,i]
+#    vort[3,2,i]=-rst[4,i]
     #vort[:,:,i]=R'*vort[:,:,i]*R
-    if i==50;print(vort[:,:,i]);end
 #    b0[3,i]=0;
 #    b0[1,i]=1;
 #    b0[2,i]=-b0[1,i]*fab.p[1,i,k]/fab.p[2,i,k];
@@ -803,6 +832,20 @@ function getRotM(x)
   V[3,2]=V[3,2][1]
    
   return eye(3)+V+(V*V)*(1-c)/s^2  
+  end
+
+function getC(fab::AbstractFabric,softness,k)
+  tot_vol=sum(fab.r[:,:,k].^3) #unscaled b/c it is divided anyway
+  #change this such that accepts arbitrary C_p
+  C=zeros(6,6)
+  C_p=100.*eye(6)
+  C_p[4,4]=1.;C_p[5,5]=1.
+  for i=1:fab.ns*fab.ngr
+    C_p[4,4]=1.0*softness;C_p[5,5]=1.0*softness;
+    R=getRotM(fab.p[3*i-2:3*i])
+    C+=rotC(R,C_p).*(fab.r[i]^3)
+    end
+  C/=tot_vol
   end
 
 function getC(fab::AbstractFabric,k)
