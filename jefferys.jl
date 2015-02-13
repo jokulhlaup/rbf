@@ -150,12 +150,12 @@ macro nanch2(test_var,name)
 velgrad(sigma,Sx,Sy)=Sx*ddot(Sx,sigma)+Sy*ddot(Sy,sigma)#+Sz*ddot(Sz,sigma)
 ddot(A,B)=trace(A*B')
 
-function get_rss_softness(fab,k,stress_fac)
+function get_rss_softness(fab,sigma,stress_fac,k)
   n=size(fab.p,2)
   #the resolved strain tensor (voigt)
   for i=1:n
     R=getRotM(fab.p[:,i,k])
-    rst[:,i]=C*tensor2Voigt(R*sigma*R')
+    rst[:,i]=tensor2Voigt(R*sigma*R')
     rss_0[i]=sqrt(0.5*(rst[4,i]^2+rst[5,i]^2)) 
     end
   for i=1:n
@@ -169,7 +169,7 @@ function fp_soft_C(fab,stress_fac,k)
   n=size(fab.p,2)
   C=getC(fab,k)
   sigma=voigt2Tensor(getC(fab,1)*tensor2Voigt(fab.epsdot[:,:,k]))
-  (rst,rss_0,softness)=get_rss_softness(fab,k,sigma,stress_fac)
+  (rst,rss_0,softness)=get_rss_softness(fab,sigma,stress_fac,k);
   misfit=1.
   while (misfit > 1e-6)
     sigma_old=sigma
