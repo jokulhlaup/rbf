@@ -51,7 +51,7 @@ function readif(rf)
   return reshape(c,(2,int(length(c)/2)))
   end
 
-cd("thin_sections/C-axisdatabase")
+cd("thin_sections/C-axisdatabase2/sections/")
 dr=readdir()
 c=Dict()
 pd=Dict()
@@ -60,7 +60,8 @@ emdss_core=Array(Float64,length(dr))
 x=Array(Float64,3,length(dr))
 for d=1:length(dr)
   cd(dr[d])
-  rf=readdlm("c-axes.txt",'\n')
+  istr=dr[d]
+  rf=readdlm("$istr c-axes.txt",'\n')
   i=int(dr[d])
   c[i]=readif(rf)
   #convert to rads
@@ -79,27 +80,29 @@ for d=1:length(dr)
     pd[i][3,j] = -pd[i][3,j] ;
       end
     end
-  x[:,d]=svd(pd[i])[2]
+  x[:,d]=eigvals(pd[i]*pd[i]')/size(pd[i],2)
   svs[d]=minimum(x[:,d])/norm(x[:,d])
   emdss_core[d]=emdSM(pd[i])
   cd("..")
-  x[:,d]=sort(x[:,d])/norm(x[:,d])
   end
 
-cd("..")
+cd("../..")
 cs=readdlm("timescale.csv",',')
 
-
+for d=1:length(dr)
+    i=int(dr[d])
+    x[:,d]=eigvals(pd[i]*pd[i]')/size(pd[i],2)
+end
 
 
 #now interpolate depth-age
 dr=sort(float(dr))
-
+ns=length(dr)
 depth_temps=readdlm("temp.TXT")
 predicted_temps=loess(depth_temps[:,1],depth_temps[:,2])
-ts_temps=predict(predicted_temps,dr[1:50])
-bottom_grad=(ts_temps[50]-ts_temps[49])/(dr[50]-dr[49])
-append!(ts_temps,ts_temps[50]+bottom_grad*[20,40,60,80])
+ts_temps=predict(predicted_temps,dr[1:end-4])
+bottom_grad=(ts_temps[end]-ts_temps[end-1])/(dr[79]-dr[78])
+append!(ts_temps,ts_temps[end]+bottom_grad*[20,40,60,80])
 
 
 
@@ -194,37 +197,37 @@ for i=1:length(dr)
 end
 
 function evThruCore(p,get_r)
-emdss=Array(Float64,54)
-emdg=Array(Float64,54)
-svm=Array(Float64,3,54)
+emdss=Array(Float64,ns)
+emdg=Array(Float64,ns)
+svm=Array(Float64,3,ns)
 n=size(p)[2]
 
-rs=Array(Float64,n,54)
+rs=Array(Float64,n,ns)
 dt=2e-5
 sma=repmat([0. 0. 1.],n)'
 (fabE,fab,pars)=Constructors.mkFab(n)
-fab.r=map(x->rand()<0.9?x=0:x,fab.r)
+fab.r=map(x->rand()<0.5?x=0:x,fab.r)
 fab.p[:,:,1]=p;
-emdist=zeros(54)
-grmobs=ones(54)
+emdist=zeros(ns)
+grmobs=ones(ns)
 #grmobs[21:end]=3.
 girdle=getGirdle(n)
-pout=zeros(3,n,54)
+pout=zeros(3,n,ns)
 fab.vort=zeros(3,3,1)
 pars.nrk=100
-  for i=1:53#length(ts_ages)-1
+  for i=1:ns-1
     print("i = $i !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!!!!!!!!!!")
     pars.dt=dt*(ts_ages[i+1]-ts_ages[i])
-    com=ts_smoothedVertStrain[i]
-    ss=-dj(dr[i],2700)*5
-    fab.temp=ts_temps[i] - 5
+    com=2*ts_smoothedVertStrain[i]
+    ss=-dj(dr[i],2383)*2
+    fab.temp=ts_temps[i]+ 10
     println(fab.temp, "temps")
     fab.epsdot[3,1]=ss
     fab.epsdot[1,3]=ss
-    fab.epsdot[1,1]=2*com
-    fab.epsdot[2,2]=-com
-    fab.epsdot[3,3]=-com
+    fab.epsdot[1,1]=com
+    fab.epsdot[2,2]=-0.1*com
+    fab.epsdot[3,3]=-0.9*com
     fab.vort[1,3]=ss
     print(fab.epsdot)
     fab.vort[3,1]=-ss
@@ -244,7 +247,7 @@ pars.nrk=100
     global rad=fab.r
     global strain=fab.str
     emdg[i]=Utils.earthMoversDist(fab.p[:,:,1],girdle)[1]/n
-    foo=svd(fab.p[:,:,1])[2]
+    foo=eigvals(fab.p[:,:,1]*fab.p[:,:,1]')
     print(typeof(foo))
     svm[:,i]=sort(foo)
     #svm[i]=minimum(foo)/norm(foo)
@@ -260,13 +263,57 @@ pars.nrk=100
   return (pout,emdss,emdg,fab,rs,svm)
 end
 
+
+
+for d=1:length(dr)
+    i=int(dr[d])
+    x[:,d]=eigvals(pd[i]*pd[i]')/size(pd[i],2)
+end
+
+
+function get_mean_rs(comp_out)
+    rs=comp_out[end-1]
+    (ng,nc,ns)=size(rs)
+    rmean=zeros(nc,ns)
+    rmg=zeros(nc)
+    for j=1:nc
+        for i=1:ns
+            rmean[j,i]=mean(filter(x->x>1e-6,rs[:,j,i]))
+        end
+        rmg[j]=mean(rs[j,:])
+    end
+    
+    return rmean,rmg
+end
+
+function nzeigs(comp_out,nrun=1)
+    eignz=zeros(3,83);
+    for i=1:83
+       bark=Utils.filterZeros(comp_out[1][:,:,i,nrun],comp_out[end-1][:,nrun],1);
+       nnz=size(bark,2)
+       eignz[:,i]=eigvals(bark*bark')/nnz;
+   end
+   return eignz
+end
+
+
+function plot_eigs(comp_out)
+    nrun=size(comp_out[1])[end]
+    for i=1:nrun
+        eignz=nzeigs(comp_out,i)
+        plt.plot(eignz[3,:]')
+    end
+    plt.plot(x[3,:]',linestyle="-.")
+    plt.show()
+end
+
 evThruCore(p)=evThruCore(p,true)[1:4]
 function trym1(m,n,get_r)
-    svm=Array(Float64,3,54,m) 
-    emdg=Array(Float64,54,m)
-    emdss=Array(Float64,54,m)
-    pout=zeros(3,n,54,m)
-    r=Array(Float64,n,54,m)
+    svm=Array(Float64,3,ns,m) 
+    emdg=Array(Float64,ns,m)
+    emdss=Array(Float64,ns,m)
+    pout=zeros(3,n,ns,m)
+    r=Array(Float64,n,ns,m)
     i=1
     while (i <= m)
        inds=rand(1:n,n)
@@ -283,8 +330,6 @@ function trym1(m,n,get_r)
     end
    return (pout,emdg,emdss,fab,r,svm)
    end
-
-   
 
 trym1(m,n)=trym1(m,n,true)[1:4]
 function plotm(m,emdg)
@@ -310,18 +355,30 @@ function getquantile(mat, p)
     end
     return q
 end
+function plot_eig_quants(comp_out,eig_num=3)
+    (th,n,nc,ns)=size(comp_out[1])
+    eig_mat=zeros(nc,ns)
+    for i=1:ns
+        eig_mat[:,i]=nzeigs(comp_out,i)[3,:]
+    end
+    pl=pyQuants(eig_mat[1:nc-1,:],[0.025,0.5,0.975],["asdf","median"])
+    return pl
+end
 
 function pyQuants(mat,ps,labs)
     fig,ax=plt.subplots(1)
-    q=Array(Float64,53,length(ps))
+    q=Array(Float64,82,length(ps))
     for i=1:3
        q[:,i]=getquantile(mat,ps[i])
     end
-    ax[:plot](ts_ages[1:53]/1000,q[:,2],label=labs[2])
-    ax[:fill_between](ts_ages[1:53]/1000,q[:,1],q[:,3],facecolor="yellow",alpha=0.5,label="95% empirical quantile range")
-    ax[:plot](ts_ages[1:53]/1000,mat[:,1],label="sample a")
-    ax[:plot](ts_ages[1:53]/1000,mat[:,2],label="sample b")
-    ax[:legend](loc="upper_left")
+    ax[:plot](ts_ages[1:82]/1000,q[:,2],label=labs[2])
+    ax[:fill_between](ts_ages[1:82]/1000,q[:,1],q[:,3],facecolor="yellow",alpha=0.5,label="95% empirical quantile range")
+    ax[:plot](ts_ages[1:82]/1000,mat[:,1],label="sample a")
+    ax[:plot](ts_ages[1:82]/1000,mat[:,2],label="sample b")
+    ax[:plot](ts_ages[1:82]/1000,x[3,1:82]',label="core")
+    ax[:legend](loc="upper left")
+    ax[:set_xlabel]("ice age (ka)")
+    ax[:set_ylabel]("Largest eigenvalue")
         #x=ts_ages[1:53]/1000,y=q[1:53,i],label=labs[i])
         #pl_df=vcat(pl_df,df)
 #        plt.plot(ts_ages[1:53]/1000,q[1:53], color="k",label=labs[i],marker=m[i]
@@ -367,8 +424,8 @@ function r2(mat)
     end
     return 1 - SSE./TSS
 end
-emdstss=zeros(54)
-emdsg=zeros(54)
+emdstss=zeros(ns)
+emdsg=zeros(ns)
 for i=1:40
     global pda=Utils.proj2UpHem!(pd[int(dr[i])])
     pda=Utils.rotp(pi/2,Utils.alignFabrics(girdle,pda)[3])
@@ -386,9 +443,9 @@ end
 #    n=size(p)[2]
 #    (fabE,fab,pars)=Constructors.mkFab(n)
 #    fab.p[:,:,1]=p;
-#    grmobs=ones(54)
+#    grmobs=ones(ns)
 #    grmobs[21:end]=100
-#    pout=zeros(3,n,54)
+#    pout=zeros(3,n,ns)
 #    fab.vort=zeros(3,3,1)
 
 
@@ -415,7 +472,7 @@ function sPn(n)
   plt.show()
   end
 
-plt.plot(ts_ages[2:54],sv[1,:]');plt.plot(ts_ages[2:54],x[1,2:54]');plt.show()
+plt.plot(ts_ages[2:ns],sv[1,:]');plt.plot(ts_ages[2:ns],x[1,2:ns]');plt.show()
 
 smoothedLayerThickness=ddepthdtau
 

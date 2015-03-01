@@ -1,0 +1,8 @@
+\beamer@endinputifotherversion {3.33pt}
+\select@language {english}
+\beamer@sectionintoc {1}{Motivation}{3}{0}{1}
+\beamer@subsectionintoc {1}{1}{Strigraphic disturbances}{3}{0}{1}
+\beamer@subsectionintoc {1}{2}{Previous Work}{8}{0}{1}
+\beamer@sectionintoc {2}{Our Results/Contribution}{12}{0}{2}
+\beamer@subsectionintoc {2}{1}{Main Results}{12}{0}{2}
+\beamer@subsectionintoc {2}{2}{Basic Ideas for Proofs/Implementation}{16}{0}{2}

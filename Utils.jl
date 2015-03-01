@@ -29,6 +29,48 @@ function rep_els(x, n)
 end
 #rotate v
 
+function norm_by_first(x)
+    m=size(x,1)
+    n=length(x)/m
+    y=deepcopy(x)
+    for i=1:m
+        y[:,i]/=norm(y[:,i])
+    end
+    return y
+end
+
+function fabric_eigs_pd(pd)
+    x=Array(Float64,3,length(dr))
+    for d=1:length(dr)
+        i=int(dr[d])
+        n=size(pd[i],2)
+        a2=zeros(3,3)
+        for j=1:n
+            a2+=pd[i][:,j]*pd[i][:,j]'
+        end
+        x[:,d]=eigvals(a2)
+        x[:,d]/=norm(x[:,d])
+    end
+    return x
+end
+
+function fabric_eigs(p::Array{Float64,4},site=1)
+    m=size(p,3)
+    feig=Array(Float64,3,m)
+    for i=1:m
+        feig[:,i]=fabric_eigs(p[:,:,i,site])
+    end
+    return feig
+end
+function fabric_eigs(p::Array{Float64,2})
+    n=size(p,2)
+    a2=zeros(3,3)
+    for i=1:n
+        a2+=p[:,i]*p[:,i]'
+    end
+    return eigvals(a2/2n)
+end
+
 function res_ss(sigma,p,n=3)
     tr=sigma*p
     return dot(tr,tr) - dot(tr,p)^2

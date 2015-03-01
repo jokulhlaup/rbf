@@ -1,26 +1,49 @@
-\begin{thebibliography}{5}
+\begin{thebibliography}{9}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname selectlanguage\endcsname\relax
   \def\selectlanguage#1{\relax}\fi
+
+\bibitem[Advani and Tucker~III, 1987]{advani1987}
+Advani, Suresh~G and Charles~L Tucker~III, 1987. The use of tensors to describe
+  and predict fiber orientation in short fiber composites, {\em Journal of
+  Rheology (1978-present)\/}, {\bf 31}(8), 751--784.
 
 \bibitem[Alley and others, 1997]{alley97}
 Alley, RB, AJ~Gow, DA~Meese, JJ~Fitzpatrick, ED~Waddington and JF~Bolzan, 1997.
   Grain-scale processes, folding, and stratigraphic disturbance in the GISP2
   ice core, {\em Journal of Geophysical Research\/}, {\bf 102}(C12), 26819--26.
 
+\bibitem[Azuma, 1994]{azuma94}
+Azuma, N., 1994. A flow law for anisotropic ice and its application to ice
+  sheets, {\em Earth and Planetary Science Letters\/}, {\bf 128}(3-4),
+  601--614.
+
 \bibitem[Gillet-Chaulet and others, 2005]{gillet2005}
 Gillet-Chaulet, Fabien, Olivier Gagliardini, Jacques Meyssonnier, Maurine
   Montagnat and Olivier Castelnau, 2005. A user-friendly anisotropic flow law
   for ice-sheet modelling, {\em Journal of glaciology\/}, {\bf 51}(172), 3--14.
 
-\bibitem[Jeffery, 1922]{jeffery1922}
-Jeffery, George~B, 1922. The motion of ellipsoidal particles immersed in a
-  viscous fluid, {\em Proceedings of the Royal Society of London. Series A,
-  Containing papers of a mathematical and physical character\/}, 161--179.
+\bibitem[Gillet-Chaulet and others, 2006]{gillet2006}
+Gillet-Chaulet, F., O.~Gagliardini, J.~Meyssonnier, T.~Zwinger and
+  J.~Ruokolainen, 2006. Flow-induced anisotropy in polar ice and related
+  ice-sheet flow modelling, {\em Journal of Non-Newtonian Fluid Mechanics\/},
+  {\bf 134}(1), 33--43.
 
 \bibitem[Montgomery-Smith, 2011]{montgomery-smith2011}
 Montgomery-Smith, Stephen, 2011. Perturbations of the coupled Jeffery-Stokes
   equations, {\em Journal of Fluid Mechanics\/}, {\bf 681}, 622--638.
+
+\bibitem[Montgomery-Smith and others, 2010]{montgomery2010}
+Montgomery-Smith, Stephen, David~A Jack and Douglas~E Smith, 2010. A systematic
+  approach to obtaining numerical solutions of Jeffery’s type equations using
+  spherical harmonics, {\em Composites Part A: Applied Science and
+  Manufacturing\/}, {\bf 41}(7), 827--835.
+
+\bibitem[Placidi and others, 2010]{placidi2010}
+Placidi, Luca, Ralf Greve, Hakime Seddik and S{\'e}rgio~H Faria, 2010.
+  Continuum-mechanical, Anisotropic Flow model for polar ice masses, based on
+  an anisotropic Flow Enhancement factor, {\em Continuum Mechanics and
+  Thermodynamics\/}, {\bf 22}(3), 221--237.
 
 \bibitem[Thorsteinsson and Waddington, 2002]{throstur2002}
 Thorsteinsson, T. and E.D. Waddington, 2002. Folding in strongly anisotropic

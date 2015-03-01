@@ -152,6 +152,9 @@ ddot(A,B)=trace(A*B')
 
 function get_rss_softness(fab,sigma,stress_fac,k)
   n=size(fab.p,2)
+  rss_0=Array(Float64,n)
+  softness=Array(Float64,n)
+  rst=Array(Float64,6,n)
   #the resolved strain tensor (voigt)
   for i=1:n
     R=getRotM(fab.p[:,i,k])
@@ -173,8 +176,8 @@ function fp_soft_C(fab,stress_fac,k)
   misfit=1.
   while (misfit > 1e-6)
     sigma_old=sigma
-    (rst,rss_0,softness)=get_rss_softness(fab,k,sigma,stress_fac)      
-    sigma=voigt2Tensor(getC(fab,1)*tensor2Voigt(fab.epsdot[:,:,k]))
+    (rst,rss_0,softness)=get_rss_softness(fab,sigma,stress_fac,k)      
+    sigma=voigt2Tensor(getC(fab,softness,1)*tensor2Voigt(fab.epsdot[:,:,k]))
     misfit=sum(abs((sigma-sigma_old)/Utils.secondInv(sigma)))
     end
   return (rst,rss_0,softness,sigma)
@@ -245,7 +248,7 @@ function thorRot!(fab,pars,k,dt,stress_fac)
     #fab.p[:,i,k]-=vort[:,:,i]*fab.p[:,i,k]*dt
 
     #fab.p[:,i,k]=-softness[i]*rk4(pars.f,fab.ngr,fab.p[:,i,k],vort[:,:,i],voigt2Tensor(rst[:,i]),dt);
-    rotf=Utils.fisher_rot_mat(50.)
+    rotf=Utils.fisher_rot_mat(100.)
     rvort=rotf'*fab.vort[:,:,k]*rotf
     repsdot=rotf'*fab.epsdot[:,:,k]*rotf
     dx=rk4(fab.ngr,fab.p[:,i,k],rvort,repsdot,dt,softness[i]);
@@ -834,14 +837,14 @@ function getRotM(x)
   return eye(3)+V+(V*V)*(1-c)/s^2  
   end
 
-function getC(fab::AbstractFabric,softness,k)
+function getC(fab,softness,k)
   tot_vol=sum(fab.r[:,:,k].^3) #unscaled b/c it is divided anyway
   #change this such that accepts arbitrary C_p
   C=zeros(6,6)
   C_p=100.*eye(6)
   C_p[4,4]=1.;C_p[5,5]=1.
   for i=1:fab.ns*fab.ngr
-    C_p[4,4]=1.0*softness;C_p[5,5]=1.0*softness;
+    C_p[4,4]=1.0*softness[i];C_p[5,5]=1.0*softness[i];
     R=getRotM(fab.p[3*i-2:3*i])
     C+=rotC(R,C_p).*(fab.r[i]^3)
     end
