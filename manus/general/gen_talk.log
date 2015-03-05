@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Arch Linux) (preloaded format=pdflatex 2015.2.9)  3 MAR 2015 13:45
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Arch Linux) (preloaded format=pdflatex 2015.2.9)  4 MAR 2015 21:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -767,27 +767,34 @@ File: pgfmodulematrix.code.tex 2013/09/17  (rcs-revision 1.8)
 (/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
 topaths.code.tex
 File: tikzlibrarytopaths.code.tex 2008/06/17 v3.0.0 (rcs-revision 1.2)
-)))
+))) (/usr/share/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+\wrapoverhang=\dimen208
+\WF@size=\dimen209
+\c@WF@wrappedlines=\count167
+\WF@box=\box58
+\WF@everypar=\toks45
+Package: wrapfig 2003/01/31  v 3.6
+)
 (/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/graphs/tikz
 librarygraphs.code.tex
 File: tikzlibrarygraphs.code.tex 2013/10/10 v3.0.0 (rcs-revision 1.43)
-\tikz@qnode@count=\count167
+\tikz@qnode@count=\count168
 )
 (/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
 decorations.markings.code.tex
 (/usr/share/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrary
 decorations.code.tex
 (/usr/share/texmf-dist/tex/generic/pgf/modules/pgfmoduledecorations.code.tex
-\pgfdecoratedcompleteddistance=\dimen208
-\pgfdecoratedremainingdistance=\dimen209
-\pgfdecoratedinputsegmentcompleteddistance=\dimen210
-\pgfdecoratedinputsegmentremainingdistance=\dimen211
-\pgf@decorate@distancetomove=\dimen212
-\pgf@decorate@repeatstate=\count168
-\pgfdecorationsegmentamplitude=\dimen213
-\pgfdecorationsegmentlength=\dimen214
+\pgfdecoratedcompleteddistance=\dimen210
+\pgfdecoratedremainingdistance=\dimen211
+\pgfdecoratedinputsegmentcompleteddistance=\dimen212
+\pgfdecoratedinputsegmentremainingdistance=\dimen213
+\pgf@decorate@distancetomove=\dimen214
+\pgf@decorate@repeatstate=\count169
+\pgfdecorationsegmentamplitude=\dimen215
+\pgfdecorationsegmentlength=\dimen216
 )
-\tikz@lib@dec@box=\box58
+\tikz@lib@dec@box=\box59
 )
 (/usr/share/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrarydecorati
 ons.markings.code.tex))
@@ -810,8 +817,8 @@ Language: english 2012/08/20 v3.3p English support from the babel system
 
 (/usr/share/texmf-dist/tex/generic/babel/babel.def
 File: babel.def 2014/03/24 3.9k Babel common definitions
-\babel@savecnt=\count169
-\U@D=\dimen215
+\babel@savecnt=\count170
+\U@D=\dimen217
 LaTeX Info: Redefining \textlatin on input line 1428.
 )
 \l@canadian = a dialect from \language\l@american 
@@ -820,8 +827,8 @@ LaTeX Info: Redefining \textlatin on input line 1428.
 ))
 (/usr/share/texmf-dist/tex/latex/base/inputenc.sty
 Package: inputenc 2014/04/30 v1.2b Input encoding file
-\inpenc@prehook=\toks45
-\inpenc@posthook=\toks46
+\inpenc@prehook=\toks46
+\inpenc@posthook=\toks47
 
 (/usr/share/texmf-dist/tex/latex/base/latin1.def
 File: latin1.def 2014/04/30 v1.2b Input encoding file
@@ -909,17 +916,17 @@ File: t1phv.fd 2001/06/04 scalable font definitions for T1/phv.
 
 (/usr/share/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count170
-\scratchdimen=\dimen216
-\scratchbox=\box59
-\nofMPsegments=\count171
-\nofMParguments=\count172
-\everyMPshowfont=\toks47
-\MPscratchCnt=\count173
-\MPscratchDim=\dimen217
-\MPnumerator=\count174
-\makeMPintoPDFobject=\count175
-\everyMPtoPDFconversion=\toks48
+\scratchcounter=\count171
+\scratchdimen=\dimen218
+\scratchbox=\box60
+\nofMPsegments=\count172
+\nofMParguments=\count173
+\everyMPshowfont=\toks48
+\MPscratchCnt=\count174
+\MPscratchDim=\dimen219
+\MPnumerator=\count175
+\makeMPintoPDFobject=\count176
+\everyMPtoPDFconversion=\toks49
 ) (/usr/share/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
 
@@ -936,7 +943,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 ABD: EveryShipout initializing macros
-\AtBeginShipoutBox=\box60
+\AtBeginShipoutBox=\box61
 Package hyperref Info: Link coloring OFF on input line 117.
 
 (/usr/share/texmf-dist/tex/latex/hyperref/nameref.sty
@@ -945,7 +952,7 @@ Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 (/usr/share/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
-\c@section@level=\count176
+\c@section@level=\count177
 )
 LaTeX Info: Redefining \ref on input line 117.
 LaTeX Info: Redefining \pageref on input line 117.
@@ -1046,244 +1053,342 @@ LaTeX Font Info:    Font shape `T1/phv/m/it' in size <5> not available
 
 ] (./gen_talk.toc) [2
 
-] [3
+]
+<stripes.png, id=142, 449.68pt x 474.77374pt>
+File: stripes.png Graphic file (type png)
+ <use stripes.png>
+Package pdftex.def Info: stripes.png used on input line 167.
+(pdftex.def)             Requested size: 113.64906pt x 119.9899pt.
 
-] [4
+<z_fold.png, id=144, 454.69875pt x 677.53125pt>
+File: z_fold.png Graphic file (type png)
+ <use z_fold.png>
+Package pdftex.def Info: z_fold.png used on input line 167.
+(pdftex.def)             Requested size: 92.1879pt x 137.36473pt.
 
-] [5
+Overfull \vbox (17.78181pt too high) detected at line 167
+ []
+
+[3
+
+ <./stripes.png> <./z_fold.png>] <poly.png, id=186, 551.05875pt x 437.635pt>
+File: poly.png Graphic file (type png)
+
+<use poly.png>
+Package pdftex.def Info: poly.png used on input line 190.
+(pdftex.def)             Requested size: 76.82246pt x 61.00804pt.
+ <ice.png, id=187, 211.2693pt x 105.7551pt>
+File: ice.png Graphic file (type png)
+ <use ice.png>
+Package pdftex.def Info: ice.png used on input line 190.
+(pdftex.def)             Requested size: 153.64493pt x 76.91011pt.
+
+Overfull \vbox (144.86732pt too high) detected at line 190
+ []
+
+[4
+
+ <./poly.png (PNG copy)> <./ice.png (PNG copy)>]
+File: poly.png Graphic file (type png)
+ <use poly.png>
+Package pdftex.def Info: poly.png used on input line 190.
+(pdftex.def)             Requested size: 76.82246pt x 61.00804pt.
+File: ice.png Graphic file (type png)
+
+<use ice.png>
+Package pdftex.def Info: ice.png used on input line 190.
+(pdftex.def)             Requested size: 153.64493pt x 76.91011pt.
+
+Overfull \vbox (144.86732pt too high) detected at line 190
+ []
+
+[5
 
 ]
-<boudinage.jpg, id=245, 803.0pt x 534.99875pt>
-File: boudinage.jpg Graphic file (type jpg)
- <use boudinage.jpg>
-Package pdftex.def Info: boudinage.jpg used on input line 176.
-(pdftex.def)             Requested size: 216.81pt x 144.45158pt.
+File: poly.png Graphic file (type png)
+ <use poly.png>
+Package pdftex.def Info: poly.png used on input line 190.
+(pdftex.def)             Requested size: 76.82246pt x 61.00804pt.
+File: ice.png Graphic file (type png)
+ <use ice.png>
+Package pdftex.def Info: ice.png used on input line 190.
+(pdftex.def)             Requested size: 153.64493pt x 76.91011pt.
 
-Overfull \hbox (63.16507pt too wide) in paragraph at lines 176--176
-[][]  
+Overfull \vbox (144.86732pt too high) detected at line 190
  []
 
 [6
 
- <./boudinage.jpg>] <kinfold.png, id=280, 959.585pt x 460.72125pt>
-File: kinfold.png Graphic file (type png)
-
-<use kinfold.png>
-Package pdftex.def Info: kinfold.png used on input line 188.
-(pdftex.def)             Requested size: 156.21623pt x 75.00879pt.
-
-Overfull \vbox (13.15071pt too high) detected at line 188
- []
+]
+LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 212.
+LaTeX Font Info:    Font shape `T1/phv/m/it' in size <7> not available
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 212.
+ <drawing.png, id=286, 1056.94875pt x 747.79375pt>
+File: drawing.png Graphic file (type png)
+ <use drawing.png>
+Package pdftex.def Info: drawing.png used on input line 212.
+(pdftex.def)             Requested size: 122.91406pt x 86.95865pt.
 
 [7
 
- <./kinfold.png>] <stripes.png, id=316, 449.68pt x 474.77374pt>
-File: stripes.png Graphic file (type png)
+ <./drawing.png>] <shear_band.jpg, id=322, 1196.47pt x 414.54875pt>
+File: shear_band.jpg Graphic file (type jpg)
 
-<use stripes.png>
-Package pdftex.def Info: stripes.png used on input line 208.
-(pdftex.def)             Requested size: 113.64906pt x 119.9899pt.
- <z_fold.png, id=317, 454.69875pt x 677.53125pt>
-File: z_fold.png Graphic file (type png)
+<use shear_band.jpg>
+Package pdftex.def Info: shear_band.jpg used on input line 219.
+(pdftex.def)             Requested size: 122.91406pt x 42.58324pt.
+ [8
 
-<use z_fold.png>
-Package pdftex.def Info: z_fold.png used on input line 208.
-(pdftex.def)             Requested size: 92.1879pt x 137.36473pt.
+ <./shear_band.jpg>]
+<kinfold.png, id=356, 959.585pt x 460.72125pt>
+File: kinfold.png Graphic file (type png)
+ <use kinfold.png>
+Package pdftex.def Info: kinfold.png used on input line 233.
+(pdftex.def)             Requested size: 156.21623pt x 75.00879pt.
 
-Overfull \vbox (1.18181pt too high) detected at line 208
+Overfull \vbox (13.15071pt too high) detected at line 233
  []
 
-[8
+[9
 
- <./stripes.png> <./z_fold.png>] [9
+ <./kinfold.png>]
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <10> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 250.
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <7> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 250.
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <5> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 250.
+ <eigs.png, id=392, 337.5009pt x 337.5009pt>
+File: eigs.png Graphic file (type png)
+ <use eigs.png>
+Package pdftex.def Info: eigs.png used on input line 250.
+(pdftex.def)             Requested size: 107.55098pt x 107.5493pt.
 
-] [10
+[10
 
-]
+ <./eigs.png>] <sm.png, id=430, 312.367pt x 312.367pt>
+File: sm.png Graphic file (type png)
+ <use sm.png>
+Package pdftex.def Info: sm.png used on input line 261.
+(pdftex.def)             Requested size: 113.64838pt x 113.64906pt.
+ [11
+
+ <./sm.png>] <crystals.jpg, id=464, 772.8875pt x 309.155pt>
+File: crystals.jpg Graphic file (type jpg)
+ <use crystals.jpg>
+Package pdftex.def Info: crystals.jpg used on input line 277.
+(pdftex.def)             Requested size: 153.64493pt x 61.45723pt.
+
+[12
+
+ <./crystals.jpg>]
 ! Illegal parameter number in definition of \test.
 <to be read again> 
                    1
-l.282 \end{tikzpicture}
+l.321 \end{tikzpicture}
                        
 ? 
 ! Illegal parameter number in definition of \test.
 <to be read again> 
                    1
-l.282 \end{tikzpicture}
+l.321 \end{tikzpicture}
                        
 ? 
 ! Illegal parameter number in definition of \test.
 <to be read again> 
                    1
-l.282 \end{tikzpicture}
+l.321 \end{tikzpicture}
                        
 ? 
 ! Illegal parameter number in definition of \test.
 <to be read again> 
                    1
-l.282 \end{tikzpicture}
+l.321 \end{tikzpicture}
                        
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.283 \end{frame}
+l.322 \end{frame}
                  
 ? 
-LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 283.
-LaTeX Font Info:    Font shape `T1/phv/m/it' in size <7> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 283.
+[13
 
-Overfull \vbox (8.18619pt too high) detected at line 283
- []
-
-[11
-
-] <tilt.png, id=454, 232.7094pt x 238.2501pt>
+] <tilt.png, id=535, 232.7094pt x 238.2501pt>
 File: tilt.png Graphic file (type png)
  <use tilt.png>
-Package pdftex.def Info: tilt.png used on input line 297.
+Package pdftex.def Info: tilt.png used on input line 336.
 (pdftex.def)             Requested size: 92.1879pt x 94.38222pt.
- [12
+ [14
 
- <./tilt.png>] <rex.png, id=490, 393.47pt x 254.9525pt>
+ <./tilt.png>]
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <10.95> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 356.
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <8> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 356.
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <6> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 356.
+ <rex.png, id=570, 393.47pt x 254.9525pt>
 File: rex.png Graphic file (type png)
  <use rex.png>
-Package pdftex.def Info: rex.png used on input line 317.
+Package pdftex.def Info: rex.png used on input line 356.
 (pdftex.def)             Requested size: 122.91406pt x 79.64133pt.
- [13
-
- <./rex.png>]
-! Missing $ inserted.
-<inserted text> 
-                $
-l.333 \end{frame}
-                 
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.333 \end{frame}
-                 
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.333 \end{frame}
-                 
-? 
-! Missing \cr inserted.
-<inserted text> 
-                \cr 
-l.333 \end{frame}
-                 
-? 
-! Missing { inserted.
-<inserted text> 
-                {
-l.333 \end{frame}
-                 
-? 
-! Missing $ inserted.
-<inserted text> 
-                $
-l.333 \end{frame}
-                 
-? 
-! Misplaced \crcr.
-\endaligned ->\crcr 
-                    \egroup \restorecolumn@ \egroup 
-l.333 \end{frame}
-                 
-? 
-! Extra }, or forgotten \endgroup.
-\endaligned ...cr \egroup \restorecolumn@ \egroup 
-                                                  
-l.333 \end{frame}
-                 
-? 
-[14
-
-] <both.png, id=565, 1235.61626pt x 546.04pt>
-File: both.png Graphic file (type png)
- <use both.png>
-Package pdftex.def Info: both.png used on input line 342.
-(pdftex.def)             Requested size: 257.16803pt x 113.64906pt.
  [15
 
- <./both.png>] <good_fit.png, id=600, 578.16pt x 433.62pt>
+ <./rex.png>]
+[16
+
+] [17
+
+] [18
+
+] [19
+
+]
+! Misplaced alignment tab character &.
+\beamer@doifinframe ...gin {equation} \dot {c_i} &
+                                                  = W_{ij} c_j + \zeta \left...
+l.416 \end{frame}
+                 
+? 
+
+! LaTeX Error: There's no line here to end.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.416 \end{frame}
+                 
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.416 \end{frame}
+                 
+? 
+! Display math should end with $$.
+<to be read again> 
+                   \par 
+l.416 \end{frame}
+                 
+? 
+
+! LaTeX Error: Bad math environment delimiter.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.416 \end{frame}
+                 
+? 
+! You can't use `\eqno' in internal vertical mode.
+\endmathdisplay@a ...\df@tag \@empty \else \veqno 
+                                                  \alt@tag \df@tag \fi \ifx ...
+l.416 \end{frame}
+                 
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.416 \end{frame}
+                 
+? 
+! Display math should end with $$.
+<to be read again> 
+                   \endgroup 
+l.416 \end{frame}
+                 
+? 
+[20
+
+] <both.png, id=776, 1235.61626pt x 546.04pt>
+File: both.png Graphic file (type png)
+ <use both.png>
+Package pdftex.def Info: both.png used on input line 428.
+(pdftex.def)             Requested size: 257.16803pt x 113.64906pt.
+ [21
+
+ <./both.png>] [22
+
+] <good_fit.png, id=844, 578.16pt x 433.62pt>
 File: good_fit.png Graphic file (type png)
  <use good_fit.png>
-Package pdftex.def Info: good_fit.png used on input line 358.
-(pdftex.def)             Requested size: 122.91406pt x 92.18108pt.
- [16
+Package pdftex.def Info: good_fit.png used on input line 444.
+(pdftex.def)             Requested size: 307.28987pt x 230.46591pt.
+
+Overfull \vbox (66.2827pt too high) detected at line 444
+ []
+
+[23
 
  <./good_fit.png>]
 
@@ -1293,14 +1398,14 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.379 \end{frame}
+l.460 \end{frame}
                  
 ? 
-<grip_gillet.png, id=634, 1069.9975pt x 512.91624pt>
+<grip_gillet.png, id=878, 1069.9975pt x 512.91624pt>
 File: grip_gillet.png Graphic file (type png)
  <use grip_gillet.png>
-Package pdftex.def Info: grip_gillet.png used on input line 379.
-(pdftex.def)             Requested size: 122.91406pt x 58.9176pt.
+Package pdftex.def Info: grip_gillet.png used on input line 460.
+(pdftex.def)             Requested size: 237.08183pt x 113.64906pt.
 
 
 ! LaTeX Error: \caption outside figure or table.
@@ -1309,31 +1414,29 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.379 \end{frame}
+l.460 \end{frame}
                  
 ? 
 
-! LaTeX Error: \begin{minipage} on input line 379 ended by \end{figure*}.
+! LaTeX Error: \begin{beamer@framepauses} on input line 460 ended by \end{figur
+e*}.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.379 \end{frame}
+l.460 \end{frame}
                  
 ? 
-[17
 
- <./grip_gillet.png>] [18
+Overfull \vbox (27.60799pt too high) detected at line 460
+ []
+
+[24
+
+ <./grip_gillet.png>] [25
 
 ]
-LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 403.
-LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <8> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 403.
-LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <6> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 403.
-
 
 ! LaTeX Error: There's no line here to end.
 
@@ -1341,10 +1444,10 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.403 \end{frame}
+l.484 \end{frame}
                  
 ? 
-[19
+[26
 
 ]
 
@@ -1354,22 +1457,22 @@ See the amsmath package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.417 \end{frame}
+l.498 \end{frame}
                  
 ? 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.417 \end{frame}
+l.498 \end{frame}
                  
 ? 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.417 \end{frame}
+l.498 \end{frame}
                  
 ? 
-[20
+[27
 
 ]
 
@@ -1380,26 +1483,26 @@ See the amsmath package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.434 \end{frame}
+l.515 \end{frame}
                  
 ? 
-[21
-
-] [22
-
-] [23
-
-] [24
-
-] [25
-
-] [26
-
-] [27
-
-] (./gen_talk.bbl) [28
+[28
 
 ] [29
+
+] [30
+
+] [31
+
+] [32
+
+] [33
+
+] [34
+
+] (./gen_talk.bbl) [35
+
+] [36
 
 
 ]
@@ -1412,23 +1515,23 @@ l.434 \end{frame}
 \tf@snm=\write8
 \openout8 = `gen_talk.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 498.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 498.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 579.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 579.
  (./gen_talk.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 498.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 498.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 579.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 579.
 Package rerunfilecheck Info: File `gen_talk.out' has not changed.
-(rerunfilecheck)             Checksum: A63C2E8DB4CF4C00618B3139996E6E2F;496.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 498.
+(rerunfilecheck)             Checksum: 4A0CF543BDAB9F46F2C1F0A0A13BA724;497.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 579.
  ) 
 Here is how much of TeX's memory you used:
- 22539 strings out of 493108
- 447907 string characters out of 6140726
- 525885 words of memory out of 5000000
- 25403 multiletter control sequences out of 15000+600000
- 56176 words of font info for 74 fonts, out of 8000000 for 9000
+ 22670 strings out of 493108
+ 449430 string characters out of 6140726
+ 527119 words of memory out of 5000000
+ 25509 multiletter control sequences out of 15000+600000
+ 63326 words of font info for 79 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 48i,19n,71p,422b,1024s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 48i,19n,71p,430b,1024s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/publi
 c/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/
@@ -1439,10 +1542,10 @@ ist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type
 ts/symbols/msbm10.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pf
 b></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texmf-
 dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on gen_talk.pdf (29 pages, 2113850 bytes).
+Output written on gen_talk.pdf (36 pages, 2680573 bytes).
 PDF statistics:
- 1108 PDF objects out of 1200 (max. 8388607)
- 1020 compressed objects within 11 object streams
- 70 named destinations out of 1000 (max. 500000)
- 200 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1354 PDF objects out of 1440 (max. 8388607)
+ 1248 compressed objects within 13 object streams
+ 84 named destinations out of 1000 (max. 500000)
+ 230 words of extra memory for PDF output out of 10000 (max. 10000000)
 

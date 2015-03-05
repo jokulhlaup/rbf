@@ -1,7 +1,7 @@
 % $Header$
 
 \documentclass{beamer}
-\usepackage{natbib,mathtools,tikz}
+\usepackage{natbib,mathtools,tikz,wrapfig}
 \usetikzlibrary[graphs]
 \usetikzlibrary{decorations.markings}
 % This file is a solution template for:
@@ -172,33 +172,53 @@
   \begin{itemize}
   \item Ice deforms mostly be shear parallel to the basal plane.
   \item Other slip systems ~100x harder
-    \item If ice grains are random, no problem.
+  \item If the distribution of grain orientations (orientation distribution function) is random, no problem.
     \pause \item But they usually aren't.
     \pause \item Grains rotate away from the axes of extension $\rightarrow$ bulk anisotropic plasticity.
   \item This can cause bulk flow to be highly anisotropic.
   \end{itemize}
+  \begin{figure}
+     \includegraphics[width=0.5\textwidth]{poly}
+     \caption{Rotation of a grain in uniaxial compression}
+  \end{figure}
   \column{0.5\textwidth}
   \begin{figure}
      \includegraphics[width=1\textwidth]{ice}
      \caption{Ice crystal structure. (Cappicioti et al.)}
   \end{figure}
+  \end{columns}
 \end{frame}
 
 \subsection{Different kinds of disturbances}
 \begin{frame}{Shear bands and boudinage}
    \begin{columns}[T]
-   \column{0.6\textwidth}
+      \column{0.6\textwidth}
    \begin{itemize}
-      \item Under horizontal simple shear, c-axes go to vertical/basal planes horizontal - Soft because the shear is along the basal plane
+      \small{
+      \item Under both horizontal simple shear and uniaxial compression, c-axes go to vertical.
+      \item The ice is soft in simple shear because the shear is along the basal plane
       \item A layer that is initially softer will shear faster, and get softer faster
-      \end{figure}
       $\rightarrow$ a shear band.
-      \item Boudinage is different. C-axes go to vertical with uniaxial compression, but that's the hard orientation.
+   }
+      \item It's opposite with vertical compression: No shear on horizontal basal planes.
    \end{itemize}
-   \column{0.5\textwidth}
-   \includegraphics[width=3in]{boudinage}
+  \column{0.4\textwidth}
+   \begin{figure}
+      \includegraphics[width=1\textwidth]{drawing}
+      \caption{Boudinage under horizontal extension. (a) Undeformed strong layer within weak layers. (b) Necking as the strong layer is pulled apart.}
+   \end{figure}
+ 
 \end{columns}
 \end{frame}
+
+\begin{frame}{Shear bands and boudinage}
+   \begin{figure}
+      \includegraphics[width=0.4\textwidth]{shear_band}
+      \caption{Shear banding in sand under uniaxial compression. Initial shearing in a layer causes runaway strain.}
+   \end{figure}
+\end{frame}
+
+
 
 \begin{frame}{Layer folding}
    \begin{itemize}
@@ -212,42 +232,55 @@
    \end{figure}
 \end{frame}
 
+\begin{frame}{Quantifying fabric}
+   \begin{columns}[T]
+      \column{0.5\textwidth}
+      \begin{itemize}\small{
+      \item The orientation tensor for a single grain is $c \otimes c$.
+      \item The orientation tensor for a collection of grains or a continuous orientation distribution function is $\mathbf{A}^{(2)} = < c \otimes c>$
+      \item The strength of a fabric, and its principal orthogonal directions (strongest, middle, weakest) are the eigenvalues and eigenvectors of $\mathbf{A}^{(2)}$.
+      }
+   \end{itemize}
+  \column{0.5\textwidth}
+   \begin{figure}
+     \includegraphics[width=0.7\textwidth]{eigs}
+      \caption{\tiny{C-axes on the unit sphere. The red lines are the eigenvectors scaled by the corresponding eigenvalues}}
+   \end{figure}
+ \end{columns}
+\end{frame}
 
+\begin{frame}{Quantifying fabric}
+      \begin{itemize}
+      \item Fabric is plotted with Schmidt plots: The c-axes on the hemisphere are flatted down to an equal-area projection.
+   \end{itemize}
+ 
+   \begin{figure}
+      \includegraphics[height=0.5\textheight]{sm}
+      \caption{Schmidt plot of a fabric. The vertical axis comes out of the screen.}
+   \end{figure}
+\end{frame}
 
 \section{Current work}
 
 \subsection{Ice fabric evolution}
 
-\begin{frame}{Fabric evolution model}
+\begin{frame}{Fabric evolution}
    \begin{itemize}
-      \item \citet{thorsteinsson2002nni} developed a fabric model including nearest-neighbor interaction.
-      \item We have developed a new model for evolution of a finite number of grains.
-      \item The model includes generalized nearest neighbor interaction, mass conservation, and recrystallization.
+      \item Ice fabric is the properties of a polycrystal (orientations, radii, etc). 
+      \item This changes over time in response to stress, temperature, and other factors.
+      \item During strain, c-axes rotate away from axes of extension. They also get rotated by any bulk vorticity.
    \end{itemize}
+   \begin{figure}
+      \includegraphics[width=0.5\textwidth]{crystals}
+   \caption{\tiny{Ice sheet thin sections (Center for Ice and Climate, Univ. of Copenhagen. Like colors indicate similar c-axis orientations (L) Shallow ice. (R) Deeper ice.}}
+\end{figure}
 \end{frame}
 
-\begin{frame}{Neighbors and mass balance}
-   \begin{itemize}
-      \item Each grain has a number of nearest neighbors in an undirected graph.
-      \item Grains transfer mass between each other - one grain's loss is another's gain.
-      \item Mass flux is determined by grain boundary velocity and shared boundary area.
-
-   \end{itemize}
-\begin{tikzpicture}[main_node/.style={circle,fill=blue!20,draw,minimum size=2em,inner sep=3pt]},scale=2]
-
-    \node[circle,fill=red!20,draw,minimum size=4em] (1) at (0,0) {big};
-    \node[main_node] (2) at (1, -0.3)  {};
-    \node[main_node] (3) at (1.3, 0.2) {};
-    \node[main_node] (4) at (2,0) {};
-    \draw (1) -- (2) -- (3) -- (2) -- (4);
-\end{tikzpicture} 
-\end{frame}
 
 \begin{frame}{Normal grain growth}
    \begin{itemize} \small{
       \item Average grain size increases with depth, until polygonization and recrystallization become important.
       \item This is driven by curvature energy: Highly curved interfaces have a lot of free energy $\rightarrow$ small grains shrink
-      \item Grain-boundary velocity computed by by estimating the area of the interface, and asssuming that grain curvatures are normally distributed with a mean inversely proportional to the radius.
       \item Large grains eat smaller grains. Average grain size increases.
       }
    \end{itemize}
@@ -322,21 +355,68 @@
 
 \end{frame}
 
-\begin{frame}{Grain rotation and nearest-neighbor interaction}
-\begin{itemize}
-   \item Grain rotation is done with by Jeffery's equation \citep{jeffery1922}.
-   \item Each grain gets its viscosity multiplied by a softness parameter $\zeta$. Hard grains surrounded by soft grains get a big $\zeta$.
-   \item I assume \emph{homogeneous stress} between grains.
-   \item The stress on each grain is rotated randomly by the Fisher distribution - rotary diffusion.
-\end{itemize}
-\begin{equation}
-\begin{aligned}
-   \dot{c_i} &= W_{ij}  c_j + \zeta \left( D^g_{ij} c_j + c_i c_j c_k D^g_{jk} \right), \\
-   \zeta &= \xi \left( \left( 1 - \gamma \right)  \sigma_0 + \gamma \sum_{i=1}^n \frac{A_i \sigma_i}{\sigma_0} \right)
 
-\end{aligned}
-\end{equation}
+     
+ 
+
+\begin{frame}{Fabric evolution model}
+\begin{itemize}
+     \item \citet{thorsteinsson2002nni} developed a fabric model including nearest-neighbor interactions between grains.
+      \item We have developed a new model for evolution of a finite number of grains.
+      \item The model includes generalized nearest neighbor interaction, mass conservation, and recrystallization.
+   \end{itemize}
 \end{frame}
+
+\begin{frame}{Stress homogenization}
+   \begin{itemize}
+      \item The bulk stress of the polycrystal has to be partitioned between grains.
+      \item I use homogeneous stress, the usual assumption for ice: The stress in every grain is the bulk stress.
+      \item Each grain gets its viscosity divided by a softness parameter $\zeta$. Hard grains surrounded by soft grains get a big $\zeta$, because they'd get concentrated stress.
+      \item The stress on each grain is rotated randomly by a small amount - essentially diffusion.
+      \item Thus, each grain gets different strain.
+   \end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Neighbors and mass balance}
+   \begin{itemize}
+      \item Each grain has a number of nearest neighbors in an undirected graph.
+      \item This does not have a notion of space (like 2D, 3D); just connectivity between grains.
+      \item Grains transfer mass between each other - one grain's loss is another's gain.
+      \item Mass flux is determined by the total grain boundary velocity between two grains, and the shared area between those two grains..
+   \end{itemize}
+\begin{tikzpicture}[main_node/.style={circle,fill=blue!20,draw,minimum size=2em,inner sep=3pt]},scale=2]
+
+    \node[circle,fill=red!20,draw,minimum size=4em] (1) at (0,0) {big};
+    \node[main_node] (2) at (1, -0.3)  {};
+    \node[main_node] (3) at (1.3, 0.2) {};
+    \node[main_node] (4) at (2,0) {};
+    \draw (1) -- (2) -- (3) -- (2) -- (4);
+\end{tikzpicture} 
+\end{frame}
+
+
+\begin{frame}{Mass flux}
+   \begin{itemize}
+      \item Grain-boundary velocity from curvature energy is proportional to the curvature of the interface.
+      \item Differences in accumulated strain energy also cause grains to migrate.
+      \item Polygonization is handled by splitting a grain into two halves, with half the volume, and changing the orientation of each.
+      \item Dynamic recrystallization is done by probabilistically nucleating new grains, taking mass from their neighbors.
+      \item If the neighbors are highly strained, the new grain will probably grow.
+   \end{itemize}
+      \end{frame}
+
+\begin{frame}{Grain rotation and nearest-neighbor interaction}
+   Grain rotation is done with by Jeffery's equation \citep{jeffery1922}.
+\begin{equation}
+   \dot{c_i} &= W_{ij}  c_j + \zeta \left( D^g_{ij} c_j + c_i c_j c_k D^g_{jk} \right), \\
+\end{equation}
+$W_{ij}$ is the bulk vorticity tensor, $D^g_{ij}$ is the local strain rate tensor of the grain. $\zeta$ is the softness parameter. 
+\end{frame}
+
+
+
 
 \begin{frame}{Fabrics}
    The model does a good job at reproducing various fabric types, like girdles and single maximum.
@@ -348,40 +428,35 @@
 \end{frame}
 
 \begin{frame}{Comparison to WAIS ice core}
-   \begin{columns}[T]
-      \column{0.6\textwidth}
    \begin{itemize}
+         \small{
       \item I forced the model with temperature and velocity from the WAIS divide core.
-      \item As an initial condition, I used randomly selected grains (with replacement) from thin sections of WDC from Don Voigt.
+      \item As an initial condition, I used randomly selected grains from the top thin section at WAIS from Don Voigt.
       \item The model does a pretty good job of fitting the core, capturing the transition from girdle to single maximum, as well as the onset of recrystallization.
+      }
    \end{itemize}
-   \column{0.4\textwidth}
+\end{frame}
+\begin{frame}
    \begin{figure}
    \includegraphics[width=1\textwidth]{good_fit}
-   \caption{Largest normalized eigenvalue}
+   \caption{Largest eigenvalues of modeled and observed fabric thin sections through the WAIS core. The shaded area is the 95\% interval of all model runs. Two individual runs are included.}
 \end{figure}
-\end{columns}
 \end{frame}
 
 \subsection{Coupled anisotropic ice flow/fabric evolution}
 \begin{frame}{Flow and fabric}
-   \begin{columns}[T]
-      \column{0.7\textwidth}
       \begin{itemize} \small{
    \item Ice fabric development is driven by flow, so this is a coupled system.
-   \item \citet{montgomery-smith2011} found that Stokes flow of a fluid with slender fiber inclusions coupled to Jeffery's equation is unstable in response to perturbations of the orientation distribution function.
-   \item \citet{gillet2006} found a large-scale stratigraphic disruptions in their coupled model Jefferys/linear anisotropic ice flow model.
+   \item Stokes flow with fiber inclusions (similar to ice) is unstable to pertubrations in the ODF \citep{montgomery-smith2011}.
+   \item \citet{gillet2006} found large-scale stratigraphic disruptions in a numerical model.
    \item Can an initial random perturbation become a strong perturbation?
-   \item I'm doing linear stability analysis to find out.
    }
 \end{itemize} 
-\column{0.4\textwidth}
 \begin{figure*}
-   \includegraphics[width=1\textwidth]{grip_gillet}
+   \includegraphics[height=0.5\textheight]{grip_gillet}
    \caption{\tiny{\\ A33 component of second-order orientation tensor. (a) initial; (b) steady state \citet{gillet2006}}}
 
 \end{figure*}
-\end{columns}
 \end{frame}
 
 
