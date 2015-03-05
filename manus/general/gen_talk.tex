@@ -145,22 +145,35 @@
 
 \section{Motivation}
 
-\subsection{Strigraphic disturbances}
-
+\subsection{Stratigraphic disturbances}
+\begin{frame}{Ice sheets and ice cores}
+   \begin{itemize}
+\small{
+\item Ice cores in ice sheets are an important record of past climate.
+\item Accurate interpretation needs a depth-age relationship between ice depth and age.
+\item This is hard if the internal stratigraphy is disturbed.
+\item Stratigraphic disturbances happen a lot near the bed. 
+\item But they also occur higher up.
+}
+\end{itemize}
+   \begin{figure}
+      \includegraphics[height=0.3\textheight]{gisp2}
+   \caption{Annual layers from the GISP2 ice core}
+\end{figure}
+\end{frame}
 \begin{frame}{Observed statigraphic disturbances}
    \begin{columns}[T]
-     \column{0.7\textwidth}
+     \column{0.4\textwidth}
      \begin{itemize}
        \item There are smaller-scale disturbances seen well off beds
        $\rightarrow$ Wavelengths too short to be due to bed.
     \item They must be due to factors internal to the ice.
     \item What can cause this?
      \end{itemize}
-     \includegraphics[width=0.5\textheight]{stripes}
-     \column{0.3\textwidth}
+     \column{0.6\textwidth}
      \begin{figure}
-     \includegraphics[width=\textwidth]{z_fold}
-     \caption{\citet{alley97}}
+     \includegraphics[width=0.7\textwidth]{z_fold}
+     \caption{\small{Stratigraphic z-fold in GISP2. Height is approx. 15 cm. \citet{alley97}}}
   \end{figure}
      \end{columns}
 
@@ -168,26 +181,31 @@
 
 \begin{frame}{Ice is very anisotropic}
   \begin{columns}[T]
-   \column{0.5\textwidth}
+   \column{0.4\textwidth}
   \begin{itemize}
-  \item Ice deforms mostly be shear parallel to the basal plane.
+        \small{
+  \item Ice deforms mostly by shear parallel to the basal plane.
   \item Other slip systems ~100x harder
-  \item If the distribution of grain orientations (orientation distribution function) is random, no problem.
-    \pause \item But they usually aren't.
-    \pause \item Grains rotate away from the axes of extension $\rightarrow$ bulk anisotropic plasticity.
-  \item This can cause bulk flow to be highly anisotropic.
+  \item If grains orientations are random $\rightarrow$ bulk isotropy
+    \item But during strain, grains rotate away from the axes of extension $\rightarrow$ anisotropic plasticity.
+  }
   \end{itemize}
+    \column{0.6\textwidth}
   \begin{figure}
-     \includegraphics[width=0.5\textwidth]{poly}
-     \caption{Rotation of a grain in uniaxial compression}
+     \includegraphics[width=0.8\textheight]{ice}
+     \caption{Ice crystal structure. The basal plane is the face of the hexagon, with the c-axis orthogonal. (Cappicioti et al.)}
   \end{figure}
-  \column{0.5\textwidth}
-  \begin{figure}
-     \includegraphics[width=1\textwidth]{ice}
-     \caption{Ice crystal structure. (Cappicioti et al.)}
-  \end{figure}
+
+
   \end{columns}
 \end{frame}
+
+\begin{frame}{Ice is very anisotropic}
+\begin{figure}
+     \includegraphics[width=0.7\textheight]{poly}
+     \caption{Rotation of a grain in uniaxial compression. To reduce interference between grains, c-axes line up. (Center for Ice and Climate, Univ. of Copenhagen)}
+  \end{figure}
+  \end{frame}
 
 \subsection{Different kinds of disturbances}
 \begin{frame}{Shear bands and boudinage}
@@ -196,11 +214,11 @@
    \begin{itemize}
       \small{
       \item Under both horizontal simple shear and uniaxial compression, c-axes go to vertical.
-      \item The ice is soft in simple shear because the shear is along the basal plane
-      \item A layer that is initially softer will shear faster, and get softer faster
-      $\rightarrow$ a shear band.
+      \item Vertical c-axes are hard in compression, because there is little shear on the basal plane.
+      \item Power-law fluids like ice are susceptible to boudinage, where strong layers get pinched out under compression.
+      \item Big problem for stratigraphy.
+      \item Anisotropy might help or hinder this.
    }
-      \item It's opposite with vertical compression: No shear on horizontal basal planes.
    \end{itemize}
   \column{0.4\textwidth}
    \begin{figure}
@@ -212,24 +230,64 @@
 \end{frame}
 
 \begin{frame}{Shear bands and boudinage}
+   \begin{itemize}
+      \item  Ice with vertical c-axes is soft in simple shear because the shear is along the basal plane
+      \item A layer that is initially softer will shear faster, and get softer faster
+      $\rightarrow$ a shear band.
+\end{itemize}
    \begin{figure}
-      \includegraphics[width=0.4\textwidth]{shear_band}
+      \includegraphics[width=0.9\textwidth]{shear_band}
       \caption{Shear banding in sand under uniaxial compression. Initial shearing in a layer causes runaway strain.}
    \end{figure}
 \end{frame}
 
-
+\begin{frame}{Stripes}
+   \begin{columns}[T]
+      \column{0.3\textwidth}
+      \begin{itemize}
+   \item ``Stripes'' have been seen in GISP2.
+   \item In hard vertical fabrics under uniaxial compression, stripes of grains are off-axis.
+   \item This is soft under compression $\rightarrow$ faulting.
+\end{itemize}
+      \column{0.4\textwidth}
+     \begin{figure}
+     \includegraphics[width=0.8\textwidth]{stripes}
+     \caption{Thin section in polarized light. Dark areas have near-vertical c-axes. The stripe has c-axes off-vertical, along the dip.}
+  \end{figure}
+  \column{0.3\textwidth}
+     \begin{figure}
+     \includegraphics[width=\textwidth]{z_fold}
+     \caption{\citet{alley97}}
+  \end{figure}
+  \end{columns}
+  \end{frame}
 
 \begin{frame}{Layer folding}
-   \begin{itemize}
+   \begin{itemize} \small{
       \item Shear overturns incipient wrinkles, horizontal extension flattens them.
-      \item \citet{alley97} showed that anisotropy exacerbates this by making ice soft in shear and hard in uniaxial compression.
+      \item \citet{throstur2002} showed that anisotropy exacerbates folding by making ice soft in shear and hard in uniaxial compression.
       \item Incipient wrinkles could be caused by stripes, or transient flow.
+      }
    \end{itemize}
    \begin{figure}
       \includegraphics[height=0.33\textheight]{kinfold}
-      \caption{\citet{throstur2002}}
+      \caption{\small{(a) Open fold is flattened by vertical compression. (b) It is overturned under shear. \citet{throstur2002}}}
    \end{figure}
+\end{frame}
+\section{Current work}
+
+\subsection{Ice fabric evolution}
+
+\begin{frame}{Fabric evolution}
+   \begin{itemize}
+      \item Ice fabric is the properties of a polycrystal (orientations, radii, etc). 
+      \item This changes over time in response to stress, temperature, and other factors.
+      \item During strain, c-axes rotate away from axes of extension. They also get rotated by any bulk vorticity.
+   \end{itemize}
+   \begin{figure}
+      \includegraphics[width=0.5\textwidth]{crystals}
+      \caption{\small{Ice sheet thin sections (Center for Ice and Climate, Univ. of Copenhagen). Like colors indicate similar c-axis orientations (L) Shallow ice. (R) Deeper ice.}}
+\end{figure}
 \end{frame}
 
 \begin{frame}{Quantifying fabric}
@@ -244,7 +302,7 @@
   \column{0.5\textwidth}
    \begin{figure}
      \includegraphics[width=0.7\textwidth]{eigs}
-      \caption{\tiny{C-axes on the unit sphere. The red lines are the eigenvectors scaled by the corresponding eigenvalues}}
+      \caption{\small{C-axes on the unit sphere. The red lines are the eigenvectors scaled by the corresponding eigenvalues}}
    \end{figure}
  \end{columns}
 \end{frame}
@@ -260,33 +318,18 @@
    \end{figure}
 \end{frame}
 
-\section{Current work}
-
-\subsection{Ice fabric evolution}
-
-\begin{frame}{Fabric evolution}
-   \begin{itemize}
-      \item Ice fabric is the properties of a polycrystal (orientations, radii, etc). 
-      \item This changes over time in response to stress, temperature, and other factors.
-      \item During strain, c-axes rotate away from axes of extension. They also get rotated by any bulk vorticity.
-   \end{itemize}
-   \begin{figure}
-      \includegraphics[width=0.5\textwidth]{crystals}
-   \caption{\tiny{Ice sheet thin sections (Center for Ice and Climate, Univ. of Copenhagen. Like colors indicate similar c-axis orientations (L) Shallow ice. (R) Deeper ice.}}
-\end{figure}
-\end{frame}
 
 
 \begin{frame}{Normal grain growth}
    \begin{itemize} \small{
       \item Average grain size increases with depth, until polygonization and recrystallization become important.
-      \item This is driven by curvature energy: Highly curved interfaces have a lot of free energy $\rightarrow$ small grains shrink
+      \item This is driven by curvature energy: Highly curved interfaces have a lot of free energy $\rightarrow$ small grains shrink.
       \item Large grains eat smaller grains. Average grain size increases.
       }
    \end{itemize}
 
 
-
+   \begin{figure}
 \begin{tikzpicture}[
     tangent/.style={
         decoration={
@@ -313,12 +356,14 @@
     tangent=0.6,
     tangent=0.8
 ] (0,0)
-    to [out=50,in=120] (5,2)
+    to [out=50,in=120] (5,1)
     to [out=-60, in=110] (7,1);
 %\draw [blue, thick, use tangent] (-3,0) -- (3,0);
 \draw [orange, thick,->, use tangent=1] (0,0) -- (0,-1);
 \draw [orange, thick,->, use tangent=2] (0,0) -- (0,1);
 \end{tikzpicture}
+\caption{\small{Boundary between two grains. The boundary migrates towards the concave side.}}
+\end{figure}
 \end{frame}
 
 
@@ -327,8 +372,8 @@
       \column{0.7\textwidth}
    \begin{itemize}
       \item Poorly oriented grains with a large bending moment can split by polygonization. 
+      \item Dislocations line up, forming a new grain boundary where the two split grains differ in orientation by a small amount.
       \item This limits grain growth, and makes the fabric more diffuse.
-      \item The model does this by splitting grains if the bending moment gets too large. The new orientations are Fisher-distributed about the original c-axis.
    \end{itemize}
    \column{0.3\textwidth}
    \includegraphics[width=1\textwidth]{tilt}
@@ -341,9 +386,11 @@
    \begin{columns}[T]
       \column{0.6\textwidth}
       \begin{itemize}
-         \item Above about $10^{\circ}$C, dynamic recrytallization is important.
-         \item Old, highly strained grains have high strain energy, and get eaten by new grains.
-         \item The model does this by probabilistically nucleating new grains. They take initial mass from their neighbors.
+         \item Above about $-10^{\circ}$C, dynamic recrytallization is important.
+         \item New grains can nucleate at grain boundaries.
+         \item Old, highly strained grains have high strain energy.
+         \item The new, unstrained grains eat the old ones.
+         \item This can weaken fabrics deep in cores, and make average grain size smaller.
       \end{itemize}
             \column{0.4\textwidth}
             \begin{figure}
@@ -361,31 +408,23 @@
 
 \begin{frame}{Fabric evolution model}
 \begin{itemize}
+   \item It is important to know how ice fabric evolves, as it affects stratigraphy and flow.
      \item \citet{thorsteinsson2002nni} developed a fabric model including nearest-neighbor interactions between grains.
       \item We have developed a new model for evolution of a finite number of grains.
       \item The model includes generalized nearest neighbor interaction, mass conservation, and recrystallization.
    \end{itemize}
 \end{frame}
 
-\begin{frame}{Stress homogenization}
-   \begin{itemize}
-      \item The bulk stress of the polycrystal has to be partitioned between grains.
-      \item I use homogeneous stress, the usual assumption for ice: The stress in every grain is the bulk stress.
-      \item Each grain gets its viscosity divided by a softness parameter $\zeta$. Hard grains surrounded by soft grains get a big $\zeta$, because they'd get concentrated stress.
-      \item The stress on each grain is rotated randomly by a small amount - essentially diffusion.
-      \item Thus, each grain gets different strain.
-   \end{itemize}
-\end{frame}
-
-
 
 \begin{frame}{Neighbors and mass balance}
    \begin{itemize}
+         \small{
       \item Each grain has a number of nearest neighbors in an undirected graph.
       \item This does not have a notion of space (like 2D, 3D); just connectivity between grains.
       \item Grains transfer mass between each other - one grain's loss is another's gain.
-      \item Mass flux is determined by the total grain boundary velocity between two grains, and the shared area between those two grains..
+      \item Mass flux is determined by the total grain boundary velocity between two grains, and the shared area between those two grains.}
    \end{itemize}
+   \begin{figure}
 \begin{tikzpicture}[main_node/.style={circle,fill=blue!20,draw,minimum size=2em,inner sep=3pt]},scale=2]
 
     \node[circle,fill=red!20,draw,minimum size=4em] (1) at (0,0) {big};
@@ -393,8 +432,24 @@
     \node[main_node] (3) at (1.3, 0.2) {};
     \node[main_node] (4) at (2,0) {};
     \draw (1) -- (2) -- (3) -- (2) -- (4);
-\end{tikzpicture} 
+\end{tikzpicture}
+\caption{Connectivity between grains.}
+\end{figure}
 \end{frame}
+
+
+\begin{frame}{Stress homogenization}
+   \begin{itemize}
+      \item The bulk stress of the polycrystal has to be partitioned between grains.
+      \item I use homogeneous stress, the usual assumption for ice: The stress in every grain is the bulk stress.
+      \item Each grain gets its viscosity divided by a softness parameter $\zeta$. 
+      \item Hard grains surrounded by soft grains get a big $\zeta$, so they deform faster.
+      \item The stress on each grain is rotated randomly by a small amount - essentially diffusion.
+      \item Thus, each grain gets different strain.
+   \end{itemize}
+\end{frame}
+
+
 
 
 \begin{frame}{Mass flux}
@@ -408,9 +463,9 @@
       \end{frame}
 
 \begin{frame}{Grain rotation and nearest-neighbor interaction}
-   Grain rotation is done with by Jeffery's equation \citep{jeffery1922}.
+   Grain rotation is done with a modified Jeffery's equation \citep{jeffery1922}.
 \begin{equation}
-   \dot{c_i} &= W_{ij}  c_j + \zeta \left( D^g_{ij} c_j + c_i c_j c_k D^g_{jk} \right), \\
+   \dot{c_i} &= W_{ij}  c_j + \zeta \left( D^g_{ij} c_j + c_i c_j c_k D^g_{jk} \right),
 \end{equation}
 $W_{ij}$ is the bulk vorticity tensor, $D^g_{ij}$ is the local strain rate tensor of the grain. $\zeta$ is the softness parameter. 
 \end{frame}
@@ -423,7 +478,7 @@ $W_{ij}$ is the bulk vorticity tensor, $D^g_{ij}$ is the local strain rate tenso
 
 \begin{figure}
    \includegraphics[height=0.5\textheight]{both}
-      \caption{\small{Girdle (left) and single maximum fabrics produced from uniaxial compression and simple shear, respectively}}
+      \caption{\small{Girdle (left) and single maximum fabrics produced from uniaxial compression and simple shear, respectively.}}
 \end{figure}
 \end{frame}
 
@@ -438,7 +493,7 @@ $W_{ij}$ is the bulk vorticity tensor, $D^g_{ij}$ is the local strain rate tenso
 \end{frame}
 \begin{frame}
    \begin{figure}
-   \includegraphics[width=1\textwidth]{good_fit}
+   \includegraphics[width=0.7\textwidth]{good_fit}
    \caption{Largest eigenvalues of modeled and observed fabric thin sections through the WAIS core. The shaded area is the 95\% interval of all model runs. Two individual runs are included.}
 \end{figure}
 \end{frame}
@@ -446,15 +501,15 @@ $W_{ij}$ is the bulk vorticity tensor, $D^g_{ij}$ is the local strain rate tenso
 \subsection{Coupled anisotropic ice flow/fabric evolution}
 \begin{frame}{Flow and fabric}
       \begin{itemize} \small{
-   \item Ice fabric development is driven by flow, so this is a coupled system.
+   \item Fabric evolution and flow form a coupled system.
    \item Stokes flow with fiber inclusions (similar to ice) is unstable to pertubrations in the ODF \citep{montgomery-smith2011}.
    \item \citet{gillet2006} found large-scale stratigraphic disruptions in a numerical model.
-   \item Can an initial random perturbation become a strong perturbation?
+   \item Can an initial small perturbation become a strong perturbation?
    }
 \end{itemize} 
 \begin{figure*}
-   \includegraphics[height=0.5\textheight]{grip_gillet}
-   \caption{\tiny{\\ A33 component of second-order orientation tensor. (a) initial; (b) steady state \citet{gillet2006}}}
+   \includegraphics[height=0.45\textheight]{grip_gillet}
+   \caption{\small{\\ $A_{33}$ component of second-order orientation tensor with initial fabric from GRIP. (a) initial; (b) steady state \citet{gillet2006}}}
 
 \end{figure*}
 \end{frame}
@@ -462,39 +517,55 @@ $W_{ij}$ is the bulk vorticity tensor, $D^g_{ij}$ is the local strain rate tenso
 
 \begin{frame}{The flow model}
    \begin{itemize}
+         \small{
       \item The General Orthotropic Linear Flow (GOLF) law \citep{gillet2005} is a constitutive relation depending on six viscosity parameters.
       \item It assumes the ODF is orthotropic (three axes of symmetry).
       \item Under some assumptions, I found an expression for the fabric parameters in terms of the fabric eigenvalues.
+      }
    \end{itemize}
+
+   \begin{block}{GOLF constitutive relation}
    \begin{equation}
    S_{ij} = \eta_0 \left[ \eta_r M_{rkl} D_{kl} \left( M_{rij}^D \right)  + \eta_{r+3} \left( D_{ik} M_{rkj} + D_{kj} M_{rik} \right)^D \right],
-   \end{equation}
+\end{equation}
+
+   \small{
+      $S_{ij}$ is the stress tensor. $D_{ij}$ is the strain rate tensor. $M_{rij} = v_{ri}v_{rj}$ (no sum in $r$), where $v_{ri}$ is the $r^{th}$ unit fabric eigenvector. $\eta_i$ are six viscosity parameters depending on fabric.
+}
+\end{block}
 \end{frame}
 
 \begin{frame}{Fabric evolution}
    %closure approx
    \begin{itemize}
-      \item I use a tensor-closure approximation for Jefferys equation. This very common in fiber injection molding modeling. 
-      \item $\mathbf{A}^{(2)}= < c \otimes c>$ is the second order orientation tensor. 
+      \item I use an approximation for Jeffery's equation in terms of $A_{ij}$. This very common in fiber injection molding modeling. 
    \end{itemize} \\
+   \begin{block}{Jeffery's equation}
    \begin{equation}
-      \frac{\partial A_{ij}}{\partial t} = -\frac{\partial}{\partial x_k} A_{ij} u_k + W_{ik} A_{kj} - A_{ik} W_{kj} - (D_{ik}W_{kj} + D_{kj}W_{ik}) + 2 \mathbb{A}_{ijkl} C_{kl}
+      \frac{\partial A_{ij}}{\partial t} = -\frac{\partial}{\partial x_k} A_{ij} u_k + W_{ik} A_{kj} - A_{ik} W_{kj} - (D_{ik}W_{kj} + D_{kj}W_{ik}) + 2 A_{ij} A_{ij} D_{kl}
    \end{equation}
 
+   $D_{ij}$ is the strain rate tensor, and $W_{ij}$ is the vorticity tensor.
+\end{block}
 \end{frame}
 
 \begin{frame}{Setup and perturbations}
    \begin{itemize} 
-      \item I assume an infinite 3D space with an unperturbed velocity gradient $U_{ij}$.
+         \small{
+         \item I assume an infinite 3D space with an unperturbed velocity gradient $\bar{U}_{ij}$.
       \item Fabric is spatially homogeneous.
       \item Then, we put in in a small perturbation of $A^{(2)}_{ij}$ with a wavenumber $\kappa_i$.
+      \item In response, other quantities get perturbed by the same wavenumber as well.
+      }
    \end{itemize}
-   \begin{aligned}
-   A_{ij} &\rightarrow \bar{A}_{ij} +  \epsilon \hat{A}_{ij} e^{i \kappa_k x_k} \\
-      u_j &\rightarrow \bar{U}_{ij}x_j +  \epsilon \hat{u}_j e^{i \kappa_k x_k} \\
-      p &\rightarrow \bar{p} + \epsilon \hat{p} e^{i \kappa_k x_k} \\
-      S_{ij} &\rightarrow \bar{S}_{ij} +  \epsilon \hat{S}_{ij} e^{i\kappa_k x_k}
-   \end{aligned}
+%   \begin{block}{Perturbed quantities}
+%   \begin{aligned}
+%   A_{ij} &\rightarrow \bar{A}_{ij} +  \epsilon \hat{A}_{ij} e^{i \kappa_k x_k} \\
+%      u_j &\rightarrow \bar{U}_{ij}x_j +  \epsilon \hat{u}_j e^{i \kappa_k x_k} \\
+%      p &\rightarrow \bar{p} + \epsilon \hat{p} e^{i \kappa_k x_k} \\
+%      S_{ij} &\rightarrow \bar{S}_{ij} +  \epsilon \hat{S}_{ij} e^{i\kappa_k x_k}
+%   \end{aligned}
+%\end{block}
 \end{frame}
 
 \begin{frame}{Stability}
@@ -502,16 +573,16 @@ $W_{ij}$ is the bulk vorticity tensor, $D^g_{ij}$ is the local strain rate tenso
       \item Using the previous replacements, the exponential terms go away. It leaves an ODE for $A^{(2)}_{ij}$.
       \item It is a long ODE, but it is nice and linear nonetheless.
       \item This can be used to look at stability of fabric perturbations under many different scenarios.
+      \item If the system matrix $\mathbf{M}$ has positive eigenvalues, it is linearly unstable $\rightarrow$ perturbations can grow.
    \end{itemize}
+   \begin{block}{ODE for the fabric perturbation}
 \begin{equation}
-\begin{align*}
-   \frac{\partial \hat{A}_{ij}}{\partial t} &= -\kappa_k \hat{A}_{ij} \bar{u_k} + \kappa_k \bar{A}_{ij} \hat{u}_k  + \bar{W}_{ik} \hat{A}_{kj} + \hat{W}_{ik} \bar{A}_{kj}  - \bar{A}_{ik} \hat{W}_{kj} 
-  \\ 
-   &- \hat{A}_{ik} \bar{W}_{kj} - \hat{D}_{ik}\bar{W}_{kj} - \bar{D}_{ik}\hat{W}_{kj} 
-   \\ 
-   & - \hat{D}_{kj}\bar{W}_{ik} - \bar{D}_{kj} \hat{W}_{ik} + 2 (\bar{\mathbb{A}}_{ijkl} \hat{D}_{kl} + \hat{\mathbb{A}}_{ijkl} \bar{D}_{kl})
-\end{align*}
-\end{equation}.
+   \frac{d \hat{\mathbf{a}}}{dt} = \mathbf{M} \left( \bar{\mathbf{A}},\bar{\mathbf{U}}, t \right) \hat{\mathbf{a}}
+\end{equation}
+
+\small{$\hat{a}$ is a vector of of the six independent components of $\hat{A}_{ij}$. $M$ is the matrix of the system. $\mathbf{U}$ and $\mathbf{A}$ are the unperturbed velocity gradient and orientation tensor, respectively.}
+\end{block}
+
 \end{frame}
 
 \section{Future work}
@@ -529,7 +600,7 @@ $W_{ij}$ is the bulk vorticity tensor, $D^g_{ij}$ is the local strain rate tenso
    \begin{itemize}
       \item Fluids made up of linearly viscous transversely isotropic components do not depend on higher than $4^{th}$ order orientation tensors.
       \item GOLF assumes orthotropy, which does not hold in general for fourth order tensors.
-      \item Also, ice is not linear, and nearest-neighber interactions seem to be important for ice.
+      \item Also, ice is not linear, and nearest-neighbor interactions seem to be important for ice.
       \item Does this mean that we need a more general flow model to address these shortcomings? \\
          \pause I don't think so, but maybe.
    \end{itemize}
