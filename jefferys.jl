@@ -253,7 +253,7 @@ function thorRot!(fab,pars,k,dt,stress_fac)
     repsdot=rotf'*fab.epsdot[:,:,k]*rotf
     dx=rk4(fab.ngr,fab.p[:,i,k],rvort,repsdot,dt,softness[i]);
     fab.p[:,i,k]+=dx
-    poly_stress_ratio=0.09;#0.065;
+    poly_stress_ratio=0.065;
     poly_angle_diff=0.087266
     if abs((rss_0[i]/eff_stress)<poly_stress_ratio)
         polygonize!(fab,dx,i,k,poly_angle_diff)

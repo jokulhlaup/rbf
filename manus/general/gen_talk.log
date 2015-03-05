@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Arch Linux) (preloaded format=pdflatex 2015.2.9)  2 MAR 2015 14:53
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Arch Linux) (preloaded format=pdflatex 2015.2.9)  3 MAR 2015 13:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1052,34 +1052,50 @@ LaTeX Font Info:    Font shape `T1/phv/m/it' in size <5> not available
 
 ] [5
 
-] [6
-
 ]
-<stripes.png, id=283, 449.68pt x 474.77374pt>
+<boudinage.jpg, id=245, 803.0pt x 534.99875pt>
+File: boudinage.jpg Graphic file (type jpg)
+ <use boudinage.jpg>
+Package pdftex.def Info: boudinage.jpg used on input line 176.
+(pdftex.def)             Requested size: 216.81pt x 144.45158pt.
+
+Overfull \hbox (63.16507pt too wide) in paragraph at lines 176--176
+[][]  
+ []
+
+[6
+
+ <./boudinage.jpg>] <kinfold.png, id=280, 959.585pt x 460.72125pt>
+File: kinfold.png Graphic file (type png)
+
+<use kinfold.png>
+Package pdftex.def Info: kinfold.png used on input line 188.
+(pdftex.def)             Requested size: 156.21623pt x 75.00879pt.
+
+Overfull \vbox (13.15071pt too high) detected at line 188
+ []
+
+[7
+
+ <./kinfold.png>] <stripes.png, id=316, 449.68pt x 474.77374pt>
 File: stripes.png Graphic file (type png)
- <use stripes.png>
-Package pdftex.def Info: stripes.png used on input line 191.
+
+<use stripes.png>
+Package pdftex.def Info: stripes.png used on input line 208.
 (pdftex.def)             Requested size: 113.64906pt x 119.9899pt.
-
-<z_fold.png, id=285, 454.69875pt x 677.53125pt>
+ <z_fold.png, id=317, 454.69875pt x 677.53125pt>
 File: z_fold.png Graphic file (type png)
- <use z_fold.png>
-Package pdftex.def Info: z_fold.png used on input line 191.
-(pdftex.def)             Requested size: 92.1879pt x 137.36473pt.
- [7
 
- <./stripes.png> <./z_fold.png>]
-File: stripes.png Graphic file (type png)
- <use stripes.png>
-Package pdftex.def Info: stripes.png used on input line 191.
-(pdftex.def)             Requested size: 113.64906pt x 119.9899pt.
-File: z_fold.png Graphic file (type png)
- <use z_fold.png>
-Package pdftex.def Info: z_fold.png used on input line 191.
+<use z_fold.png>
+Package pdftex.def Info: z_fold.png used on input line 208.
 (pdftex.def)             Requested size: 92.1879pt x 137.36473pt.
- [8
 
-] [9
+Overfull \vbox (1.18181pt too high) detected at line 208
+ []
+
+[8
+
+ <./stripes.png> <./z_fold.png>] [9
 
 ] [10
 
@@ -1087,145 +1103,236 @@ Package pdftex.def Info: z_fold.png used on input line 191.
 ! Illegal parameter number in definition of \test.
 <to be read again> 
                    1
-l.264 \end{tikzpicture}
+l.282 \end{tikzpicture}
                        
 ? 
 ! Illegal parameter number in definition of \test.
 <to be read again> 
                    1
-l.264 \end{tikzpicture}
+l.282 \end{tikzpicture}
                        
 ? 
 ! Illegal parameter number in definition of \test.
 <to be read again> 
                    1
-l.264 \end{tikzpicture}
+l.282 \end{tikzpicture}
                        
 ? 
 ! Illegal parameter number in definition of \test.
 <to be read again> 
                    1
-l.264 \end{tikzpicture}
+l.282 \end{tikzpicture}
                        
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.266 \end{frame}
+l.283 \end{frame}
                  
 ? 
+LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 283.
+LaTeX Font Info:    Font shape `T1/phv/m/it' in size <7> not available
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 283.
+
+Overfull \vbox (8.18619pt too high) detected at line 283
+ []
+
 [11
+
+] <tilt.png, id=454, 232.7094pt x 238.2501pt>
+File: tilt.png Graphic file (type png)
+ <use tilt.png>
+Package pdftex.def Info: tilt.png used on input line 297.
+(pdftex.def)             Requested size: 92.1879pt x 94.38222pt.
+ [12
+
+ <./tilt.png>] <rex.png, id=490, 393.47pt x 254.9525pt>
+File: rex.png Graphic file (type png)
+ <use rex.png>
+Package pdftex.def Info: rex.png used on input line 317.
+(pdftex.def)             Requested size: 122.91406pt x 79.64133pt.
+ [13
+
+ <./rex.png>]
+! Missing $ inserted.
+<inserted text> 
+                $
+l.333 \end{frame}
+                 
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.333 \end{frame}
+                 
+? 
+! Missing } inserted.
+<inserted text> 
+                }
+l.333 \end{frame}
+                 
+? 
+! Missing \cr inserted.
+<inserted text> 
+                \cr 
+l.333 \end{frame}
+                 
+? 
+! Missing { inserted.
+<inserted text> 
+                {
+l.333 \end{frame}
+                 
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.333 \end{frame}
+                 
+? 
+! Misplaced \crcr.
+\endaligned ->\crcr 
+                    \egroup \restorecolumn@ \egroup 
+l.333 \end{frame}
+                 
+? 
+! Extra }, or forgotten \endgroup.
+\endaligned ...cr \egroup \restorecolumn@ \egroup 
+                                                  
+l.333 \end{frame}
+                 
+? 
+[14
+
+] <both.png, id=565, 1235.61626pt x 546.04pt>
+File: both.png Graphic file (type png)
+ <use both.png>
+Package pdftex.def Info: both.png used on input line 342.
+(pdftex.def)             Requested size: 257.16803pt x 113.64906pt.
+ [15
+
+ <./both.png>] <good_fit.png, id=600, 578.16pt x 433.62pt>
+File: good_fit.png Graphic file (type png)
+ <use good_fit.png>
+Package pdftex.def Info: good_fit.png used on input line 358.
+(pdftex.def)             Requested size: 122.91406pt x 92.18108pt.
+ [16
+
+ <./good_fit.png>]
+
+! LaTeX Error: Environment figure* undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.379 \end{frame}
+                 
+? 
+<grip_gillet.png, id=634, 1069.9975pt x 512.91624pt>
+File: grip_gillet.png Graphic file (type png)
+ <use grip_gillet.png>
+Package pdftex.def Info: grip_gillet.png used on input line 379.
+(pdftex.def)             Requested size: 122.91406pt x 58.9176pt.
+
+
+! LaTeX Error: \caption outside figure or table.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.379 \end{frame}
+                 
+? 
+
+! LaTeX Error: \begin{minipage} on input line 379 ended by \end{figure*}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.379 \end{frame}
+                 
+? 
+[17
+
+ <./grip_gillet.png>] [18
 
 ]
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 277.
-
-
-Package natbib Warning: Citation `montgomery-smith2011' on page 12 undefined on
- input line 277.
-
-
-Package natbib Warning: Citation `gillet2006' on page 12 undefined on input lin
-e 277.
-
-[12
-
-] <boudinage.jpg, id=488, 803.0pt x 534.99875pt>
-File: boudinage.jpg Graphic file (type jpg)
- <use boudinage.jpg>
-Package pdftex.def Info: boudinage.jpg used on input line 290.
-(pdftex.def)             Requested size: 216.81pt x 144.45158pt.
-
-Overfull \hbox (63.16507pt too wide) in paragraph at lines 290--290
-[][]  
- []
-
-[13
-
- <./boudinage.jpg>]
-
-Package natbib Warning: Citation `alley97' on page 14 undefined on input line 2
-98.
-
-[14
-
-]
-Overfull \hbox (108.69286pt too wide) detected at line 312
-\T1/phv/m/sl/10.95 S[] \OT1/cmss/m/n/10.95 = \OML/cmm/m/it/10.95 ^^Q[] [] ;
- []
-
-[15
-
-]
-
-Package natbib Warning: Citation `gillet2006' on page 16 undefined on input lin
-e 324.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 403.
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <8> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 403.
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <6> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 403.
 
 
 ! LaTeX Error: There's no line here to end.
@@ -1234,26 +1341,66 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.324 \end{frame}
+l.403 \end{frame}
                  
 ? 
-[16
+[19
 
-] [17
+]
 
-] [18
+! Package amsmath Error: \begin{aligned} allowed only in math mode.
 
-] [19
+See the amsmath package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.417 \end{frame}
+                 
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.417 \end{frame}
+                 
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.417 \end{frame}
+                 
+? 
+[20
 
-] [20
+]
 
-] [21
+! Package amsmath Error: Erroneous nesting of equation structures;
+(amsmath)                trying to recover with `aligned'.
+
+See the amsmath package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.434 \end{frame}
+                 
+? 
+[21
 
 ] [22
 
 ] [23
 
-] (./gen_talk.bbl) [24
+] [24
+
+] [25
+
+] [26
+
+] [27
+
+] (./gen_talk.bbl) [28
+
+] [29
+
 
 ]
 \tf@nav=\write6
@@ -1265,39 +1412,37 @@ l.324 \end{frame}
 \tf@snm=\write8
 \openout8 = `gen_talk.snm'.
 
-
-
-Package natbib Warning: There were undefined citations.
-
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 387.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 387.
-(./gen_talk.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 387.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 387.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 498.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 498.
+ (./gen_talk.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 498.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 498.
 Package rerunfilecheck Info: File `gen_talk.out' has not changed.
-(rerunfilecheck)             Checksum: 29B3B7C2109F88C93C6588DEFB2257B2;558.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 387.
+(rerunfilecheck)             Checksum: A63C2E8DB4CF4C00618B3139996E6E2F;496.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 498.
  ) 
 Here is how much of TeX's memory you used:
- 22438 strings out of 493108
- 446363 string characters out of 6140726
- 523674 words of memory out of 5000000
- 25320 multiletter control sequences out of 15000+600000
- 40593 words of font info for 58 fonts, out of 8000000 for 9000
+ 22539 strings out of 493108
+ 447907 string characters out of 6140726
+ 525885 words of memory out of 5000000
+ 25403 multiletter control sequences out of 15000+600000
+ 56176 words of font info for 74 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  48i,19n,71p,422b,1024s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/publi
 c/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmss10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></us
-r/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-
-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texmf-dist/font
-s/type1/urw/helvetic/uhvb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic
-/uhvr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on gen_talk.pdf (24 pages, 1283266 bytes).
+cmmi8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></us
+r/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfon
+ts/symbols/msbm10.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pf
+b></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texmf-
+dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
+Output written on gen_talk.pdf (29 pages, 2113850 bytes).
 PDF statistics:
- 929 PDF objects out of 1000 (max. 8388607)
- 862 compressed objects within 9 object streams
- 61 named destinations out of 1000 (max. 500000)
- 178 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1108 PDF objects out of 1200 (max. 8388607)
+ 1020 compressed objects within 11 object streams
+ 70 named destinations out of 1000 (max. 500000)
+ 200 words of extra memory for PDF output out of 10000 (max. 10000000)
 

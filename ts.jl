@@ -226,8 +226,8 @@ pars.nrk=100
     fab.epsdot[3,1]=ss
     fab.epsdot[1,3]=ss
     fab.epsdot[1,1]=com
-    fab.epsdot[2,2]=-0.1*com
-    fab.epsdot[3,3]=-0.9*com
+    fab.epsdot[2,2]=-0.3*com
+    fab.epsdot[3,3]=-0.7*com
     fab.vort[1,3]=ss
     print(fab.epsdot)
     fab.vort[3,1]=-ss

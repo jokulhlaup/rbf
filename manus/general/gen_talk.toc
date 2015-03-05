@@ -2,9 +2,8 @@
 \select@language {english}
 \beamer@sectionintoc {1}{Motivation}{3}{0}{1}
 \beamer@subsectionintoc {1}{1}{Strigraphic disturbances}{3}{0}{1}
-\beamer@subsectionintoc {1}{2}{Different kinds of disturbances}{7}{0}{1}
-\beamer@subsectionintoc {1}{3}{Previous Work}{7}{0}{1}
+\beamer@subsectionintoc {1}{2}{Different kinds of disturbances}{6}{0}{1}
 \beamer@sectionintoc {2}{Current work}{9}{0}{2}
 \beamer@subsectionintoc {2}{1}{Ice fabric evolution}{9}{0}{2}
-\beamer@subsectionintoc {2}{2}{Coupled anisotropic ice flow/fabric evolution}{12}{0}{2}
-\beamer@sectionintoc {3}{Future work}{19}{0}{3}
+\beamer@subsectionintoc {2}{2}{Coupled anisotropic ice flow/fabric evolution}{17}{0}{2}
+\beamer@sectionintoc {3}{Future work}{22}{0}{3}
